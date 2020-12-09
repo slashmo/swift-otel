@@ -1,0 +1,15 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    container: swift:5.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+      - name: Build & Test
+        run: swift test --enable-test-discovery --parallel

@@ -35,7 +35,7 @@ function replace_acceptable_years() {
 }
 
 printf "=> Checking license headers\n"
-tmp=$(mktemp /tmp/.jaeger-client-swift-sanity_XXXXXX)
+tmp=$(mktemp /tmp/.opentelemetry-swift-sanity_XXXXXX)
 
 for language in swift-or-c bash dtrace; do
   printf "   * $language... "
@@ -45,7 +45,7 @@ for language in swift-or-c bash dtrace; do
   matching_files=( -name '*' )
   case "$language" in
       swift-or-c)
-        exceptions=( -name Package.swift)
+        exceptions=( -name 'Package.swift' -o -name 'Example/Package.swift' -o -name '*.pb.swift' -o -name '*.grpc.swift' )
         matching_files=( -name '*.swift' -o -name '*.c' -o -name '*.h' )
         cat > "$tmp" <<"EOF"
 //===----------------------------------------------------------------------===//

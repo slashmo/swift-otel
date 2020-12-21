@@ -27,11 +27,12 @@ public final class OtlpTraceExporter: OpenTelemetryTraceExporter {
 
     public func export(spans: [OpenTelemetrySpan]) -> EventLoopFuture<Void> {
         let protoSpans = spans.compactMap { span -> Opentelemetry_Proto_Trace_V1_Span? in
-            guard let traceContext = span.baggage.traceContext else { return nil }
+            guard let traceContext = span.baggage.traceContext, let endTime = span.endTime else { return nil }
             var protoSpan = Opentelemetry_Proto_Trace_V1_Span()
             protoSpan.name = span.name
             protoSpan.kind = .init(span.kind)
             protoSpan.traceID = traceContext.parent.traceID.data()
+            protoSpan.traceState = traceContext.state.rawValue
             if let spanIDData = traceContext.parent.parentIDData() {
                 protoSpan.spanID = spanIDData
             }
@@ -40,7 +41,7 @@ public final class OtlpTraceExporter: OpenTelemetryTraceExporter {
             }
             protoSpan.status = .init(span.status)
             protoSpan.startTimeUnixNano = span.startTime.unixNanoseconds
-            protoSpan.endTimeUnixNano = span.endTime!.unixNanoseconds
+            protoSpan.endTimeUnixNano = endTime.unixNanoseconds
             protoSpan.attributes = .init(span.attributes)
 
             protoSpan.events = span.events.map { spanEvent in
@@ -48,6 +49,15 @@ public final class OtlpTraceExporter: OpenTelemetryTraceExporter {
                     event.name = .init(spanEvent.name)
                     event.timeUnixNano = spanEvent.time.rawValue
                     event.attributes = .init(spanEvent.attributes)
+                }
+            }
+            protoSpan.links = span.links.compactMap { link in
+                guard let spanIDData = traceContext.parent.parentIDData() else { return nil }
+                return .with { protoLink in
+                    protoLink.attributes = .init(link.attributes)
+                    protoLink.traceID = traceContext.parent.traceID.data()
+                    protoLink.traceState = traceContext.state.rawValue
+                    protoLink.spanID = spanIDData
                 }
             }
             return protoSpan

@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/grpc/grpc-swift.git",
         "state": {
           "branch": null,
-          "revision": "b81b8f2398fbe55f06d209bcefe7f6fe6aaa337e",
-          "version": "1.0.0-alpha.21"
+          "revision": "ea9c7c5ce7ecf07a3a2a3be6100c5102676e74bb",
+          "version": "1.0.0-alpha.22"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/apple/swift-distributed-tracing.git",
         "state": {
           "branch": null,
-          "revision": "5cf275a25f2dc746229204b9c51b19087b254207",
-          "version": "0.1.1"
+          "revision": "1767451477b5286b7413d6d8030ecf349d3bef77",
+          "version": "0.1.2"
         }
       },
       {
@@ -51,8 +51,17 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "2bae395344d41710dffab456265d534d7dc34ab8",
-          "version": "2.25.0"
+          "revision": "43931b7a7daf8120a487601530c8bc03ce711992",
+          "version": "2.25.1"
+        }
+      },
+      {
+        "package": "swift-nio-extras",
+        "repositoryURL": "https://github.com/apple/swift-nio-extras.git",
+        "state": {
+          "branch": null,
+          "revision": "e5b5d191a80667a14827bfeb0ae4a511f7677942",
+          "version": "1.7.0"
         }
       },
       {
@@ -69,8 +78,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "901a01423316c4ce672b1b58ce62aecb8069cb1f",
-          "version": "2.10.1"
+          "revision": "62bf5083df970e67c886210fa5b857eacf044b7c",
+          "version": "2.10.2"
         }
       },
       {

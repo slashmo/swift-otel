@@ -38,9 +38,38 @@ extension OTel.Tracer: Tracer {
         baggage: Baggage,
         ofKind kind: SpanKind,
         at time: DispatchWallTime
-    ) -> Span {
-        NoOpTracer.NoOpSpan(baggage: baggage)
+    ) -> Tracing.Span {
+        Span(operationName: operationName, baggage: baggage, kind: kind, startTime: time)
     }
 
     func forceFlush() {}
+}
+
+extension OTel.Tracer {
+    final class Span: Tracing.Span {
+        let operationName: String
+        let startTime: DispatchWallTime
+        let baggage: Baggage
+        let kind: SpanKind
+        let isRecording = false
+
+        var attributes: SpanAttributes = [:]
+
+        init(operationName: String, baggage: Baggage, kind: SpanKind, startTime: DispatchWallTime) {
+            self.operationName = operationName
+            self.baggage = baggage
+            self.kind = kind
+            self.startTime = startTime
+        }
+
+        func setStatus(_ status: SpanStatus) {}
+
+        func addEvent(_ event: SpanEvent) {}
+
+        func recordError(_ error: Error) {}
+
+        func addLink(_ link: SpanLink) {}
+
+        func end(at time: DispatchWallTime) {}
+    }
 }

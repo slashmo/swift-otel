@@ -6,3 +6,9 @@
 Gain insights into your Swift server applications using [OpenTelemetry](https://opentelemetry.io) easily. By implementing the [Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing) API, [compatible libraries](https://github.com/apple/swift-distributed-tracing#libraries--frameworks) work out of the box.
 
 ## Getting Started
+
+[TODO]
+
+### Examples
+
+You can find example applications in [`/Examples`](/Examples)

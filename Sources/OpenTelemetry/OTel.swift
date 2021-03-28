@@ -75,8 +75,8 @@ public final class OTel {
     ///     InstrumentationSystem.tracer.startSpan(...)
     ///
     /// - Returns: An OTel Tracer conforming to the `Tracer` protocol.
-    public func tracer() -> Tracer {
-        NoOpTracer()
+    public func tracer() -> Tracing.Tracer {
+        Tracer()
     }
 
     /// Shutdown `OTel`.

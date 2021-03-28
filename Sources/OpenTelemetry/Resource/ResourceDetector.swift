@@ -24,6 +24,6 @@ public protocol OTelResourceDetector {
     func detect() -> EventLoopFuture<OTel.Resource>
 }
 
-extension OTel {
-    public typealias ResourceDetector = OTelResourceDetector
+public extension OTel {
+    typealias ResourceDetector = OTelResourceDetector
 }

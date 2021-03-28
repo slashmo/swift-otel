@@ -37,8 +37,9 @@ public final class OTel {
         serviceName: String,
         eventLoopGroup: EventLoopGroup,
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
-        logger: Logger = Logger(label: "OTel")) {
-        self.resource = Resource(attributes: ["service.name": .string(serviceName)])
+        logger: Logger = Logger(label: "OTel")
+    ) {
+        resource = Resource(attributes: ["service.name": .string(serviceName)])
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection
         self.logger = logger

@@ -24,8 +24,8 @@ extension SpanAttributes {
     }
 }
 
-extension SpanAttribute {
-    fileprivate var metadataValue: Logger.MetadataValue {
+private extension SpanAttribute {
+    var metadataValue: Logger.MetadataValue {
         switch self {
         case .string(let value):
             return .string(value)

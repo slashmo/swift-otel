@@ -1,0 +1,12 @@
+# file options
+
+--swiftversion 5.3
+--exclude **/.build
+
+# format options
+
+--ifdef no-indent
+--patternlet inline
+--self remove
+--stripunusedargs closure-only
+--wraparguments before-first

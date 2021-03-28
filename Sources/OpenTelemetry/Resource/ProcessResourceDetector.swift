@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NIO
 import class Foundation.ProcessInfo
+import NIO
 import Tracing
 
 extension OTel {

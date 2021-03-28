@@ -15,9 +15,9 @@ import Logging
 import NIO
 import Tracing
 
-extension OTel {
+public extension OTel {
     /// Configures how resource attributes may be detected.
-    public enum ResourceDetection {
+    enum ResourceDetection {
         /// Automatically detect resource attributes based on the process, environment, and any given additional detectors.
         case automatic(additionalDetectors: [ResourceDetector])
         /// Uses the given resource as the single source of truth.
@@ -30,7 +30,8 @@ extension OTel {
 extension OTel.ResourceDetection {
     func detectAttributes(
         for resource: OTel.Resource,
-        on eventLoopGroup: EventLoopGroup) -> EventLoopFuture<OTel.Resource> {
+        on eventLoopGroup: EventLoopGroup
+    ) -> EventLoopFuture<OTel.Resource> {
         let promise = eventLoopGroup.next().makePromise(of: OTel.Resource.self)
         let sdkResource: () -> OTel.Resource = {
             OTel.Resource(attributes: [
@@ -49,7 +50,8 @@ extension OTel.ResourceDetection {
             promise.completeWith(.reduce(
                 sdkResource(),
                 detectors.map { $0.detect() },
-                on: eventLoopGroup.next()) { $0.merging($1) })
+                on: eventLoopGroup.next()
+            ) { $0.merging($1) })
         case .manual(let resource):
             promise.completeWith(.success(sdkResource().merging(resource)))
         case .none:

@@ -47,7 +47,7 @@ extension OTel {
 }
 
 extension OTel.EnvironmentResourceDetector {
-    public enum Error: Swift.Error {
+    enum Error: Swift.Error {
         case invalidKeyValuePair(String)
     }
 }

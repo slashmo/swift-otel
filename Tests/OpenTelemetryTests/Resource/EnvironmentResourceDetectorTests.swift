@@ -1,5 +1,18 @@
-@testable import OpenTelemetry
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift OpenTelemetry open source project
+//
+// Copyright (c) 2021 Moritz Lang and the Swift OpenTelemetry project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import NIO
+@testable import OpenTelemetry
 import XCTest
 
 final class EnvironmentResourceDetectorTests: XCTestCase {
@@ -16,7 +29,7 @@ final class EnvironmentResourceDetectorTests: XCTestCase {
     func test_detectsEnvironmentVariable() throws {
         let environment = [
             "PORT": "8080",
-            "OTEL_RESOURCE_ATTRIBUTES": "key=value,nested.key=1"
+            "OTEL_RESOURCE_ATTRIBUTES": "key=value,nested.key=1",
         ]
         let detector = OTel.EnvironmentResourceDetector(eventLoopGroup: eventLoopGroup, environment: environment)
 
@@ -32,7 +45,7 @@ final class EnvironmentResourceDetectorTests: XCTestCase {
     func test_rejectsInvalidKeyValuePair() throws {
         let environment = [
             "PORT": "8080",
-            "OTEL_RESOURCE_ATTRIBUTES": "key=value,missing.value"
+            "OTEL_RESOURCE_ATTRIBUTES": "key=value,missing.value",
         ]
         let detector = OTel.EnvironmentResourceDetector(eventLoopGroup: eventLoopGroup, environment: environment)
 

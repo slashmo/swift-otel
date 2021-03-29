@@ -15,7 +15,7 @@ import NIO
 
 /// A resource detector asynchronously detects attributes describing an `OTel.Resource`.
 ///
-/// - SeeAlso: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#resource-creation
+/// - SeeAlso: [OTel Spec: Resource Creation](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#resource-creation)
 public protocol OTelResourceDetector {
     /// Detect attributes describing the returned resource using this detector.
     /// If the detector does not detect any attributes, it returns an empty `OTel.Resource`.

@@ -12,8 +12,11 @@
 //===----------------------------------------------------------------------===//
 
 public extension OTel {
+    /// Uniquely identifies a single trace using a 16-byte array.
+    ///
+    /// - SeeAlso: [W3C TraceContext: trace-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-id)
     struct TraceID {
-        // 16-byte array
+        /// 16-byte array
         public typealias Bytes = (
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
@@ -21,10 +24,14 @@ public extension OTel {
 
         private let _bytes: Bytes
 
+        /// Initialize a `TraceID` with the given bytes.
+        ///
+        /// - Parameter bytes: The bytes of the trace id.
         public init(bytes: Bytes) {
             _bytes = bytes
         }
 
+        /// 16-byte array representation of the trace id.
         public var bytes: [UInt8] {
             withUnsafeBytes(of: _bytes, Array.init)
         }
@@ -36,6 +43,7 @@ extension OTel.TraceID: CustomStringConvertible {
         String(decoding: hexBytes, as: UTF8.self)
     }
 
+    /// 32 character long UTF-8 bytes of the span id's hex representation.
     public var hexBytes: [UInt8] {
         var asciiBytes: (UInt64, UInt64, UInt64, UInt64) = (0, 0, 0, 0)
         return withUnsafeMutableBytes(of: &asciiBytes) { ptr in

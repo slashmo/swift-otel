@@ -12,16 +12,23 @@
 //===----------------------------------------------------------------------===//
 
 public extension OTel {
+    /// Uniquely identifies a single span using an 8-byte array.
+    ///
+    /// - SeeAlso: [W3C TraceContext: parent-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#parent-id)
     struct SpanID {
-        // 8-byte array
+        /// 8-byte array
         public typealias Bytes = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
         private let _bytes: Bytes
 
+        /// Initialize a `SpanID` with the given bytes.
+        ///
+        /// - Parameter bytes: The bytes of the span id.
         public init(bytes: Bytes) {
             _bytes = bytes
         }
 
+        /// 8-byte array representation of the span id.
         public var bytes: [UInt8] {
             withUnsafeBytes(of: _bytes, Array.init)
         }
@@ -33,6 +40,7 @@ extension OTel.SpanID: CustomStringConvertible {
         String(decoding: hexBytes, as: UTF8.self)
     }
 
+    /// 16 character long UTF-8 bytes of the span id's hex representation.
     public var hexBytes: [UInt8] {
         var asciiBytes: (UInt64, UInt64) = (0, 0)
         return withUnsafeMutableBytes(of: &asciiBytes) { ptr in

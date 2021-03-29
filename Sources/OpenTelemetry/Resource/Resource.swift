@@ -15,10 +15,11 @@ import Tracing
 
 public extension OTel {
     /// A resource represents the entity being traced.
-    /// The attributes of a resource are expressed using `SpanAttributes`.
-    /// Resources are immutable, but multiple resources may be merged using `merge()`.
     ///
-    /// - SeeAlso: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#resource-sdk
+    /// The attributes of a resource are expressed using `SpanAttributes`.
+    /// Resources are immutable, but multiple resources may be merged using `merging(_:​)`.
+    ///
+    /// - SeeAlso: [OTel Spec: Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#resource-sdk)
     struct Resource {
         /// The attributes describing this resource.
         public let attributes: SpanAttributes
@@ -35,7 +36,7 @@ public extension OTel {
         ///
         /// - Parameter other: `OTel.Resource` to merge.
         /// - Returns: New `OTel.Resource` combining the attributes from both resources.
-        /// - SeeAlso: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#merge
+        /// - SeeAlso: [OTel Spec: Merge Resources](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#merge)
         public func merging(_ other: Resource) -> Resource {
             var attributes = self.attributes
             attributes.merge(other.attributes)

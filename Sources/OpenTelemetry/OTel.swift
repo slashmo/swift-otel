@@ -74,7 +74,7 @@ public final class OTel {
     ///     // somewhere else in your application
     ///     InstrumentationSystem.tracer.startSpan(...)
     ///
-    /// - Returns: An OTel Tracer conforming to the `Tracer` protocol.
+    /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
         Tracer()
     }

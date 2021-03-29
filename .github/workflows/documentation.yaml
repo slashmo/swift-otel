@@ -22,7 +22,7 @@ jobs:
           output: Documentation
 
       - name: Update Permissions
-        run: sudo chown --recursive $USER Documentation
+        run: 'sudo chown -R $USER Documentation'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.0

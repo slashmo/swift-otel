@@ -31,5 +31,8 @@ public extension OTel {
 
         /// The `TraceState` containing potentially vendor-specific trace information.
         public internal(set) var traceState: TraceState
+
+        /// Whether this context belongs to a remote span.
+        public let isRemote: Bool
     }
 }

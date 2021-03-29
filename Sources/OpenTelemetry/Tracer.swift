@@ -17,9 +17,11 @@ import Tracing
 extension OTel {
     final class Tracer {
         private var idGenerator: IDGenerator
+        private let sampler: Sampler
 
-        init(idGenerator: IDGenerator) {
+        init(idGenerator: IDGenerator, sampler: Sampler) {
             self.idGenerator = idGenerator
+            self.sampler = sampler
         }
     }
 }
@@ -48,25 +50,48 @@ extension OTel.Tracer: Tracer {
         let parentBaggage = baggage
         var childBaggage = baggage
 
+        let traceID: OTel.TraceID
+        let traceState: OTel.TraceState
+        let spanID = idGenerator.generateSpanID()
+
         if let parentSpanContext = parentBaggage.spanContext {
-            childBaggage.spanContext = OTel.SpanContext(
-                traceID: parentSpanContext.traceID,
-                spanID: idGenerator.generateSpanID(),
-                parentSpanID: parentSpanContext.spanID,
-                traceFlags: [],
-                traceState: OTel.TraceState([])
-            )
+            traceID = parentSpanContext.traceID
+            traceState = parentSpanContext.traceState
         } else {
-            childBaggage.spanContext = OTel.SpanContext(
-                traceID: idGenerator.generateTraceID(),
-                spanID: idGenerator.generateSpanID(),
-                parentSpanID: nil,
-                traceFlags: [],
-                traceState: OTel.TraceState([])
-            )
+            traceID = idGenerator.generateTraceID()
+            traceState = OTel.TraceState([])
         }
 
-        return Span(operationName: operationName, baggage: childBaggage, kind: kind, startTime: time)
+        let samplingResult = sampler.makeSamplingDecision(
+            operationName: operationName,
+            kind: kind,
+            traceID: traceID,
+            attributes: [:],
+            links: [],
+            parentBaggage: parentBaggage
+        )
+        let traceFlags: OTel.TraceFlags = samplingResult.decision == .recordAndSample ? .sampled : []
+        let spanContext = OTel.SpanContext(
+            traceID: traceID,
+            spanID: spanID,
+            parentSpanID: parentBaggage.spanContext?.spanID,
+            traceFlags: traceFlags,
+            traceState: traceState,
+            isRemote: false
+        )
+        childBaggage.spanContext = spanContext
+
+        if samplingResult.decision == .drop {
+            return NoOpTracer.NoOpSpan(baggage: childBaggage)
+        }
+
+        return Span(
+            operationName: operationName,
+            baggage: childBaggage,
+            kind: kind,
+            startTime: time,
+            attributes: samplingResult.attributes
+        )
     }
 
     func forceFlush() {}
@@ -82,11 +107,18 @@ extension OTel.Tracer {
 
         var attributes: SpanAttributes = [:]
 
-        init(operationName: String, baggage: Baggage, kind: SpanKind, startTime: DispatchWallTime) {
+        init(
+            operationName: String,
+            baggage: Baggage,
+            kind: SpanKind,
+            startTime: DispatchWallTime,
+            attributes: SpanAttributes
+        ) {
             self.operationName = operationName
             self.baggage = baggage
             self.kind = kind
             self.startTime = startTime
+            self.attributes = attributes
         }
 
         func setStatus(_ status: SpanStatus) {}

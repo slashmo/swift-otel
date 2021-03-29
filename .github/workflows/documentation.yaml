@@ -17,7 +17,7 @@ jobs:
         uses: SwiftDocOrg/swift-doc@master
         with:
           format: html
-          base-url: /
+          base-url: /opentelemetry-swift/
           module-name: "OpenTelemetry Swift"
           output: Documentation
 

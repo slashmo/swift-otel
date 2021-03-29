@@ -23,6 +23,7 @@ public final class OTel {
     private let eventLoopGroup: EventLoopGroup
     private let resourceDetection: ResourceDetection
     private let idGenerator: IDGenerator
+    private let sampler: Sampler
     private let logger: Logger
 
     // internal get for testing
@@ -34,18 +35,21 @@ public final class OTel {
     ///   - serviceName: The name of the service being traced, e.g. "checkout".
     ///   - eventLoopGroup: The `EventLoopGroup` to run on.
     ///   - resourceDetection: Configures how resource attribution may be detected, defaults to `.automatic`.
+    ///   - sampler: Configures the sampler to be used, defaults to an *always on* sampler as the root of a parent-based sampler.
     ///   - logger: The Logger used by OTel and its sub-components.
     public init(
         serviceName: String,
         eventLoopGroup: EventLoopGroup,
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
         idGenerator: IDGenerator = RandomIDGenerator(),
+        sampler: Sampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
         logger: Logger = Logger(label: "OTel")
     ) {
         resource = Resource(attributes: ["service.name": .string(serviceName)])
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator
+        self.sampler = sampler
         self.logger = logger
     }
 
@@ -80,7 +84,7 @@ public final class OTel {
     ///
     /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
-        Tracer(idGenerator: idGenerator)
+        Tracer(idGenerator: idGenerator, sampler: sampler)
     }
 
     /// Shutdown `OTel`.

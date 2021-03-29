@@ -11,12 +11,21 @@
 //
 //===----------------------------------------------------------------------===//
 
+@testable import Logging
 import NIO
 @testable import OpenTelemetry
 import XCTest
 
 final class OTelTests: XCTestCase {
     private let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+
+    override func setUpWithError() throws {
+        LoggingSystem.bootstrapInternal {
+            var handler = StreamLogHandler.standardOutput(label: $0)
+            handler.logLevel = .debug
+            return handler
+        }
+    }
 
     func test_detectsResourceAttributes() {
         let otel = OTel(serviceName: #function, eventLoopGroup: eventLoopGroup)

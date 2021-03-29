@@ -15,7 +15,13 @@ import struct Dispatch.DispatchWallTime
 import Tracing
 
 extension OTel {
-    final class Tracer {}
+    final class Tracer {
+        private var idGenerator: IDGenerator
+
+        init(idGenerator: IDGenerator) {
+            self.idGenerator = idGenerator
+        }
+    }
 }
 
 extension OTel.Tracer: Instrument {
@@ -39,7 +45,28 @@ extension OTel.Tracer: Tracer {
         ofKind kind: SpanKind,
         at time: DispatchWallTime
     ) -> Tracing.Span {
-        Span(operationName: operationName, baggage: baggage, kind: kind, startTime: time)
+        let parentBaggage = baggage
+        var childBaggage = baggage
+
+        if let parentSpanContext = parentBaggage.spanContext {
+            childBaggage.spanContext = OTel.SpanContext(
+                traceID: parentSpanContext.traceID,
+                spanID: idGenerator.generateSpanID(),
+                parentSpanID: parentSpanContext.spanID,
+                traceFlags: [],
+                traceState: OTel.TraceState([])
+            )
+        } else {
+            childBaggage.spanContext = OTel.SpanContext(
+                traceID: idGenerator.generateTraceID(),
+                spanID: idGenerator.generateSpanID(),
+                parentSpanID: nil,
+                traceFlags: [],
+                traceState: OTel.TraceState([])
+            )
+        }
+
+        return Span(operationName: operationName, baggage: childBaggage, kind: kind, startTime: time)
     }
 
     func forceFlush() {}

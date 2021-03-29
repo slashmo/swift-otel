@@ -20,9 +20,11 @@ public final class OTel {
     /// The current `semver` version of the library.
     public static let versionString = "0.0.1-alpha"
 
-    private let logger: Logger
     private let eventLoopGroup: EventLoopGroup
     private let resourceDetection: ResourceDetection
+    private let idGenerator: IDGenerator
+    private let logger: Logger
+
     // internal get for testing
     private(set) var resource: Resource
 
@@ -37,11 +39,13 @@ public final class OTel {
         serviceName: String,
         eventLoopGroup: EventLoopGroup,
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
+        idGenerator: IDGenerator = RandomIDGenerator(),
         logger: Logger = Logger(label: "OTel")
     ) {
         resource = Resource(attributes: ["service.name": .string(serviceName)])
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection
+        self.idGenerator = idGenerator
         self.logger = logger
     }
 
@@ -76,7 +80,7 @@ public final class OTel {
     ///
     /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
-        Tracer()
+        Tracer(idGenerator: idGenerator)
     }
 
     /// Shutdown `OTel`.

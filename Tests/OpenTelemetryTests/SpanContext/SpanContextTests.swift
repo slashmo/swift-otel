@@ -22,7 +22,7 @@ final class SpanContextTests: XCTestCase {
             spanID: OTel.SpanID(bytes: (0, 0, 0, 0, 0, 0, 0, 2)),
             parentSpanID: OTel.SpanID(bytes: (0, 0, 0, 0, 0, 0, 0, 1)),
             traceFlags: .sampled,
-            traceState: OTel.TraceState()
+            traceState: OTel.TraceState([(vendor: "rojo", value: "00f067aa0ba902b7")])
         )
 
         var baggage = Baggage.topLevel

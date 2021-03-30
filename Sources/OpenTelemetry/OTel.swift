@@ -84,7 +84,7 @@ public final class OTel {
     ///
     /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
-        Tracer(idGenerator: idGenerator, sampler: sampler)
+        Tracer(idGenerator: idGenerator, sampler: sampler, logger: logger)
     }
 
     /// Shutdown `OTel`.

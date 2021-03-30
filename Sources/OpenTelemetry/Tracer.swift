@@ -12,16 +12,19 @@
 //===----------------------------------------------------------------------===//
 
 import struct Dispatch.DispatchWallTime
+import NIOConcurrencyHelpers
 import Tracing
 
 extension OTel {
     final class Tracer {
         private var idGenerator: IDGenerator
         private let sampler: Sampler
+        private let logger: Logger
 
-        init(idGenerator: IDGenerator, sampler: Sampler) {
+        init(idGenerator: IDGenerator, sampler: Sampler, logger: Logger) {
             self.idGenerator = idGenerator
             self.sampler = sampler
+            self.logger = logger
         }
     }
 }
@@ -90,7 +93,8 @@ extension OTel.Tracer: Tracer {
             baggage: childBaggage,
             kind: kind,
             startTime: time,
-            attributes: samplingResult.attributes
+            attributes: samplingResult.attributes,
+            logger: logger
         )
     }
 
@@ -100,35 +104,75 @@ extension OTel.Tracer: Tracer {
 extension OTel.Tracer {
     final class Span: Tracing.Span {
         let operationName: String
-        let startTime: DispatchWallTime
-        let baggage: Baggage
         let kind: SpanKind
-        let isRecording = false
+        private(set) var status: SpanStatus?
+
+        let baggage: Baggage
+
+        let isRecording = true
+
+        let startTime: DispatchWallTime
+        private(set) var endTime: DispatchWallTime?
 
         var attributes: SpanAttributes = [:]
+        private(set) var events = [SpanEvent]()
+        private(set) var links = [SpanLink]()
+
+        private let logger: Logger
+        private let lock = Lock()
 
         init(
             operationName: String,
             baggage: Baggage,
             kind: SpanKind,
             startTime: DispatchWallTime,
-            attributes: SpanAttributes
+            attributes: SpanAttributes,
+            logger: Logger
         ) {
             self.operationName = operationName
             self.baggage = baggage
             self.kind = kind
             self.startTime = startTime
             self.attributes = attributes
+            self.logger = logger
         }
 
-        func setStatus(_ status: SpanStatus) {}
+        func setStatus(_ status: SpanStatus) {
+            lock.withLockVoid {
+                self.status = status
+            }
+        }
 
-        func addEvent(_ event: SpanEvent) {}
+        func addEvent(_ event: SpanEvent) {
+            lock.withLockVoid {
+                events.append(event)
+            }
+        }
 
-        func recordError(_ error: Error) {}
+        func recordError(_ error: Error) {
+            let event = SpanEvent(name: "exception", attributes: [
+                "exception.type": .string(String(describing: type(of: error))),
+                "exception.message": .string(String(describing: error)),
+            ])
+            addEvent(event)
+        }
 
-        func addLink(_ link: SpanLink) {}
+        func addLink(_ link: SpanLink) {
+            lock.withLockVoid {
+                links.append(link)
+            }
+        }
 
-        func end(at time: DispatchWallTime) {}
+        func end(at time: DispatchWallTime) {
+            lock.withLockVoid {
+                if let endTime = endTime {
+                    logger.debug("Ending a span which was ended before", metadata: [
+                        "previous_end_time": .stringConvertible(endTime.rawValue),
+                    ])
+                    return
+                }
+                self.endTime = time
+            }
+        }
     }
 }

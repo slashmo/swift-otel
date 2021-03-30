@@ -19,7 +19,7 @@ final class TracerTests: XCTestCase {
     func test_startingRootSpan_generatesTraceAndSpanID() throws {
         let idGenerator = StubIDGenerator()
         let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: true))
-        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler)
+        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler, logger: Logger(label: #function))
 
         let span = tracer.startSpan(#function, baggage: .topLevel)
 
@@ -35,7 +35,7 @@ final class TracerTests: XCTestCase {
     func test_startingRootSpan_respectsSamplingDecision() throws {
         let idGenerator = StubIDGenerator()
         let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: false))
-        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler)
+        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler, logger: Logger(label: #function))
 
         let span = tracer.startSpan(#function, baggage: .topLevel)
 
@@ -47,7 +47,11 @@ final class TracerTests: XCTestCase {
 
     func test_startingChildSpan_reusesTraceIDButGeneratesNewSpanID() throws {
         let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: false))
-        let tracer = OTel.Tracer(idGenerator: OTel.RandomIDGenerator(), sampler: sampler)
+        let tracer = OTel.Tracer(
+            idGenerator: OTel.RandomIDGenerator(),
+            sampler: sampler,
+            logger: Logger(label: #function)
+        )
 
         let parentSpan = tracer.startSpan("parent", baggage: .topLevel)
         let childSpan = tracer.startSpan("child", baggage: parentSpan.baggage)
@@ -65,7 +69,7 @@ final class TracerTests: XCTestCase {
     func test_startingChildSpan_respectsSamplingDecision() throws {
         let idGenerator = StubIDGenerator()
         let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: false))
-        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler)
+        let tracer = OTel.Tracer(idGenerator: idGenerator, sampler: sampler, logger: Logger(label: #function))
 
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
@@ -87,7 +91,11 @@ final class TracerTests: XCTestCase {
 
     func test_startedSpan_includesAttributesFromSamplingDecision() {
         let sampler = AttributedSampler(delegatingTo: OTel.ConstantSampler(isOn: true), attributes: ["test": true])
-        let tracer = OTel.Tracer(idGenerator: OTel.RandomIDGenerator(), sampler: sampler)
+        let tracer = OTel.Tracer(
+            idGenerator: OTel.RandomIDGenerator(),
+            sampler: sampler,
+            logger: Logger(label: #function)
+        )
 
         let span = tracer.startSpan(#function, baggage: .topLevel)
 

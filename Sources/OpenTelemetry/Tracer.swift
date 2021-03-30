@@ -17,13 +17,23 @@ import Tracing
 
 extension OTel {
     final class Tracer {
+        private let resource: OTel.Resource
         private var idGenerator: IDGenerator
         private let sampler: Sampler
+        private let processor: SpanProcessor
         private let logger: Logger
 
-        init(idGenerator: IDGenerator, sampler: Sampler, logger: Logger) {
+        init(
+            resource: OTel.Resource,
+            idGenerator: IDGenerator,
+            sampler: Sampler,
+            processor: SpanProcessor,
+            logger: Logger
+        ) {
+            self.resource = resource
             self.idGenerator = idGenerator
             self.sampler = sampler
+            self.processor = processor
             self.logger = logger
         }
     }
@@ -95,7 +105,10 @@ extension OTel.Tracer: Tracer {
             startTime: time,
             attributes: samplingResult.attributes,
             logger: logger
-        )
+        ) { [weak self] recordedSpan in
+            guard let self = self else { return }
+            self.processor.processEndedSpan(recordedSpan, on: self.resource)
+        }
     }
 
     func forceFlush() {}
@@ -121,13 +134,16 @@ extension OTel.Tracer {
         private let logger: Logger
         private let lock = Lock()
 
+        private let onEnd: (OTel.RecordedSpan) -> Void
+
         init(
             operationName: String,
             baggage: Baggage,
             kind: SpanKind,
             startTime: DispatchWallTime,
             attributes: SpanAttributes,
-            logger: Logger
+            logger: Logger,
+            onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
             self.operationName = operationName
             self.baggage = baggage
@@ -135,6 +151,7 @@ extension OTel.Tracer {
             self.startTime = startTime
             self.attributes = attributes
             self.logger = logger
+            self.onEnd = onEnd
         }
 
         func setStatus(_ status: SpanStatus) {
@@ -171,7 +188,9 @@ extension OTel.Tracer {
                     ])
                     return
                 }
-                self.endTime = time
+                endTime = time
+                guard let recordedSpan = OTel.RecordedSpan(self) else { return }
+                onEnd(recordedSpan)
             }
         }
     }

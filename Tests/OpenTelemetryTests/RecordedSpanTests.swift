@@ -42,7 +42,8 @@ final class RecordedSpanTests: XCTestCase {
             startTime: startTime,
             attributes: attributes,
             logger: Logger(label: #function)
-        )
+        ) { _ in }
+
         span.addEvent(events[0])
         span.setStatus(status)
         span.addLink(SpanLink(baggage: .topLevel))
@@ -85,7 +86,7 @@ final class RecordedSpanTests: XCTestCase {
             startTime: .now(),
             attributes: [:],
             logger: Logger(label: #function)
-        )
+        ) { _ in }
 
         XCTAssertNil(OTel.RecordedSpan(span), "Non-ended spans should not be convertible to a RecordedSpan.")
     }
@@ -98,7 +99,7 @@ final class RecordedSpanTests: XCTestCase {
             startTime: .now(),
             attributes: [:],
             logger: Logger(label: #function)
-        )
+        ) { _ in }
 
         XCTAssertNil(OTel.RecordedSpan(span), "Spans without context should not be convertible to a RecordedSpan.")
     }

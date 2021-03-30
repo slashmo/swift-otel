@@ -40,6 +40,6 @@ final class NoOpSpanExporterTests: XCTestCase {
             links: []
         )
 
-        XCTAssertNoThrow(exporter.export([span], resource: OTel.Resource()))
+        XCTAssertNoThrow(exporter.export([span], on: OTel.Resource()))
     }
 }

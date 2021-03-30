@@ -24,6 +24,7 @@ public final class OTel {
     private let resourceDetection: ResourceDetection
     private let idGenerator: IDGenerator
     private let sampler: Sampler
+    private let processor: SpanProcessor
     private let logger: Logger
 
     // internal get for testing
@@ -36,6 +37,7 @@ public final class OTel {
     ///   - eventLoopGroup: The `EventLoopGroup` to run on.
     ///   - resourceDetection: Configures how resource attribution may be detected, defaults to `.automatic`.
     ///   - sampler: Configures the sampler to be used, defaults to an *always on* sampler as the root of a parent-based sampler.
+    ///   - processor: Configures the span processor to be used for ended spans, default to a no-op processor.
     ///   - logger: The Logger used by OTel and its sub-components.
     public init(
         serviceName: String,
@@ -43,6 +45,7 @@ public final class OTel {
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
         idGenerator: IDGenerator = RandomIDGenerator(),
         sampler: Sampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
+        processor: SpanProcessor = NoOpSpanProcessor(),
         logger: Logger = Logger(label: "OTel")
     ) {
         resource = Resource(attributes: ["service.name": .string(serviceName)])
@@ -50,6 +53,7 @@ public final class OTel {
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator
         self.sampler = sampler
+        self.processor = processor
         self.logger = logger
     }
 
@@ -84,7 +88,7 @@ public final class OTel {
     ///
     /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
-        Tracer(idGenerator: idGenerator, sampler: sampler, logger: logger)
+        Tracer(resource: resource, idGenerator: idGenerator, sampler: sampler, processor: processor, logger: logger)
     }
 
     /// Shutdown `OTel`.

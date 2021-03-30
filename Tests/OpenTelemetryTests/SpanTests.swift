@@ -27,18 +27,16 @@ final class SpanTests: XCTestCase {
     }
 
     func test_ignoresRepeatedCallsToEnd() {
-        let span = OTel.Tracer.Span(
-            operationName: #function,
-            baggage: .topLevel,
-            kind: .internal,
-            startTime: .now(),
-            attributes: [:],
-            logger: Logger(label: #function)
-        )
+        var onEndWasCalled = false
+
+        let span = OTel.Tracer.Span.stub(spanContext: .stub()) { _ in
+            onEndWasCalled = true
+        }
 
         let endTime = DispatchWallTime.now()
         span.end(at: endTime)
 
+        XCTAssertTrue(onEndWasCalled)
         XCTAssertEqual(span.endTime, endTime)
 
         span.end()
@@ -47,14 +45,7 @@ final class SpanTests: XCTestCase {
     }
 
     func test_recordsErrorAsEvent() {
-        let span = OTel.Tracer.Span(
-            operationName: #function,
-            baggage: .topLevel,
-            kind: .internal,
-            startTime: .now(),
-            attributes: [:],
-            logger: Logger(label: #function)
-        )
+        let span = OTel.Tracer.Span.stub()
 
         span.recordError(EnumError.some)
 

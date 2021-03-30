@@ -25,6 +25,7 @@ public final class OTel {
     private let idGenerator: IDGenerator
     private let sampler: Sampler
     private let processor: SpanProcessor
+    private let propagator: Propagator
     private let logger: Logger
 
     // internal get for testing
@@ -37,7 +38,8 @@ public final class OTel {
     ///   - eventLoopGroup: The `EventLoopGroup` to run on.
     ///   - resourceDetection: Configures how resource attribution may be detected, defaults to `.automatic`.
     ///   - sampler: Configures the sampler to be used, defaults to an *always on* sampler as the root of a parent-based sampler.
-    ///   - processor: Configures the span processor to be used for ended spans, default to a no-op processor.
+    ///   - processor: Configures the span processor to be used for ended spans, defaults to a no-op processor.
+    ///   - propagator: Configures the propagator to be used, defaults to a `W3CPropagator`.
     ///   - logger: The Logger used by OTel and its sub-components.
     public init(
         serviceName: String,
@@ -46,6 +48,7 @@ public final class OTel {
         idGenerator: IDGenerator = RandomIDGenerator(),
         sampler: Sampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
         processor: SpanProcessor = NoOpSpanProcessor(),
+        propagator: Propagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
     ) {
         resource = Resource(attributes: ["service.name": .string(serviceName)])
@@ -54,6 +57,7 @@ public final class OTel {
         self.idGenerator = idGenerator
         self.sampler = sampler
         self.processor = processor
+        self.propagator = propagator
         self.logger = logger
     }
 
@@ -88,7 +92,14 @@ public final class OTel {
     ///
     /// - Returns: An OTel Tracer conforming to the [`Tracer`](https://github.com/apple/swift-distributed-tracing/blob/main/Sources/Tracing/Tracer.swift) protocol.
     public func tracer() -> Tracing.Tracer {
-        Tracer(resource: resource, idGenerator: idGenerator, sampler: sampler, processor: processor, logger: logger)
+        Tracer(
+            resource: resource,
+            idGenerator: idGenerator,
+            sampler: sampler,
+            processor: processor,
+            propagator: propagator,
+            logger: logger
+        )
     }
 
     /// Shutdown `OTel`.

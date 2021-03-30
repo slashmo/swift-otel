@@ -34,6 +34,6 @@ final class TraceStateTests: XCTestCase {
 
         XCTAssertEqual(traceState1, traceState2)
         XCTAssertNotEqual(traceState2, traceState3)
-        XCTAssertNotEqual(traceState1, OTel.TraceState([]))
+        XCTAssertNotEqual(traceState1, nil)
     }
 }

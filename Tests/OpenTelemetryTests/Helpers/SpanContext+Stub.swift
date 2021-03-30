@@ -19,7 +19,7 @@ extension OTel.SpanContext {
         spanID: OTel.SpanID = .stub,
         parentSpanID: OTel.SpanID? = nil,
         traceFlags: OTel.TraceFlags = [],
-        traceState: OTel.TraceState = OTel.TraceState([]),
+        traceState: OTel.TraceState? = nil,
         isRemote: Bool = false
     ) -> Self {
         OTel.SpanContext(

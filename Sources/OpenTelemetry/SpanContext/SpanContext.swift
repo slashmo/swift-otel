@@ -30,7 +30,7 @@ public extension OTel {
         public internal(set) var traceFlags: TraceFlags
 
         /// The `TraceState` containing potentially vendor-specific trace information.
-        public internal(set) var traceState: TraceState
+        public internal(set) var traceState: TraceState?
 
         /// Whether this context belongs to a remote span.
         public let isRemote: Bool

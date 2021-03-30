@@ -16,6 +16,8 @@ import Tracing
 import XCTest
 
 final class TracerTests: XCTestCase {
+    // MARK: - Starting spans
+
     func test_startingRootSpan_generatesTraceAndSpanID() throws {
         let idGenerator = StubIDGenerator()
         let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: true))
@@ -24,6 +26,7 @@ final class TracerTests: XCTestCase {
             idGenerator: idGenerator,
             sampler: sampler,
             processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
@@ -46,6 +49,7 @@ final class TracerTests: XCTestCase {
             idGenerator: idGenerator,
             sampler: sampler,
             processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
@@ -64,6 +68,7 @@ final class TracerTests: XCTestCase {
             idGenerator: OTel.RandomIDGenerator(),
             sampler: sampler,
             processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
@@ -88,6 +93,7 @@ final class TracerTests: XCTestCase {
             idGenerator: idGenerator,
             sampler: sampler,
             processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
@@ -96,7 +102,7 @@ final class TracerTests: XCTestCase {
             spanID: .random(),
             parentSpanID: nil,
             traceFlags: [],
-            traceState: OTel.TraceState([]),
+            traceState: nil,
             isRemote: true
         )
         var baggage = Baggage.topLevel
@@ -116,12 +122,98 @@ final class TracerTests: XCTestCase {
             idGenerator: OTel.RandomIDGenerator(),
             sampler: sampler,
             processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
         let span = tracer.startSpan(#function, baggage: .topLevel)
 
         XCTAssertEqual(span.attributes, ["test": true])
+    }
+
+    // MARK: - Context Propagation
+
+    func test_extractsSpanContextUsingTheConfiguredPropagator() throws {
+        let tracer = OTel.Tracer(
+            resource: OTel.Resource(),
+            idGenerator: StubIDGenerator(),
+            sampler: OTel.ConstantSampler(isOn: true),
+            processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
+            logger: Logger(label: #function)
+        )
+
+        let headers = [
+            "traceparent": "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01",
+            "tracestate": "key=value"
+        ]
+        var baggage = Baggage.topLevel
+        tracer.extract(headers, into: &baggage, using: DictionaryExtractor())
+
+        let spanContext = try XCTUnwrap(baggage.spanContext)
+
+        XCTAssertEqual(
+            spanContext,
+            OTel.SpanContext(
+                traceID: .stub,
+                spanID: .stub,
+                parentSpanID: nil,
+                traceFlags: .sampled,
+                traceState: OTel.TraceState([(vendor: "key", value: "value")]),
+                isRemote: true
+            )
+        )
+    }
+
+    func test_extractsNoSpanContextIfTheConfiguredPropagatorFails() throws {
+        let tracer = OTel.Tracer(
+            resource: OTel.Resource(),
+            idGenerator: StubIDGenerator(),
+            sampler: OTel.ConstantSampler(isOn: true),
+            processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
+            logger: Logger(label: #function)
+        )
+
+        let headers = ["traceparent": "invalid-trace-parent"]
+        var baggage = Baggage.topLevel
+        tracer.extract(headers, into: &baggage, using: DictionaryExtractor())
+
+        XCTAssertNil(baggage.spanContext)
+    }
+
+    func test_injectsSpanContextUsingTheConfiguredPropagator() {
+        let tracer = OTel.Tracer(
+            resource: OTel.Resource(),
+            idGenerator: StubIDGenerator(),
+            sampler: OTel.ConstantSampler(isOn: true),
+            processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
+            logger: Logger(label: #function)
+        )
+
+        let span = tracer.startSpan(#function, baggage: .topLevel)
+        var headers = [String: String]()
+
+        tracer.inject(span.baggage, into: &headers, using: DictionaryInjector())
+
+        XCTAssertEqual(headers["traceparent"], "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01")
+    }
+
+    func test_injectsNothingWithoutASpanContext() {
+        let tracer = OTel.Tracer(
+            resource: OTel.Resource(),
+            idGenerator: StubIDGenerator(),
+            sampler: OTel.ConstantSampler(isOn: true),
+            processor: OTel.NoOpSpanProcessor(),
+            propagator: OTel.W3CPropagator(),
+            logger: Logger(label: #function)
+        )
+        var headers = [String: String]()
+
+        tracer.inject(.topLevel, into: &headers, using: DictionaryInjector())
+
+        XCTAssertTrue(headers.isEmpty)
     }
 }
 

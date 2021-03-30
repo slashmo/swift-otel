@@ -18,20 +18,20 @@ public extension OTel {
     struct TraceState {
         typealias Storage = [(vendor: String, value: String)]
 
-        private var _storage: Storage
+        private (set) var storage: Storage
 
         init(_ storage: Storage) {
-            _storage = storage
+            self.storage = storage
         }
     }
 }
 
 extension OTel.TraceState: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        guard lhs._storage.count == rhs._storage.count else { return false }
+        guard lhs.storage.count == rhs.storage.count else { return false }
 
-        return lhs._storage.enumerated().allSatisfy { offset, element in
-            rhs._storage[offset].vendor == element.vendor && rhs._storage[offset].value == element.value
+        return lhs.storage.enumerated().allSatisfy { offset, element in
+            rhs.storage[offset].vendor == element.vendor && rhs.storage[offset].value == element.value
         }
     }
 }

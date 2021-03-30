@@ -1,0 +1,27 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift OpenTelemetry open source project
+//
+// Copyright (c) 2021 Moritz Lang and the Swift OpenTelemetry project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
+import XCTest
+
+public func XCTAssertThrowsError<E: Error & Equatable, T>(_ expression: @autoclosure () throws -> T, _ error: E) {
+    do {
+        let value = try expression()
+        XCTFail("Expected error but received value: \(value)")
+    } catch let actualError {
+        guard let actualError = actualError as? E else {
+            XCTFail("Expected \(type(of: E.self)), but received \(type(of: actualError))")
+            return
+        }
+        XCTAssertEqual(actualError, error)
+    }
+}

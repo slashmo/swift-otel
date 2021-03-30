@@ -29,7 +29,7 @@ final class NoOpSpanExporterTests: XCTestCase {
                 spanID: .random(),
                 parentSpanID: .random(),
                 traceFlags: .sampled,
-                traceState: OTel.TraceState([]),
+                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,

@@ -21,6 +21,7 @@ extension OTel {
         private var idGenerator: IDGenerator
         private let sampler: Sampler
         private let processor: SpanProcessor
+        private let propagator: Propagator
         private let logger: Logger
 
         init(
@@ -28,12 +29,14 @@ extension OTel {
             idGenerator: IDGenerator,
             sampler: Sampler,
             processor: SpanProcessor,
+            propagator: Propagator,
             logger: Logger
         ) {
             self.resource = resource
             self.idGenerator = idGenerator
             self.sampler = sampler
             self.processor = processor
+            self.propagator = propagator
             self.logger = logger
         }
     }
@@ -44,13 +47,22 @@ extension OTel.Tracer: Instrument {
         _ carrier: Carrier,
         into baggage: inout Baggage,
         using extractor: Extract
-    ) where Carrier == Extract.Carrier, Extract: Extractor {}
+    ) where Carrier == Extract.Carrier, Extract: Extractor {
+        do {
+            baggage.spanContext = try propagator.extractSpanContext(from: carrier, using: extractor)
+        } catch {
+            logger.debug("Failed to extract span context", metadata: ["carrier": .string(String(describing: carrier))])
+        }
+    }
 
     func inject<Carrier, Inject>(
         _ baggage: Baggage,
         into carrier: inout Carrier,
         using injector: Inject
-    ) where Carrier == Inject.Carrier, Inject: Injector {}
+    ) where Carrier == Inject.Carrier, Inject: Injector {
+        guard let spanContext = baggage.spanContext else { return }
+        propagator.inject(spanContext, into: &carrier, using: injector)
+    }
 }
 
 extension OTel.Tracer: Tracer {
@@ -64,7 +76,7 @@ extension OTel.Tracer: Tracer {
         var childBaggage = baggage
 
         let traceID: OTel.TraceID
-        let traceState: OTel.TraceState
+        let traceState: OTel.TraceState?
         let spanID = idGenerator.generateSpanID()
 
         if let parentSpanContext = parentBaggage.spanContext {
@@ -72,7 +84,7 @@ extension OTel.Tracer: Tracer {
             traceState = parentSpanContext.traceState
         } else {
             traceID = idGenerator.generateTraceID()
-            traceState = OTel.TraceState([])
+            traceState = nil
         }
 
         let samplingResult = sampler.makeSamplingDecision(

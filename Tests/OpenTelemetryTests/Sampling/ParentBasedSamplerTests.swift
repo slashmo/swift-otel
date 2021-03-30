@@ -41,7 +41,7 @@ final class ParentBasedSamplerTests: XCTestCase {
             spanID: .random(),
             parentSpanID: nil,
             traceFlags: .sampled,
-            traceState: OTel.TraceState([]),
+            traceState: nil,
             isRemote: true
         )
 
@@ -66,7 +66,7 @@ final class ParentBasedSamplerTests: XCTestCase {
             spanID: .random(),
             parentSpanID: nil,
             traceFlags: [],
-            traceState: OTel.TraceState([]),
+            traceState: nil,
             isRemote: true
         )
 
@@ -91,7 +91,7 @@ final class ParentBasedSamplerTests: XCTestCase {
             spanID: .random(),
             parentSpanID: nil,
             traceFlags: .sampled,
-            traceState: OTel.TraceState([]),
+            traceState: nil,
             isRemote: false
         )
 
@@ -116,7 +116,7 @@ final class ParentBasedSamplerTests: XCTestCase {
             spanID: .random(),
             parentSpanID: nil,
             traceFlags: [],
-            traceState: OTel.TraceState([]),
+            traceState: nil,
             isRemote: false
         )
 

@@ -28,7 +28,7 @@ final class ResourceDetectionTests: XCTestCase {
             on: eventLoopGroup
         ).wait()
 
-        XCTAssertEqual(resource.attributes["process.executable.name"]?.toSpanAttribute(), "xctest")
+        XCTAssertNotNil(resource.attributes["process.executable.name"])
         XCTAssertNotNil(resource.attributes["process.executable.path"])
         XCTAssertNotNil(resource.attributes["process.command"])
         XCTAssertNotNil(resource.attributes["process.command_line"])

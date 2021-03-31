@@ -38,7 +38,9 @@ let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCou
 let otel = OTel(
     serviceName: "server",
     eventLoopGroup: eventLoopGroup,
-    processor: OTel.SimpleSpanProcessor(exportingTo: OtlpGRPCSpanExporter(eventLoopGroup: eventLoopGroup))
+    processor: OTel.SimpleSpanProcessor(
+        exportingTo: OtlpGRPCSpanExporter(config: .init(eventLoopGroup: eventLoopGroup))
+    )
 )
 let server = Server(eventLoopGroup: eventLoopGroup)
 

@@ -1,0 +1,41 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        images:
+        - swift:5.3
+        - swiftlang/swift:nightly-master
+    container: ${{ matrix.images }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+      - name: Build & Test
+        run: swift test --enable-test-discovery --parallel
+
+  compile-basic-example:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        images:
+        - swift:5.3
+        - swiftlang/swift:nightly-master
+    container: ${{ matrix.images }}
+    defaults:
+      run:
+        working-directory: ./Examples/Basic
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+      - name: Build
+        run: swift build --enable-test-discovery

@@ -18,10 +18,10 @@ public func XCTAssertThrowsError<E: Error & Equatable, T>(_ expression: @autoclo
         let value = try expression()
         XCTFail("Expected error but received value: \(value)")
     } catch let actualError {
-        guard let actualError = actualError as? E else {
+        guard let e = actualError as? E else {
             XCTFail("Expected \(type(of: E.self)), but received \(type(of: actualError))")
             return
         }
-        XCTAssertEqual(actualError, error)
+        XCTAssertEqual(e, error)
     }
 }

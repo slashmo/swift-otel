@@ -37,7 +37,3 @@ public protocol OTelPropagator {
         using injector: Inject
     ) where Inject: Injector, Inject.Carrier == Carrier
 }
-
-public extension OTel {
-    typealias Propagator = OTelPropagator
-}

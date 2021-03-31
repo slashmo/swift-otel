@@ -12,11 +12,12 @@
 //===----------------------------------------------------------------------===//
 
 import Logging
+import NIO
 
-public extension OTel {
+extension OTel {
     /// A span processor that simply forwards all *sampled* spans to a given exporter.
-    struct SimpleSpanProcessor: SpanProcessor {
-        private let exporter: SpanExporter
+    public struct SimpleSpanProcessor: OTelSpanProcessor {
+        private let exporter: OTelSpanExporter
         private let logger: Logger
 
         /// Initialize a simple span processor forwarding to the given exporter.
@@ -24,7 +25,7 @@ public extension OTel {
         /// - Parameters:
         ///   - exporter: The exporter to forward sampled spans to.
         ///   - logger: The logger to report the result of exporting spans.
-        public init(exportingTo exporter: SpanExporter, logger: Logger = Logger(label: "OTel")) {
+        public init(exportingTo exporter: OTelSpanExporter, logger: Logger = Logger(label: "OTel")) {
             self.exporter = exporter
             self.logger = logger
         }
@@ -49,6 +50,10 @@ public extension OTel {
                     logger.debug("Failed to export span", metadata: metadata)
                 }
             }
+        }
+
+        public func shutdownGracefully() -> EventLoopFuture<Void> {
+            exporter.shutdownGracefully()
         }
     }
 }

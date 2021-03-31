@@ -15,7 +15,7 @@ import NIO
 import NIOConcurrencyHelpers
 import OpenTelemetry
 
-final class InMemorySpanExporter: OTel.SpanExporter {
+final class InMemorySpanExporter: OTelSpanExporter {
     private let eventLoopGroup: EventLoopGroup
     private let lock = Lock()
     private var _spans = [OTel.RecordedSpan]()
@@ -33,5 +33,9 @@ final class InMemorySpanExporter: OTel.SpanExporter {
             _spans.append(contentsOf: batch)
         }
         return eventLoopGroup.next().makeSucceededVoidFuture()
+    }
+
+    func shutdownGracefully() -> EventLoopFuture<Void> {
+        eventLoopGroup.next().makeSucceededVoidFuture()
     }
 }

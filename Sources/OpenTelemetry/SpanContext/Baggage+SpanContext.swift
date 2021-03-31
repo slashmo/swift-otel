@@ -14,7 +14,7 @@
 import CoreBaggage
 
 extension Baggage {
-    var spanContext: OTel.SpanContext? {
+    public internal(set) var spanContext: OTel.SpanContext? {
         get {
             self[SpanContextKey]
         }

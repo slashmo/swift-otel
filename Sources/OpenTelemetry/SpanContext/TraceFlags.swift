@@ -11,11 +11,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// A set of flags denoting e.g. whether a span is sampled.
     ///
     /// - SeeAlso: [W3C TraceContext: Trace flags](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-flags)
-    struct TraceFlags: OptionSet {
+    public struct TraceFlags: OptionSet {
         /// The bit value of the given flags.
         public let rawValue: UInt8
 

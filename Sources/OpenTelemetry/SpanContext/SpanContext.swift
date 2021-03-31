@@ -11,12 +11,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// A `SpanContext` represents the portion of a `Span` which must be serialized and propagated
     /// across asynchronous boundaries.
     ///
     /// - SeeAlso: [OTel Spec: SpanContext](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#spancontext)
-    struct SpanContext: Equatable {
+    public struct SpanContext: Equatable {
         /// `TraceID` shared among all spans within one trace.
         public let traceID: TraceID
 

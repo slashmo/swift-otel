@@ -11,11 +11,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// Uniquely identifies a single trace using a 16-byte array.
     ///
     /// - SeeAlso: [W3C TraceContext: trace-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-id)
-    struct TraceID {
+    public struct TraceID {
         /// 16-byte array
         public typealias Bytes = (
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,

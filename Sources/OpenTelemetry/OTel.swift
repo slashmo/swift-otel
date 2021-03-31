@@ -22,10 +22,10 @@ public final class OTel {
 
     private let eventLoopGroup: EventLoopGroup
     private let resourceDetection: ResourceDetection
-    private let idGenerator: IDGenerator
-    private let sampler: Sampler
-    private let processor: SpanProcessor
-    private let propagator: Propagator
+    private let idGenerator: OTelIDGenerator
+    private let sampler: OTelSampler
+    private let processor: OTelSpanProcessor
+    private let propagator: OTelPropagator
     private let logger: Logger
 
     // internal get for testing
@@ -45,10 +45,10 @@ public final class OTel {
         serviceName: String,
         eventLoopGroup: EventLoopGroup,
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
-        idGenerator: IDGenerator = RandomIDGenerator(),
-        sampler: Sampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
-        processor: SpanProcessor = NoOpSpanProcessor(),
-        propagator: Propagator = W3CPropagator(),
+        idGenerator: OTelIDGenerator = RandomIDGenerator(),
+        sampler: OTelSampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
+        processor: OTelSpanProcessor? = nil,
+        propagator: OTelPropagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
     ) {
         resource = Resource(attributes: ["service.name": .string(serviceName)])
@@ -56,7 +56,7 @@ public final class OTel {
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator
         self.sampler = sampler
-        self.processor = processor
+        self.processor = processor ?? NoOpSpanProcessor(eventLoopGroup: eventLoopGroup)
         self.propagator = propagator
         self.logger = logger
     }

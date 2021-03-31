@@ -16,7 +16,7 @@ import NIO
 import Tracing
 
 extension OTel {
-    struct EnvironmentResourceDetector: ResourceDetector {
+    struct EnvironmentResourceDetector: OTelResourceDetector {
         private let eventLoopGroup: EventLoopGroup
         private let environment: [String: String]
 

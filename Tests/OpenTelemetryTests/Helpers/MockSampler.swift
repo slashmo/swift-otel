@@ -14,11 +14,11 @@
 import OpenTelemetry
 import Tracing
 
-final class MockSampler: OTel.Sampler {
+final class MockSampler: OTelSampler {
     private(set) var numberOfSamplingDecisions: Int = 0
-    private let sampler: OTel.Sampler
+    private let sampler: OTelSampler
 
-    init(delegatingTo sampler: OTel.Sampler) {
+    init(delegatingTo sampler: OTelSampler) {
         self.sampler = sampler
     }
 

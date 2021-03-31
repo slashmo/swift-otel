@@ -13,14 +13,14 @@
 
 import Tracing
 
-public extension OTel {
+extension OTel {
     /// A resource represents the entity being traced.
     ///
     /// The attributes of a resource are expressed using `SpanAttributes`.
     /// Resources are immutable, but multiple resources may be merged using `merging(_:​)`.
     ///
     /// - SeeAlso: [OTel Spec: Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md#resource-sdk)
-    struct Resource {
+    public struct Resource {
         /// The attributes describing this resource.
         public let attributes: SpanAttributes
 

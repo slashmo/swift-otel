@@ -19,7 +19,3 @@ public protocol OTelIDGenerator {
     /// Generate a new `OTel.SpanID`.
     mutating func generateSpanID() -> OTel.SpanID
 }
-
-public extension OTel {
-    typealias IDGenerator = OTelIDGenerator
-}

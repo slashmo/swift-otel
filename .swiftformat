@@ -10,3 +10,4 @@
 --self remove
 --stripunusedargs closure-only
 --wraparguments before-first
+--extensionacl on-declarations

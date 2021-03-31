@@ -11,11 +11,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// Uniquely identifies a single span using an 8-byte array.
     ///
     /// - SeeAlso: [W3C TraceContext: parent-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#parent-id)
-    struct SpanID {
+    public struct SpanID {
         /// 8-byte array
         public typealias Bytes = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 

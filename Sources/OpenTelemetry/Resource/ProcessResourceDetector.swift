@@ -16,7 +16,7 @@ import NIO
 import Tracing
 
 extension OTel {
-    struct ProcessResourceDetector: ResourceDetector {
+    struct ProcessResourceDetector: OTelResourceDetector {
         private let eventLoopGroup: EventLoopGroup
 
         init(eventLoopGroup: EventLoopGroup) {

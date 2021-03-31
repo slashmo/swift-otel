@@ -14,7 +14,7 @@
 import NIO
 import OpenTelemetry
 
-struct FailingSpanExporter: OTel.SpanExporter {
+struct FailingSpanExporter: OTelSpanExporter {
     private let eventLoopGroup: EventLoopGroup
     private let error: Error
 
@@ -25,5 +25,9 @@ struct FailingSpanExporter: OTel.SpanExporter {
 
     func export(_ batch: ArraySlice<OTel.RecordedSpan>, on resource: OTel.Resource) -> EventLoopFuture<Void> {
         eventLoopGroup.next().makeFailedFuture(error)
+    }
+
+    func shutdownGracefully() -> EventLoopFuture<Void> {
+        eventLoopGroup.next().makeSucceededVoidFuture()
     }
 }

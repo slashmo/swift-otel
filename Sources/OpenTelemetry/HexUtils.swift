@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// A collection of utilities when working with hex strings.
-    enum Hex {
+    public enum Hex {
         /// A lockup table for quick conversion of bytes to hex-bytes.
         static let lookup = [
             UInt8(ascii: "0"), UInt8(ascii: "1"), UInt8(ascii: "2"), UInt8(ascii: "3"),

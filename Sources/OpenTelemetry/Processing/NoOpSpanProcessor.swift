@@ -11,12 +11,24 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+import NIO
+
+extension OTel {
     /// A no-op span processor that simply ignores the given spans.
-    struct NoOpSpanProcessor: SpanProcessor {
+    public struct NoOpSpanProcessor: OTelSpanProcessor {
+        private let eventLoopGroup: EventLoopGroup
+
         /// Initialize a new no-op processor.
-        public init() {}
+        ///
+        /// - Parameter eventLoopGroup: The event loop group on which to shut down.
+        public init(eventLoopGroup: EventLoopGroup) {
+            self.eventLoopGroup = eventLoopGroup
+        }
 
         public func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource) {}
+
+        public func shutdownGracefully() -> EventLoopFuture<Void> {
+            eventLoopGroup.next().makeSucceededVoidFuture()
+        }
     }
 }

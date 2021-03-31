@@ -14,9 +14,9 @@
 import struct Dispatch.DispatchWallTime
 import Tracing
 
-public extension OTel {
+extension OTel {
     /// Holds the read-only data collected during the lifetime of a span, typically created right after a span was ended.
-    struct RecordedSpan {
+    public struct RecordedSpan {
         /// The name of the operation this span represents.
         public let operationName: String
 

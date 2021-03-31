@@ -18,18 +18,18 @@ import Tracing
 extension OTel {
     final class Tracer {
         private let resource: OTel.Resource
-        private var idGenerator: IDGenerator
-        private let sampler: Sampler
-        private let processor: SpanProcessor
-        private let propagator: Propagator
+        private var idGenerator: OTelIDGenerator
+        private let sampler: OTelSampler
+        private let processor: OTelSpanProcessor
+        private let propagator: OTelPropagator
         private let logger: Logger
 
         init(
             resource: OTel.Resource,
-            idGenerator: IDGenerator,
-            sampler: Sampler,
-            processor: SpanProcessor,
-            propagator: Propagator,
+            idGenerator: OTelIDGenerator,
+            sampler: OTelSampler,
+            processor: OTelSpanProcessor,
+            propagator: OTelPropagator,
             logger: Logger
         ) {
             self.resource = resource

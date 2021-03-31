@@ -22,8 +22,7 @@ public protocol OTelSpanExporter {
     ///   - resource: The resource these spans were running on.
     /// - Returns: An `EventLoopFuture` indicating whether the export succeeded.
     func export(_ batch: ArraySlice<OTel.RecordedSpan>, on resource: OTel.Resource) -> EventLoopFuture<Void>
-}
 
-public extension OTel {
-    typealias SpanExporter = OTelSpanExporter
+    /// Shutdown the exporter by trying to finish current exports, but not allowing new ones to be exported.
+    func shutdownGracefully() -> EventLoopFuture<Void>
 }

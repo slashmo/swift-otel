@@ -11,6 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import NIO
+
 /// A processor receives ended spans from the tracer and potentially hands them over to an exporter.
 public protocol OTelSpanProcessor {
     /// Process the given span.
@@ -19,8 +21,7 @@ public protocol OTelSpanProcessor {
     ///   - span: The span to be processed.
     ///   - resource: The resource the span was running on.
     func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource)
-}
 
-public extension OTel {
-    typealias SpanProcessor = OTelSpanProcessor
+    /// Shutdown the processor by trying to finish currently processed spans, but not allowing new ones to be processed.
+    func shutdownGracefully() -> EventLoopFuture<Void>
 }

@@ -35,7 +35,3 @@ public protocol OTelSampler {
         parentBaggage: Baggage
     ) -> OTel.SamplingResult
 }
-
-public extension OTel {
-    typealias Sampler = OTelSampler
-}

@@ -13,9 +13,9 @@
 
 import NIO
 
-public extension OTel {
+extension OTel {
     /// A no-op span exporter that simply ignores the given spans and always succeeds.
-    struct NoOpSpanExporter: SpanExporter {
+    public struct NoOpSpanExporter: OTelSpanExporter {
         private let eventLoopGroup: EventLoopGroup
 
         /// Initialize a new no-op span exporter.
@@ -29,6 +29,10 @@ public extension OTel {
             _ batch: ArraySlice<OTel.RecordedSpan>,
             on resource: OTel.Resource
         ) -> EventLoopFuture<Void> {
+            eventLoopGroup.next().makeSucceededVoidFuture()
+        }
+
+        public func shutdownGracefully() -> EventLoopFuture<Void> {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }
     }

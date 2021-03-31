@@ -130,8 +130,8 @@ final class ParentBasedSamplerTests: XCTestCase {
     }
 }
 
-private extension OTel.Sampler {
-    func testMakeSamplingDecision(
+extension OTelSampler {
+    fileprivate func testMakeSamplingDecision(
         operationName: String = #function,
         parentSpanContext: OTel.SpanContext?
     ) -> OTel.SamplingResult {

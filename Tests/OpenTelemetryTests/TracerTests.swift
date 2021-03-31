@@ -11,11 +11,14 @@
 //
 //===----------------------------------------------------------------------===//
 
+import NIO
 @testable import OpenTelemetry
 import Tracing
 import XCTest
 
 final class TracerTests: XCTestCase {
+    private let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+
     // MARK: - Starting spans
 
     func test_startingRootSpan_generatesTraceAndSpanID() throws {
@@ -25,7 +28,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: idGenerator,
             sampler: sampler,
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -48,7 +51,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: idGenerator,
             sampler: sampler,
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -67,7 +70,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: OTel.RandomIDGenerator(),
             sampler: sampler,
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -92,7 +95,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: idGenerator,
             sampler: sampler,
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -121,7 +124,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: OTel.RandomIDGenerator(),
             sampler: sampler,
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -138,14 +141,14 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: StubIDGenerator(),
             sampler: OTel.ConstantSampler(isOn: true),
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
 
         let headers = [
             "traceparent": "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01",
-            "tracestate": "key=value"
+            "tracestate": "key=value",
         ]
         var baggage = Baggage.topLevel
         tracer.extract(headers, into: &baggage, using: DictionaryExtractor())
@@ -170,7 +173,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: StubIDGenerator(),
             sampler: OTel.ConstantSampler(isOn: true),
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -187,7 +190,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: StubIDGenerator(),
             sampler: OTel.ConstantSampler(isOn: true),
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -205,7 +208,7 @@ final class TracerTests: XCTestCase {
             resource: OTel.Resource(),
             idGenerator: StubIDGenerator(),
             sampler: OTel.ConstantSampler(isOn: true),
-            processor: OTel.NoOpSpanProcessor(),
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
             propagator: OTel.W3CPropagator(),
             logger: Logger(label: #function)
         )
@@ -217,7 +220,7 @@ final class TracerTests: XCTestCase {
     }
 }
 
-private struct StubIDGenerator: OTel.IDGenerator {
+private struct StubIDGenerator: OTelIDGenerator {
     mutating func generateTraceID() -> OTel.TraceID {
         .stub
     }
@@ -227,11 +230,11 @@ private struct StubIDGenerator: OTel.IDGenerator {
     }
 }
 
-private struct AttributedSampler: OTel.Sampler {
-    private let sampler: OTel.Sampler
+private struct AttributedSampler: OTelSampler {
+    private let sampler: OTelSampler
     private let samplingAttributes: SpanAttributes
 
-    init(delegatingTo sampler: OTel.Sampler, attributes: SpanAttributes) {
+    init(delegatingTo sampler: OTelSampler, attributes: SpanAttributes) {
         self.sampler = sampler
         samplingAttributes = attributes
     }

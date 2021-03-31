@@ -13,10 +13,10 @@
 
 import Tracing
 
-public extension OTel {
+extension OTel {
     /// A sampler that always returns either `OTel.SamplingDecision.recordAndSampled` or `OTel.SamplingDecision.drop`
     /// based on configuration.
-    struct ConstantSampler: Sampler {
+    public struct ConstantSampler: OTelSampler {
         private let isOn: Bool
 
         /// Create a new `ConstantSampler` which always makes the same sampling decision based on the given value.

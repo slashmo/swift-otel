@@ -13,9 +13,9 @@
 
 import Instrumentation
 
-public extension OTel {
+extension OTel {
     /// A propagator which operates on HTTP headers using the [W3C TraceContext](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/).
-    struct W3CPropagator: Propagator {
+    public struct W3CPropagator: OTelPropagator {
         private static let traceParentHeaderName = "traceparent"
         private static let traceStateHeaderName = "tracestate"
         private static let dash = UInt8(ascii: "-")
@@ -31,10 +31,10 @@ public extension OTel {
                 return nil
             }
 
-            var spanContext = try spanContext(fromHeader: traceParentString)
+            var spanContext = try extractSpanContext(fromHeader: traceParentString)
             spanContext?.traceState = try extractor
                 .extract(key: Self.traceStateHeaderName, from: carrier)
-                .flatMap(self.traceState(fromHeader:))
+                .flatMap(extractTraceState(fromHeader:))
 
             return spanContext
         }
@@ -50,12 +50,12 @@ public extension OTel {
             injector.inject(traceParent, forKey: Self.traceParentHeaderName, into: &carrier)
 
             if let traceState = spanContext.traceState {
-                let traceStateString = traceState.storage.map { "\($0)=\($1)" }.joined(separator: ",")
+                let traceStateString = String(describing: traceState)
                 injector.inject(traceStateString, forKey: Self.traceStateHeaderName, into: &carrier)
             }
         }
 
-        private func spanContext(fromHeader header: String) throws -> OTel.SpanContext? {
+        private func extractSpanContext(fromHeader header: String) throws -> OTel.SpanContext? {
             try header.utf8.withContiguousStorageIfAvailable { traceParent -> OTel.SpanContext in
                 guard traceParent.count == 55 else {
                     throw TraceParentParsingError(value: header, reason: .invalidLength(traceParent.count))
@@ -97,7 +97,7 @@ public extension OTel {
             }
         }
 
-        private func traceState(fromHeader header: String) throws -> OTel.TraceState? {
+        private func extractTraceState(fromHeader header: String) throws -> OTel.TraceState? {
             guard !header.isEmpty else { return nil }
 
             let keyValuePairs = header.split(separator: ",")
@@ -141,9 +141,9 @@ public extension OTel {
     }
 }
 
-public extension OTel.W3CPropagator {
+extension OTel.W3CPropagator {
     /// An error that might occur during the parsing of the traceparent header.
-    struct TraceParentParsingError: Error, Equatable {
+    public struct TraceParentParsingError: Error, Equatable {
         /// The header value that caused the failure.
         public let value: String
 
@@ -152,18 +152,18 @@ public extension OTel.W3CPropagator {
     }
 
     /// An error that might occur during the parsing of the traceparent header.
-    struct TraceStateParsingError: Error, Equatable {
+    public struct TraceStateParsingError: Error, Equatable {
         /// The header value that caused the failure.
         public let value: String
 
         /// A reason explaining why parsing failed.
-        let reason: Reason
+        public let reason: Reason
     }
 }
 
-public extension OTel.W3CPropagator.TraceParentParsingError {
+extension OTel.W3CPropagator.TraceParentParsingError {
     /// A reason explaining why trace parent parsing failed.
-    enum Reason: Equatable {
+    public enum Reason: Equatable {
         /// The header has an invalid length.
         case invalidLength(Int)
 
@@ -175,9 +175,9 @@ public extension OTel.W3CPropagator.TraceParentParsingError {
     }
 }
 
-public extension OTel.W3CPropagator.TraceStateParsingError {
+extension OTel.W3CPropagator.TraceStateParsingError {
     /// A reason explaining why trace state parsing failed.
-    enum Reason: Equatable {
+    public enum Reason: Equatable {
         /// The header misses a value for the given vendor.
         case missingValue(vendor: String)
 
@@ -186,6 +186,6 @@ public extension OTel.W3CPropagator.TraceStateParsingError {
     }
 }
 
-private extension Character {
-    static let printableAsciiRange: ClosedRange<Character> = " " ... "~"
+extension Character {
+    fileprivate static let printableAsciiRange: ClosedRange<Character> = " " ... "~"
 }

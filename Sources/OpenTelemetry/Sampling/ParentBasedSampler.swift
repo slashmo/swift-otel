@@ -13,15 +13,15 @@
 
 import Tracing
 
-public extension OTel {
+extension OTel {
     /// A sampler composed of multiple configurable samplers which are called based on whether
     /// the parent span is remote and/or sampled, or doesn't exist.
-    struct ParentBasedSampler: Sampler {
-        private let rootSampler: Sampler
-        private let remoteParentSampledSampler: Sampler
-        private let remoteParentNotSampledSampler: Sampler
-        private let localParentSampledSampler: Sampler
-        private let localParentNotSampledSampler: Sampler
+    public struct ParentBasedSampler: OTelSampler {
+        private let rootSampler: OTelSampler
+        private let remoteParentSampledSampler: OTelSampler
+        private let remoteParentNotSampledSampler: OTelSampler
+        private let localParentSampledSampler: OTelSampler
+        private let localParentNotSampledSampler: OTelSampler
 
         /// Initialize a new parent based sampler delegating to the given samplers.
         ///
@@ -34,11 +34,11 @@ public extension OTel {
         ///   - localParentNotSampledSampler: Called whenever a span has a local parent which *is not* sampled.
         ///   Defaults to an *always off* sampler.
         public init(
-            rootSampler: Sampler,
-            remoteParentSampledSampler: Sampler = ConstantSampler(isOn: true),
-            remoteParentNotSampledSampler: Sampler = ConstantSampler(isOn: false),
-            localParentSampledSampler: Sampler = ConstantSampler(isOn: true),
-            localParentNotSampledSampler: Sampler = ConstantSampler(isOn: false)
+            rootSampler: OTelSampler,
+            remoteParentSampledSampler: OTelSampler = ConstantSampler(isOn: true),
+            remoteParentNotSampledSampler: OTelSampler = ConstantSampler(isOn: false),
+            localParentSampledSampler: OTelSampler = ConstantSampler(isOn: true),
+            localParentNotSampledSampler: OTelSampler = ConstantSampler(isOn: false)
         ) {
             self.rootSampler = rootSampler
             self.remoteParentSampledSampler = remoteParentSampledSampler
@@ -66,7 +66,7 @@ public extension OTel {
                 )
             }
 
-            let sampler: Sampler
+            let sampler: OTelSampler
 
             switch (parentSpanContext.isRemote, parentSpanContext.traceFlags.contains(.sampled)) {
             case (true, true):

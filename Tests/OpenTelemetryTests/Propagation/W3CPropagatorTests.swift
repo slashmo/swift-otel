@@ -48,7 +48,7 @@ final class W3CPropagatorTests: XCTestCase {
         )
         var headers = [String: String]()
 
-        propagator.inject(spanContext, into: &headers, using: self.injector)
+        propagator.inject(spanContext, into: &headers, using: injector)
 
         XCTAssertEqual(headers, ["traceparent": "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01"])
     }
@@ -64,7 +64,7 @@ final class W3CPropagatorTests: XCTestCase {
         )
         var headers = [String: String]()
 
-        propagator.inject(spanContext, into: &headers, using: self.injector)
+        propagator.inject(spanContext, into: &headers, using: injector)
 
         XCTAssertEqual(headers["traceparent"], "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01")
         XCTAssertEqual(headers["tracestate"], "test1=123,test2=abc")
@@ -75,19 +75,19 @@ final class W3CPropagatorTests: XCTestCase {
     func test_extractsNil_withoutW3CHeaders() throws {
         let headers = ["Content-Type": "application/json"]
 
-        XCTAssertNil(try propagator.extractSpanContext(from: headers, using: self.extractor))
+        XCTAssertNil(try propagator.extractSpanContext(from: headers, using: extractor))
     }
 
     func test_extractsNil_withoutTraceparentHeader() throws {
         let headers = ["tracestate": "test1=123,test2=abc"]
 
-        XCTAssertNil(try propagator.extractSpanContext(from: headers, using: self.extractor))
+        XCTAssertNil(try propagator.extractSpanContext(from: headers, using: extractor))
     }
 
     func test_extractsTraceparentHeader_notSampled() throws {
         let headers = ["traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00"]
 
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: self.extractor))
+        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
 
         XCTAssertEqual(String(describing: spanContext.traceID), "0af7651916cd43dd8448eb211c80319c")
         XCTAssertEqual(String(describing: spanContext.spanID), "b7ad6b7169203331")
@@ -98,7 +98,7 @@ final class W3CPropagatorTests: XCTestCase {
     func test_extractsTraceparentHeader_sampled() throws {
         let headers = ["traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"]
 
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: self.extractor))
+        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
 
         XCTAssertEqual(String(describing: spanContext.traceID), "0af7651916cd43dd8448eb211c80319c")
         XCTAssertEqual(String(describing: spanContext.spanID), "b7ad6b7169203331")
@@ -112,7 +112,7 @@ final class W3CPropagatorTests: XCTestCase {
             "tracestate": "test1=123,test2=abc",
         ]
 
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: self.extractor))
+        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
 
         XCTAssertEqual(String(describing: spanContext.traceID), "0af7651916cd43dd8448eb211c80319c")
         XCTAssertEqual(String(describing: spanContext.spanID), "b7ad6b7169203331")
@@ -129,7 +129,7 @@ final class W3CPropagatorTests: XCTestCase {
             "tracestate": "customer1@test=123,customer2@test=abc",
         ]
 
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: self.extractor))
+        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
 
         XCTAssertEqual(
             spanContext.traceState,
@@ -142,7 +142,7 @@ final class W3CPropagatorTests: XCTestCase {
             "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
             "tracestate": "",
         ]
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: self.extractor))
+        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
 
         XCTAssertNil(spanContext.traceState)
     }
@@ -151,7 +151,7 @@ final class W3CPropagatorTests: XCTestCase {
         let headers = ["traceparent": "test"]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceParentParsingError(value: "test", reason: .invalidLength(4))
         )
     }
@@ -161,7 +161,7 @@ final class W3CPropagatorTests: XCTestCase {
         let headers = ["traceparent": traceparent]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceParentParsingError(value: traceparent, reason: .unsupportedVersion("01"))
         )
     }
@@ -171,7 +171,7 @@ final class W3CPropagatorTests: XCTestCase {
         let headers = ["traceparent": traceparent]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceParentParsingError(value: traceparent, reason: .invalidDelimiters)
         )
     }
@@ -184,7 +184,7 @@ final class W3CPropagatorTests: XCTestCase {
         ]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceStateParsingError(value: tracestate, reason: .invalidCharacter("🏝"))
         )
     }
@@ -197,7 +197,7 @@ final class W3CPropagatorTests: XCTestCase {
         ]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceStateParsingError(value: tracestate, reason: .missingValue(vendor: "test"))
         )
     }
@@ -211,7 +211,7 @@ final class W3CPropagatorTests: XCTestCase {
         ]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceStateParsingError(value: traceState, reason: .invalidCharacter("="))
         )
     }
@@ -225,7 +225,7 @@ final class W3CPropagatorTests: XCTestCase {
         ]
 
         XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: self.extractor),
+            try propagator.extractSpanContext(from: headers, using: extractor),
             OTel.W3CPropagator.TraceStateParsingError(value: traceState, reason: .invalidCharacter("🏎"))
         )
     }
@@ -235,7 +235,7 @@ final class W3CPropagatorTests: XCTestCase {
     func test_injectExtractedSpanContext() throws {
         let headers = [
             "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": "key=value"
+            "tracestate": "key=value",
         ]
 
         let extractedSpanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))

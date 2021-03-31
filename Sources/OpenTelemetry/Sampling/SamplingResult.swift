@@ -13,9 +13,9 @@
 
 import Tracing
 
-public extension OTel {
+extension OTel {
     /// A decision on whether a span should be recorded/sampled.
-    enum SamplingDecision {
+    public enum SamplingDecision {
         /// Don't record the span and drop all events and attributes.
         case drop
 
@@ -27,9 +27,9 @@ public extension OTel {
     }
 }
 
-public extension OTel {
+extension OTel {
     /// The result of asking a sampler whether a given span should be sampled.
-    struct SamplingResult {
+    public struct SamplingResult {
         /// The resulting sampling decision.
         public let decision: SamplingDecision
 

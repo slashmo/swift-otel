@@ -23,7 +23,3 @@ public protocol OTelResourceDetector {
     /// - Returns: A future `Otel.Resource`
     func detect() -> EventLoopFuture<OTel.Resource>
 }
-
-public extension OTel {
-    typealias ResourceDetector = OTelResourceDetector
-}

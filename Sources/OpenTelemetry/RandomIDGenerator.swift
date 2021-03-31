@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-public extension OTel {
+extension OTel {
     /// Generates random trace and span ids using a `RandomNumberGenerator`.
-    struct RandomIDGenerator: IDGenerator {
+    public struct RandomIDGenerator: OTelIDGenerator {
         private var randomNumberGenerator: RandomNumberGenerator
 
         /// Initialize a random `IDGenerator` backed by the given `RandomNumberGenerator`.

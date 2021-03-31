@@ -12,10 +12,12 @@ let package = Package(
     targets: [
         .target(name: "Run", dependencies: [
             .product(name: "OpenTelemetry", package: "opentelemetry-swift"),
+            .product(name: "OtlpGRPCSpanExporting", package: "opentelemetry-swift"),
             .product(name: "NIO", package: "swift-nio"),
             .product(name: "Lifecycle", package: "swift-service-lifecycle"),
             .product(name: "LifecycleNIOCompat", package: "swift-service-lifecycle"),
             .product(name: "Tracing", package: "swift-distributed-tracing"),
+            .product(name: "TracingOpenTelemetrySupport", package: "swift-distributed-tracing"),
         ]),
     ]
 )

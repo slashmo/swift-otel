@@ -16,10 +16,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache Swift PM
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: .build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.resolved') }}-v2
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve
@@ -42,10 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache Swift PM
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ./Examples/Basic/.build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Basic/Package.resolved') }}
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Basic/Package.resolved') }}-v2
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve

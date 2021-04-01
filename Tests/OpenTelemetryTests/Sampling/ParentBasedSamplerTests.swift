@@ -39,9 +39,7 @@ final class ParentBasedSamplerTests: XCTestCase {
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
             spanID: .random(),
-            parentSpanID: nil,
             traceFlags: .sampled,
-            traceState: nil,
             isRemote: true
         )
 
@@ -64,9 +62,7 @@ final class ParentBasedSamplerTests: XCTestCase {
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
             spanID: .random(),
-            parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
             isRemote: true
         )
 
@@ -89,9 +85,7 @@ final class ParentBasedSamplerTests: XCTestCase {
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
             spanID: .random(),
-            parentSpanID: nil,
             traceFlags: .sampled,
-            traceState: nil,
             isRemote: false
         )
 
@@ -114,9 +108,7 @@ final class ParentBasedSamplerTests: XCTestCase {
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
             spanID: .random(),
-            parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
             isRemote: false
         )
 

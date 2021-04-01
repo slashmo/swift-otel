@@ -32,7 +32,6 @@ final class SimpleSpanProcessorTests: XCTestCase {
                 spanID: .random(),
                 parentSpanID: .random(),
                 traceFlags: .sampled,
-                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,
@@ -61,7 +60,6 @@ final class SimpleSpanProcessorTests: XCTestCase {
                 spanID: .random(),
                 parentSpanID: .random(),
                 traceFlags: [],
-                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,
@@ -90,7 +88,6 @@ final class SimpleSpanProcessorTests: XCTestCase {
                 spanID: .random(),
                 parentSpanID: .random(),
                 traceFlags: .sampled,
-                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,

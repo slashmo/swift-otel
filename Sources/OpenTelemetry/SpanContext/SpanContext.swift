@@ -34,5 +34,32 @@ extension OTel {
 
         /// Whether this context belongs to a remote span.
         public let isRemote: Bool
+
+        /// Initialize a new span context.
+        ///
+        /// - Parameters:
+        ///   - traceID: The trace ID of the span.
+        ///   - spanID: The ID of the span itself.
+        ///   - parentSpanID: The ID of the optional parent span, defaults to `nil`.
+        ///   - traceFlags: The trace flags of the span.
+        ///   - traceState: The optional trace state, defaults to `nil`.
+        ///   - isRemote: Whether the span is remote.
+        ///
+        /// - Note: Span contexts should only be created by `OTelPropagator`s when extracting from a carrier.
+        public init(
+            traceID: OTel.TraceID,
+            spanID: OTel.SpanID,
+            parentSpanID: OTel.SpanID? = nil,
+            traceFlags: OTel.TraceFlags,
+            traceState: OTel.TraceState? = nil,
+            isRemote: Bool
+        ) {
+            self.traceID = traceID
+            self.spanID = spanID
+            self.parentSpanID = parentSpanID
+            self.traceFlags = traceFlags
+            self.traceState = traceState
+            self.isRemote = isRemote
+        }
     }
 }

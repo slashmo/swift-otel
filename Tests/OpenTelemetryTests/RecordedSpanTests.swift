@@ -22,7 +22,6 @@ final class RecordedSpanTests: XCTestCase {
             spanID: .random(),
             parentSpanID: .random(),
             traceFlags: .sampled,
-            traceState: nil,
             isRemote: false
         )
         var baggage = Baggage.topLevel
@@ -73,7 +72,6 @@ final class RecordedSpanTests: XCTestCase {
             spanID: .random(),
             parentSpanID: .random(),
             traceFlags: .sampled,
-            traceState: nil,
             isRemote: false
         )
         var baggage = Baggage.topLevel

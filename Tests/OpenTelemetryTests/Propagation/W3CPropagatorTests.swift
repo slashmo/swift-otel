@@ -27,7 +27,6 @@ final class W3CPropagatorTests: XCTestCase {
             spanID: .stub,
             parentSpanID: .stub,
             traceFlags: [],
-            traceState: nil,
             isRemote: false
         )
         var headers = [String: String]()
@@ -43,7 +42,6 @@ final class W3CPropagatorTests: XCTestCase {
             spanID: .stub,
             parentSpanID: .stub,
             traceFlags: .sampled,
-            traceState: nil,
             isRemote: false
         )
         var headers = [String: String]()

@@ -44,8 +44,8 @@ jobs:
       - name: Cache Swift PM
         uses: actions/cache@v1
         with:
-          path: .build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.resolved') }}
+          path: ./Examples/Basic/.build
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Basic/Package.resolved') }}
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve

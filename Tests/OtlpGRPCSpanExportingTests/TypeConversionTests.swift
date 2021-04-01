@@ -31,9 +31,7 @@ final class TypeConversionTests: XCTestCase {
             context: OTel.SpanContext(
                 traceID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
                 spanID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8)),
-                parentSpanID: nil,
                 traceFlags: .sampled,
-                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,
@@ -328,7 +326,6 @@ final class TypeConversionTests: XCTestCase {
         baggage.spanContext = OTel.SpanContext(
             traceID: OTel.TraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
             spanID: OTel.SpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8)),
-            parentSpanID: nil,
             traceFlags: .sampled,
             traceState: OTel.TraceState([(vendor: "test", value: "test")]),
             isRemote: false

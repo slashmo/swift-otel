@@ -103,9 +103,7 @@ final class TracerTests: XCTestCase {
         let parentSpanContext = OTel.SpanContext(
             traceID: .random(),
             spanID: .random(),
-            parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
             isRemote: true
         )
         var baggage = Baggage.topLevel
@@ -160,7 +158,6 @@ final class TracerTests: XCTestCase {
             OTel.SpanContext(
                 traceID: .stub,
                 spanID: .stub,
-                parentSpanID: nil,
                 traceFlags: .sampled,
                 traceState: OTel.TraceState([(vendor: "key", value: "value")]),
                 isRemote: true

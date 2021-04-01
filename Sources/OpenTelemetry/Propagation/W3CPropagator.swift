@@ -89,9 +89,7 @@ extension OTel {
                 return OTel.SpanContext(
                     traceID: OTel.TraceID(bytes: traceIDBytes),
                     spanID: OTel.SpanID(bytes: spanIDBytes),
-                    parentSpanID: nil,
                     traceFlags: traceFlags,
-                    traceState: nil,
                     isRemote: true
                 )
             }

@@ -29,7 +29,6 @@ final class NoOpSpanExporterTests: XCTestCase {
                 spanID: .random(),
                 parentSpanID: .random(),
                 traceFlags: .sampled,
-                traceState: nil,
                 isRemote: false
             ),
             baggage: .topLevel,

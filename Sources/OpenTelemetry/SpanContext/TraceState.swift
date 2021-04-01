@@ -16,11 +16,14 @@ extension OTel {
     ///
     /// - SeeAlso: [W3C TraceContext: TraceState](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#tracestate-header)
     public struct TraceState {
-        typealias Storage = [(vendor: String, value: String)]
+        public typealias Storage = [(vendor: String, value: String)]
 
         private var storage: Storage
 
-        init(_ storage: Storage) {
+        /// Initialize trace state.
+        ///
+        /// - Parameter storage: The vendor/value pairs stored in the trace state.
+        public init(_ storage: Storage) {
             self.storage = storage
         }
     }

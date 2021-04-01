@@ -29,7 +29,8 @@ final class RandomIDGeneratorTests: XCTestCase {
     func test_generatesRandomTraceID_constantRandomValue() {
         let randomValue = UInt64.random(in: 0 ..< .max)
         let randomHexString = String(randomValue, radix: 16, uppercase: false)
-        let paddedHexString = randomHexString.count == 16 ? randomHexString : "0\(randomHexString)"
+        let pad = String(repeating: "0", count: 16 - randomHexString.count)
+        let paddedHexString = "\(pad)\(randomHexString)"
         var generator = OTel.RandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
 
         let randomTraceID = generator.generateTraceID()
@@ -59,7 +60,8 @@ final class RandomIDGeneratorTests: XCTestCase {
     func test_generatesRandomSpanID_constantRandomValue() {
         let randomValue = UInt64.random(in: 0 ..< .max)
         let randomHexString = String(randomValue, radix: 16, uppercase: false)
-        let paddedHexString = randomHexString.count == 16 ? randomHexString : "0\(randomHexString)"
+        let pad = String(repeating: "0", count: 16 - randomHexString.count)
+        let paddedHexString = "\(pad)\(randomHexString)"
         var generator = OTel.RandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
 
         let randomSpanID = generator.generateSpanID()

@@ -24,6 +24,15 @@ extension Baggage {
     }
 }
 
+extension OTel.SpanContext: CustomStringConvertible {
+    public var description: String {
+        let flagString = traceFlags.rawValue < 10 ? "0\(traceFlags.rawValue)" : "\(traceFlags.rawValue)"
+        return "\(traceID)-\(spanID)-\(flagString)"
+    }
+}
+
 private enum SpanContextKey: BaggageKey {
     typealias Value = OTel.SpanContext
+
+    static var nameOverride: String? = "otel-span-context"
 }

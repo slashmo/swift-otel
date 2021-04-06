@@ -35,4 +35,16 @@ final class SpanContextTests: XCTestCase {
         baggage.spanContext = nil
         XCTAssertNil(baggage.spanContext)
     }
+
+    func test_stringConvertible_notSampled() {
+        let spanContext = OTel.SpanContext.stub()
+
+        XCTAssertEqual(spanContext.description, "\(OTel.TraceID.stub)-\(OTel.SpanID.stub)-00")
+    }
+
+    func test_stringConvertible_sampled() {
+        let spanContext = OTel.SpanContext.stub(traceFlags: .sampled)
+
+        XCTAssertEqual(spanContext.description, "\(OTel.TraceID.stub)-\(OTel.SpanID.stub)-01")
+    }
 }

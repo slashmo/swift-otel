@@ -51,7 +51,10 @@ extension OTel.Tracer: Instrument {
         do {
             baggage.spanContext = try propagator.extractSpanContext(from: carrier, using: extractor)
         } catch {
-            logger.debug("Failed to extract span context", metadata: ["carrier": .string(String(describing: carrier))])
+            logger.debug("Failed to extract span context", metadata: [
+                "carrier": .string(String(describing: carrier)),
+                "error": .string(String(describing: error))
+            ])
         }
     }
 
@@ -195,9 +198,17 @@ extension OTel.Tracer {
         func end(at time: DispatchWallTime) {
             lock.withLockVoid {
                 if let endTime = endTime {
-                    logger.debug("Ending a span which was ended before", metadata: [
-                        "previous_end_time": .stringConvertible(endTime.rawValue),
-                    ])
+                    if let spanContext = baggage.spanContext {
+                        logger.trace("Ignoring a span that was ended before", metadata: [
+                            "previousEndTime": .stringConvertible(endTime.rawValue),
+                            "traceID": .stringConvertible(spanContext.traceID),
+                            "spanID": .stringConvertible(spanContext.spanID),
+                        ])
+                    } else {
+                        logger.trace("Ignoring a span that was ended before", metadata: [
+                            "previousEndTime": .stringConvertible(endTime.rawValue),
+                        ])
+                    }
                     return
                 }
                 endTime = time

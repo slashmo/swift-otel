@@ -70,10 +70,10 @@ public final class OTel {
             .always { [weak self] result in
                 switch result {
                 case .success(let resource):
-                    self?.logger.debug("Detected resource", metadata: resource.attributes.metadata)
+                    self?.logger.trace("Detected resource", metadata: resource.attributes.metadata)
                     self?.resource = resource
                 case .failure(let error):
-                    self?.logger.warning("Failed to detect resource", metadata: [
+                    self?.logger.debug("Failed to detect resource", metadata: [
                         "error": .string(String(describing: error)),
                     ])
                 }

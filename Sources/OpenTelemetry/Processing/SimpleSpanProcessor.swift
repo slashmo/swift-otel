@@ -18,38 +18,17 @@ extension OTel {
     /// A span processor that simply forwards all *sampled* spans to a given exporter.
     public struct SimpleSpanProcessor: OTelSpanProcessor {
         private let exporter: OTelSpanExporter
-        private let logger: Logger
 
         /// Initialize a simple span processor forwarding to the given exporter.
         ///
-        /// - Parameters:
-        ///   - exporter: The exporter to forward sampled spans to.
-        ///   - logger: The logger to report the result of exporting spans.
-        public init(exportingTo exporter: OTelSpanExporter, logger: Logger = Logger(label: "OTel")) {
+        /// - Parameter exporter: The exporter to forward sampled spans to.
+        public init(exportingTo exporter: OTelSpanExporter) {
             self.exporter = exporter
-            self.logger = logger
         }
 
         public func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource) {
             guard span.context.traceFlags.contains(.sampled) else { return }
-
-            exporter.export([span], on: resource).whenComplete { result in
-                guard logger.logLevel >= .debug else { return }
-
-                var metadata: Logger.Metadata = [
-                    "operation-name": .string(span.operationName),
-                    "trace-id": .stringConvertible(span.context.traceID),
-                    "span-id": .stringConvertible(span.context.spanID),
-                ]
-
-                switch result {
-                case .success:
-                    logger.debug("Exported span", metadata: metadata)
-                case .failure(let error):
-                    metadata["error"] = .string(String(describing: error))
-                    logger.debug("Failed to export span", metadata: metadata)
-                }
-            }
+            _ = exporter.export([span], on: resource)
         }
 
         public func shutdownGracefully() -> EventLoopFuture<Void> {

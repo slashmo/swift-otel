@@ -5,18 +5,19 @@ receivers:
         endpoint: otel-collector:4317
 
 exporters:
-  zipkin:
-    endpoint: "http://zipkin:9411/api/v2/spans"
+  logging:
+    logLevel: debug
 
   jaeger:
     endpoint: "jaeger:14250"
     insecure: true
 
-  logging:
-    loglevel: debug
+  zipkin:
+    endpoint: "http://zipkin:9411/api/v2/spans"
+
 
 service:
   pipelines:
     traces:
-      receivers: [otlp]
-      exporters: [logging, zipkin, jaeger]
+      receivers: otlp
+      exporters: [logging, jaeger, zipkin]

@@ -26,7 +26,7 @@ jobs:
       - name: Build & Test
         run: swift test --enable-test-discovery --parallel
 
-  compile-basic-example:
+  compile-onboarding-example:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,15 +37,15 @@ jobs:
     container: ${{ matrix.images }}
     defaults:
       run:
-        working-directory: ./Examples/Basic
+        working-directory: ./Examples/Onboarding
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache Swift PM
         uses: actions/cache@v2
         with:
-          path: ./Examples/Basic/.build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Basic/Package.resolved') }}-v2
+          path: ./Examples/Onboarding/.build
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Onboarding/Package.resolved') }}
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve

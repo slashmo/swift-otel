@@ -106,6 +106,6 @@ public final class OTel {
     ///
     /// - Returns: A future that completes once `OTel` and its sub-components was shutdown.
     public func shutdown() -> EventLoopFuture<Void> {
-        eventLoopGroup.next().makeSucceededVoidFuture()
+        processor.shutdownGracefully()
     }
 }

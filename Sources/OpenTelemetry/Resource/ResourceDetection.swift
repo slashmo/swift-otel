@@ -43,8 +43,8 @@ extension OTel.ResourceDetection {
         switch self {
         case .automatic(let additionalDetectors):
             let detectors = [
-                OTel.EnvironmentResourceDetector(eventLoopGroup: eventLoopGroup),
                 OTel.ProcessResourceDetector(eventLoopGroup: eventLoopGroup),
+                OTel.EnvironmentResourceDetector(eventLoopGroup: eventLoopGroup),
             ] + additionalDetectors
 
             promise.completeWith(.reduce(

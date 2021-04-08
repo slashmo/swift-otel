@@ -11,12 +11,12 @@
         }
       },
       {
-        "package": "swift-backtrace",
-        "repositoryURL": "https://github.com/swift-server/swift-backtrace.git",
+        "package": "opentelemetry-swift",
+        "repositoryURL": "https://github.com/slashmo/opentelemetry-swift.git",
         "state": {
-          "branch": null,
-          "revision": "93b3d9a76454e05379a32a2f3b2a1f5a7794b414",
-          "version": "1.2.1"
+          "branch": "main",
+          "revision": "0b6cbb2fbddefdc0e2e604119d015efe316c1a14",
+          "version": null
         }
       },
       {
@@ -53,15 +53,6 @@
           "branch": null,
           "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
           "version": "1.4.2"
-        }
-      },
-      {
-        "package": "swift-metrics",
-        "repositoryURL": "https://github.com/apple/swift-metrics.git",
-        "state": {
-          "branch": null,
-          "revision": "e382458581b05839a571c578e90060fff499f101",
-          "version": "2.1.1"
         }
       },
       {
@@ -116,15 +107,6 @@
           "branch": null,
           "revision": "e1904bf5a5f79cb7e0ff68a427a53a93b652fcd1",
           "version": "1.15.0"
-        }
-      },
-      {
-        "package": "swift-service-lifecycle",
-        "repositoryURL": "https://github.com/swift-server/swift-service-lifecycle.git",
-        "state": {
-          "branch": null,
-          "revision": "a7356e142b083938c63e559b78e35f7f82627a79",
-          "version": "1.0.0-alpha.6"
         }
       }
     ]

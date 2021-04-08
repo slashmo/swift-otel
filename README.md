@@ -80,7 +80,7 @@ clients such as "OpenTelemetry Swift" and tracing backends such as Jaeger and Zi
 how to configure the collector in this guide, but instead focus on our "onboarding" service.
 
 We use Docker to run the OTel collector, Jaeger, and Zipkin locally. Both `docker-compose.yaml` and
-`collector-config.yaml` are located in the ["docker"](Examples/Onboarding/Docker) folder of the "onboarding" example.
+`collector-config.yaml` are located in the ["docker"](Examples/Onboarding/docker) folder of the "onboarding" example.
 
 ```sh
 # In Examples/Onboarding

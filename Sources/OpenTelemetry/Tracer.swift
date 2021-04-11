@@ -53,7 +53,7 @@ extension OTel.Tracer: Instrument {
         } catch {
             logger.debug("Failed to extract span context", metadata: [
                 "carrier": .string(String(describing: carrier)),
-                "error": .string(String(describing: error))
+                "error": .string(String(describing: error)),
             ])
         }
     }

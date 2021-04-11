@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import OpenTelemetry
 import Instrumentation
+@testable import OpenTelemetry
 import XCTest
 
 final class MultiplexPropagatorTests: XCTestCase {

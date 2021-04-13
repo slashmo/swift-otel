@@ -25,10 +25,7 @@ extension OTel {
             self.eventLoopGroup = eventLoopGroup
         }
 
-        public func export(
-            _ batch: ArraySlice<OTel.RecordedSpan>,
-            on resource: OTel.Resource
-        ) -> EventLoopFuture<Void> {
+        public func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }
 

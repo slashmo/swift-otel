@@ -23,7 +23,7 @@ struct FailingSpanExporter: OTelSpanExporter {
         self.error = error
     }
 
-    func export(_ batch: ArraySlice<OTel.RecordedSpan>, on resource: OTel.Resource) -> EventLoopFuture<Void> {
+    func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
         eventLoopGroup.next().makeFailedFuture(error)
     }
 

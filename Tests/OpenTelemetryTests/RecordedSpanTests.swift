@@ -40,6 +40,7 @@ final class RecordedSpanTests: XCTestCase {
             kind: .internal,
             startTime: startTime,
             attributes: attributes,
+            resource: OTel.Resource(attributes: ["key": "value"]),
             logger: Logger(label: #function)
         ) { _ in }
 
@@ -64,6 +65,7 @@ final class RecordedSpanTests: XCTestCase {
         XCTAssertEqual(recordedSpan.attributes, attributes)
         XCTAssertEqual(recordedSpan.events, events)
         XCTAssertEqual(recordedSpan.links.count, 1)
+        XCTAssertEqual(recordedSpan.resource.attributes["key"]?.toSpanAttribute(), "value")
     }
 
     func test_initFailsForNonEndedSpans() {
@@ -77,27 +79,13 @@ final class RecordedSpanTests: XCTestCase {
         var baggage = Baggage.topLevel
         baggage.spanContext = spanContext
 
-        let span = OTel.Tracer.Span(
-            operationName: #function,
-            baggage: baggage,
-            kind: .internal,
-            startTime: .now(),
-            attributes: [:],
-            logger: Logger(label: #function)
-        ) { _ in }
+        let span = OTel.Tracer.Span.stub()
 
         XCTAssertNil(OTel.RecordedSpan(span), "Non-ended spans should not be convertible to a RecordedSpan.")
     }
 
     func test_initFailsForContextlessSpans() {
-        let span = OTel.Tracer.Span(
-            operationName: #function,
-            baggage: .topLevel,
-            kind: .internal,
-            startTime: .now(),
-            attributes: [:],
-            logger: Logger(label: #function)
-        ) { _ in }
+        let span = OTel.Tracer.Span.stub(spanContext: nil)
 
         XCTAssertNil(OTel.RecordedSpan(span), "Spans without context should not be convertible to a RecordedSpan.")
     }

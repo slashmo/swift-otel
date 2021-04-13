@@ -28,7 +28,7 @@ final class InMemorySpanExporter: OTelSpanExporter {
         self.eventLoopGroup = eventLoopGroup
     }
 
-    func export(_ batch: ArraySlice<OTel.RecordedSpan>, on resource: OTel.Resource) -> EventLoopFuture<Void> {
+    func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
         lock.withLockVoid {
             _spans.append(contentsOf: batch)
         }

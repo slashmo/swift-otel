@@ -26,9 +26,9 @@ extension OTel {
             self.exporter = exporter
         }
 
-        public func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource) {
+        public func processEndedSpan(_ span: OTel.RecordedSpan) {
             guard span.context.traceFlags.contains(.sampled) else { return }
-            _ = exporter.export([span], on: resource)
+            _ = exporter.export([span])
         }
 
         public func shutdownGracefully() -> EventLoopFuture<Void> {

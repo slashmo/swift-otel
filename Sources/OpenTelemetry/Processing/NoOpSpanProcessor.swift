@@ -25,7 +25,7 @@ extension OTel {
             self.eventLoopGroup = eventLoopGroup
         }
 
-        public func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource) {}
+        public func processEndedSpan(_ span: OTel.RecordedSpan) {}
 
         public func shutdownGracefully() -> EventLoopFuture<Void> {
             eventLoopGroup.next().makeSucceededVoidFuture()

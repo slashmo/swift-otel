@@ -42,14 +42,10 @@ public final class OtlpGRPCSpanExporter: OTelSpanExporter {
         self.logger = config.logger
     }
 
-    public func export(_ batch: ArraySlice<OTel.RecordedSpan>, on resource: OTel.Resource) -> EventLoopFuture<Void> {
+    public func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
         logger.trace("Exporting batch of spans", metadata: ["batch-size": .stringConvertible(batch.count)])
 
-        let request = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest.with { request in
-            request.resourceSpans = [.init(resource: resource, spans: batch)]
-        }
-
-        return client.export(request).response
+        return client.export(.init(batch)).response
             .always { [weak self] result in
                 switch result {
                 case .success:

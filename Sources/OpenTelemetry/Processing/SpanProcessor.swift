@@ -19,8 +19,7 @@ public protocol OTelSpanProcessor {
     ///
     /// - Parameters:
     ///   - span: The span to be processed.
-    ///   - resource: The resource the span was running on.
-    func processEndedSpan(_ span: OTel.RecordedSpan, on resource: OTel.Resource)
+    func processEndedSpan(_ span: OTel.RecordedSpan)
 
     /// Shutdown the processor by trying to finish currently processed spans, but not allowing new ones to be processed.
     func shutdownGracefully() -> EventLoopFuture<Void>

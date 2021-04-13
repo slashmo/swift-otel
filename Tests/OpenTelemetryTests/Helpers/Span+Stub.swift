@@ -22,6 +22,7 @@ extension OTel.Tracer.Span {
         kind: SpanKind = .internal,
         startTime: DispatchWallTime = .now(),
         attributes: SpanAttributes = [:],
+        resource: OTel.Resource = OTel.Resource(),
         logger: Logger = Logger(label: #function),
         onEnd: @escaping (OTel.RecordedSpan) -> Void = { _ in }
     ) -> OTel.Tracer.Span {
@@ -34,6 +35,7 @@ extension OTel.Tracer.Span {
             kind: kind,
             startTime: startTime,
             attributes: attributes,
+            resource: resource,
             logger: logger,
             onEnd: onEnd
         )

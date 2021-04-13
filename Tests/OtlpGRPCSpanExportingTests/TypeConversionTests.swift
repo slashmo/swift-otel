@@ -17,9 +17,62 @@ import Tracing
 import XCTest
 
 final class TypeConversionTests: XCTestCase {
-    // MARK: - Resource Spans
+    // MARK: - Export Request
 
-    func test_convertResourceSpans() {
+    func test_convertToExportRequest() throws {
+        let startTime = DispatchWallTime.now()
+        let endTime = startTime + .seconds(1)
+
+        let resource = OTel.Resource(attributes: ["id": "1"])
+
+        let span1 = OTel.RecordedSpan(
+            operationName: #function,
+            kind: .internal,
+            status: nil,
+            context: OTel.SpanContext(
+                traceID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
+                spanID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8)),
+                traceFlags: .sampled,
+                isRemote: false
+            ),
+            baggage: .topLevel,
+            startTime: startTime,
+            endTime: endTime,
+            attributes: [:],
+            events: [],
+            links: [],
+            resource: resource
+        )
+        let span2 = OTel.RecordedSpan(
+            operationName: #function,
+            kind: .internal,
+            status: nil,
+            context: OTel.SpanContext(
+                traceID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
+                spanID: .init(bytes: (1, 2, 3, 4, 5, 6, 7, 8)),
+                traceFlags: .sampled,
+                isRemote: false
+            ),
+            baggage: .topLevel,
+            startTime: startTime,
+            endTime: endTime,
+            attributes: [:],
+            events: [],
+            links: [],
+            resource: resource
+        )
+
+        let request = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest([span1, span2])
+
+        XCTAssertEqual(request.resourceSpans.count, 1)
+        let resourceSpans = try XCTUnwrap(request.resourceSpans.first)
+        XCTAssertEqual(resourceSpans.resource, .init(resource))
+        XCTAssertEqual(resourceSpans.instrumentationLibrarySpans, [.init(spans: [span1, span2])])
+    }
+
+    // MARK: - Instrumentation Library Spans
+
+    func test_convertInstrumentationLibrarySpans() {
         let startTime = DispatchWallTime.now()
         let endTime = startTime + .seconds(1)
 
@@ -39,20 +92,18 @@ final class TypeConversionTests: XCTestCase {
             endTime: endTime,
             attributes: [:],
             events: [],
-            links: []
+            links: [],
+            resource: resource
         )
 
         XCTAssertEqual(
-            Opentelemetry_Proto_Trace_V1_ResourceSpans(resource: resource, spans: [span]),
+            Opentelemetry_Proto_Trace_V1_InstrumentationLibrarySpans(spans: [span]),
             .with {
-                $0.resource = .init(resource)
-                $0.instrumentationLibrarySpans = [.with { instrumentationLibrarySpans in
-                    instrumentationLibrarySpans.spans = [.init(span)]
-                    instrumentationLibrarySpans.instrumentationLibrary = .with { library in
-                        library.name = "opentelemetry-swift"
-                        library.version = OTel.versionString
-                    }
-                }]
+                $0.instrumentationLibrary = .with { library in
+                    library.name = "opentelemetry-swift"
+                    library.version = OTel.versionString
+                }
+                $0.spans = [.init(span)]
             }
         )
     }
@@ -82,7 +133,8 @@ final class TypeConversionTests: XCTestCase {
             attributes: ["key": "value"],
             events: [SpanEvent(name: "test", at: eventStartTime)],
             // will be filtered out due to missing span context
-            links: [SpanLink(baggage: .topLevel)]
+            links: [SpanLink(baggage: .topLevel)],
+            resource: OTel.Resource()
         )
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span(span),

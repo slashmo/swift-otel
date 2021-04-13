@@ -19,86 +19,41 @@ import XCTest
 final class SimpleSpanProcessorTests: XCTestCase {
     private let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
-    func test_exportsSampledSpans() {
+    func test_exportsSampledSpans() throws {
         let exporter = InMemorySpanExporter(eventLoopGroup: eventLoopGroup)
         let processor = OTel.SimpleSpanProcessor(exportingTo: exporter)
 
-        let span = OTel.RecordedSpan(
-            operationName: #function,
-            kind: .internal,
-            status: nil,
-            context: OTel.SpanContext(
-                traceID: .random(),
-                spanID: .random(),
-                parentSpanID: .random(),
-                traceFlags: .sampled,
-                isRemote: false
-            ),
-            baggage: .topLevel,
-            startTime: .now(),
-            endTime: .now() + .seconds(1),
-            attributes: [:],
-            events: [],
-            links: []
-        )
+        let span = OTel.Tracer.Span.stub(spanContext: .stub(traceFlags: .sampled))
+        span.end()
+        let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
-        processor.processEndedSpan(span, on: OTel.Resource())
+        processor.processEndedSpan(recordedSpan)
 
         XCTAssertEqual(exporter.spans.count, 1, "Expected sampled span to be exported.")
     }
 
-    func test_ignoresNonSampledSpans() {
+    func test_ignoresNonSampledSpans() throws {
         let exporter = InMemorySpanExporter(eventLoopGroup: eventLoopGroup)
         let processor = OTel.SimpleSpanProcessor(exportingTo: exporter)
 
-        let span = OTel.RecordedSpan(
-            operationName: #function,
-            kind: .internal,
-            status: nil,
-            context: OTel.SpanContext(
-                traceID: .random(),
-                spanID: .random(),
-                parentSpanID: .random(),
-                traceFlags: [],
-                isRemote: false
-            ),
-            baggage: .topLevel,
-            startTime: .now(),
-            endTime: .now() + .seconds(1),
-            attributes: [:],
-            events: [],
-            links: []
-        )
+        let span = OTel.Tracer.Span.stub(spanContext: .stub())
+        span.end()
+        let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
-        processor.processEndedSpan(span, on: OTel.Resource())
+        processor.processEndedSpan(recordedSpan)
 
         XCTAssertTrue(exporter.spans.isEmpty, "Expected non-sampled span to not be exported.")
     }
 
-    func test_ignoresFailedExports() {
+    func test_ignoresFailedExports() throws {
         let exporter = FailingSpanExporter(eventLoopGroup: eventLoopGroup, error: TestError.some)
         let processor = OTel.SimpleSpanProcessor(exportingTo: exporter)
 
-        let span = OTel.RecordedSpan(
-            operationName: #function,
-            kind: .internal,
-            status: nil,
-            context: OTel.SpanContext(
-                traceID: .random(),
-                spanID: .random(),
-                parentSpanID: .random(),
-                traceFlags: .sampled,
-                isRemote: false
-            ),
-            baggage: .topLevel,
-            startTime: .now(),
-            endTime: .now() + .seconds(1),
-            attributes: [:],
-            events: [],
-            links: []
-        )
+        let span = OTel.Tracer.Span.stub()
+        span.end()
+        let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
-        processor.processEndedSpan(span, on: OTel.Resource())
+        processor.processEndedSpan(recordedSpan)
     }
 }
 

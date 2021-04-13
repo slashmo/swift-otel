@@ -119,10 +119,10 @@ extension OTel.Tracer: Tracer {
             kind: kind,
             startTime: time,
             attributes: samplingResult.attributes,
+            resource: resource,
             logger: logger
         ) { [weak self] recordedSpan in
-            guard let self = self else { return }
-            self.processor.processEndedSpan(recordedSpan, on: self.resource)
+            self?.processor.processEndedSpan(recordedSpan)
         }
     }
 
@@ -145,6 +145,7 @@ extension OTel.Tracer {
         var attributes: SpanAttributes = [:]
         private(set) var events = [SpanEvent]()
         private(set) var links = [SpanLink]()
+        let resource: OTel.Resource
 
         private let logger: Logger
         private let lock = Lock()
@@ -157,6 +158,7 @@ extension OTel.Tracer {
             kind: SpanKind,
             startTime: DispatchWallTime,
             attributes: SpanAttributes,
+            resource: OTel.Resource,
             logger: Logger,
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
@@ -165,6 +167,7 @@ extension OTel.Tracer {
             self.kind = kind
             self.startTime = startTime
             self.attributes = attributes
+            self.resource = resource
             self.logger = logger
             self.onEnd = onEnd
         }

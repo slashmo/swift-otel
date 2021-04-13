@@ -20,25 +20,10 @@ final class NoOpSpanExporterTests: XCTestCase {
         let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         let exporter = OTel.NoOpSpanExporter(eventLoopGroup: eventLoopGroup)
 
-        let span = OTel.RecordedSpan(
-            operationName: #function,
-            kind: .internal,
-            status: nil,
-            context: OTel.SpanContext(
-                traceID: .random(),
-                spanID: .random(),
-                parentSpanID: .random(),
-                traceFlags: .sampled,
-                isRemote: false
-            ),
-            baggage: .topLevel,
-            startTime: .now(),
-            endTime: .now(),
-            attributes: [:],
-            events: [],
-            links: []
-        )
+        let span = OTel.Tracer.Span.stub()
+        span.end()
+        let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
-        XCTAssertNoThrow(exporter.export([span], on: OTel.Resource()))
+        XCTAssertNoThrow(exporter.export([recordedSpan]))
     }
 }

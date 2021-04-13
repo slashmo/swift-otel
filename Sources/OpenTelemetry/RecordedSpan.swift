@@ -48,6 +48,9 @@ extension OTel {
 
         /// The links to other spans.
         public let links: [SpanLink]
+
+        /// The resource on which this span was recorded.
+        public let resource: OTel.Resource
     }
 }
 
@@ -72,5 +75,6 @@ extension OTel.RecordedSpan {
         self.attributes = span.attributes
         self.events = span.events
         self.links = span.links
+        self.resource = span.resource
     }
 }

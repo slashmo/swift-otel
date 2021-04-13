@@ -25,7 +25,7 @@ extension OTel {
             self.eventLoopGroup = eventLoopGroup
         }
 
-        public func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
+        public func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }
 

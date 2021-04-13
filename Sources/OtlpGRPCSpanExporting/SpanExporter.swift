@@ -42,7 +42,7 @@ public final class OtlpGRPCSpanExporter: OTelSpanExporter {
         self.logger = config.logger
     }
 
-    public func export(_ batch: ArraySlice<OTel.RecordedSpan>) -> EventLoopFuture<Void> {
+    public func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
         logger.trace("Exporting batch of spans", metadata: ["batch-size": .stringConvertible(batch.count)])
 
         return client.export(.init(batch)).response

@@ -71,6 +71,9 @@ extension OTel {
 
         private func exportBatch(_ task: RepeatedTask) -> EventLoopFuture<Void> {
             queueLock.withLock {
+                guard !queue.isEmpty else {
+                    return eventLoopGroup.next().makeSucceededVoidFuture()
+                }
                 let spans = queue.prefix(maxBatchSize)
                 queue.removeFirst(spans.count)
                 return exporter.export(spans)

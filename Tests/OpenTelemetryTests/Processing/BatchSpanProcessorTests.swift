@@ -26,6 +26,22 @@ final class BatchSpanProcessorTests: XCTestCase {
         try eventLoopGroup.syncShutdownGracefully()
     }
 
+    func test_doesNotInvokeExporterWithEmptyBatch() throws {
+        let exporter = InMemorySpanExporter(eventLoopGroup: eventLoopGroup)
+
+        let processor = OTel.BatchSpanProcessor(
+            interval: .zero,
+            exportingTo: exporter,
+            eventLoopGroup: eventLoopGroup
+        )
+
+        try eventLoopGroup.next().scheduleTask(in: .microseconds(100)) {}.futureResult.wait()
+        try exporter.shutdownGracefully().wait()
+        try processor.shutdownGracefully().wait()
+
+        XCTAssertEqual(exporter.numberOfExports, 0)
+    }
+
     func test_exportsSingleBatch() throws {
         let span1 = try recordedSpan()
         let span2 = try recordedSpan()

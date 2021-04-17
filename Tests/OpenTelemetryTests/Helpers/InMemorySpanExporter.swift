@@ -19,6 +19,7 @@ final class InMemorySpanExporter: OTelSpanExporter {
     private let eventLoopGroup: EventLoopGroup
     private let lock = Lock()
     private var _spans = [OTel.RecordedSpan]()
+    private(set) var numberOfExports = 0
 
     var spans: [OTel.RecordedSpan] {
         lock.withLock { _spans }
@@ -29,6 +30,7 @@ final class InMemorySpanExporter: OTelSpanExporter {
     }
 
     func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
+        numberOfExports += 1
         lock.withLockVoid {
             _spans.append(contentsOf: batch)
         }

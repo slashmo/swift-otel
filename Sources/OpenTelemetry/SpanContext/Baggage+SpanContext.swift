@@ -16,10 +16,10 @@ import CoreBaggage
 extension Baggage {
     public internal(set) var spanContext: OTel.SpanContext? {
         get {
-            self[SpanContextKey]
+            self[SpanContextKey.self]
         }
         set {
-            self[SpanContextKey] = newValue
+            self[SpanContextKey.self] = newValue
         }
     }
 }

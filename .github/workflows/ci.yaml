@@ -10,6 +10,7 @@ jobs:
       matrix:
         images:
         - swift:5.3
+        - swift:5.4
         - swiftlang/swift:nightly-master
     container: ${{ matrix.images }}
     steps:
@@ -33,6 +34,7 @@ jobs:
       matrix:
         images:
         - swift:5.3
+        - swift:5.4
         - swiftlang/swift:nightly-master
     container: ${{ matrix.images }}
     defaults:

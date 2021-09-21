@@ -26,7 +26,7 @@ final class RecordedSpanTests: XCTestCase {
         )
         var baggage = Baggage.topLevel
         baggage.spanContext = spanContext
-        baggage[TestBaggageKey] = 42
+        baggage[TestBaggageKey.self] = 42
 
         let startTime = DispatchWallTime.now()
         let endTime = DispatchWallTime.now()
@@ -59,7 +59,7 @@ final class RecordedSpanTests: XCTestCase {
             recordedSpan.baggage.spanContext,
             "The baggage of a recorded span should not contain the span context."
         )
-        XCTAssertEqual(recordedSpan.baggage[TestBaggageKey], 42)
+        XCTAssertEqual(recordedSpan.baggage[TestBaggageKey.self], 42)
         XCTAssertEqual(recordedSpan.startTime, startTime)
         XCTAssertEqual(recordedSpan.endTime, endTime)
         XCTAssertEqual(recordedSpan.attributes, attributes)

@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import CoreBaggage
+import InstrumentationBaggage
 @testable import OpenTelemetry
 import XCTest
 

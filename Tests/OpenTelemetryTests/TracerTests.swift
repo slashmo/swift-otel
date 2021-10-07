@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 import NIO
 @testable import OpenTelemetry
 import Tracing

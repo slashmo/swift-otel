@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 @testable import OpenTelemetry
 import Tracing
 import XCTest
@@ -88,13 +89,6 @@ final class RecordedSpanTests: XCTestCase {
         let span = OTel.Tracer.Span.stub(spanContext: nil)
 
         XCTAssertNil(OTel.RecordedSpan(span), "Spans without context should not be convertible to a RecordedSpan.")
-    }
-}
-
-extension SpanStatus: Equatable {
-    public static func == (lhs: SpanStatus, rhs: SpanStatus) -> Bool {
-        lhs.code == rhs.code
-            && lhs.message == rhs.message
     }
 }
 

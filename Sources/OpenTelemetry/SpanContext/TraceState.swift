@@ -44,3 +44,7 @@ extension OTel.TraceState: CustomStringConvertible {
         storage.map { "\($0)=\($1)" }.joined(separator: ",")
     }
 }
+
+#if swift(>=5.5) && canImport(_Concurrency)
+extension OTel.TraceState: Sendable {}
+#endif

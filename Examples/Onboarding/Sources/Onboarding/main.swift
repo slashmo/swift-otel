@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 import NIO
 import OpenTelemetry
 import OtlpGRPCSpanExporting
@@ -19,6 +20,12 @@ import Tracing
 // In a real application, you should re-use your existing
 // event loop group instead of creating a new one.
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+
+LoggingSystem.bootstrap { label in
+    var handler = StreamLogHandler.standardOutput(label: label)
+    handler.logLevel = .trace
+    return handler
+}
 
 // MARK: - Configure OTel
 

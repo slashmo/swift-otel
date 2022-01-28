@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import CoreBaggage
+import InstrumentationBaggage
 
 extension Baggage {
     public internal(set) var spanContext: OTel.SpanContext? {

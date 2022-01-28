@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import struct Dispatch.DispatchWallTime
+import Logging
 @testable import OpenTelemetry
 import Tracing
 

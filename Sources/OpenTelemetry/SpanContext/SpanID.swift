@@ -90,3 +90,7 @@ extension OTel.SpanID: Hashable {
         hasher.combine(_bytes.7)
     }
 }
+
+#if swift(>=5.5) && canImport(_Concurrency)
+extension OTel.SpanID: Sendable {}
+#endif

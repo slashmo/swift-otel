@@ -31,7 +31,7 @@ here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function replace_acceptable_years() {
   # this needs to replace all acceptable forms with 'YEARS'
-  sed -e 's/2020-2021/YEARS/' -e 's/2020/YEARS/' -e 's/2021/YEARS/'
+  sed -e 's/2020-2022/YEARS/' -e 's/2020/YEARS/' -e 's/2021/YEARS/' -e 's/2022/YEARS/'
 }
 
 printf "=> Checking license headers\n"

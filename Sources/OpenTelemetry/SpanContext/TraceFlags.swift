@@ -32,3 +32,7 @@ extension OTel {
         public static let sampled = TraceFlags(rawValue: 1 << 0)
     }
 }
+
+#if swift(>=5.5) && canImport(_Concurrency)
+extension OTel.TraceFlags: Sendable {}
+#endif

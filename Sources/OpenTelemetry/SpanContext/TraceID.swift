@@ -125,3 +125,7 @@ extension OTel.TraceID: Hashable {
         hasher.combine(_bytes.15)
     }
 }
+
+#if swift(>=5.5) && canImport(_Concurrency)
+extension OTel.TraceID: Sendable {}
+#endif

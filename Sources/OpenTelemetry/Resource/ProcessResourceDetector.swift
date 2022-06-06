@@ -34,8 +34,6 @@ extension OTel {
             if #available(macOS 10.12, *) {
                 attributes["process.owner"] = ProcessInfo.processInfo.userName
             }
-            #else
-            attributes["process.owner"] = ProcessInfo.processInfo.userName
             #endif
 
             return eventLoopGroup.next().makeSucceededFuture(Resource(attributes: attributes))

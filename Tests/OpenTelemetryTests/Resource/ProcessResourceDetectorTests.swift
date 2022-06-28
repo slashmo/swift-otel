@@ -24,14 +24,16 @@ final class ProcessResourceDetectorTests: XCTestCase {
         XCTAssertNotNil(resource.attributes["process.pid"])
         XCTAssertNotNil(resource.attributes["process.executable.name"])
         XCTAssertNotNil(resource.attributes["process.executable.path"])
+        #if os(macOS) || os(Linux)
         XCTAssertNotNil(resource.attributes["process.command"])
+        #endif
         XCTAssertNotNil(resource.attributes["process.command_line"])
 
         #if os(macOS)
         if #available(macOS 10.12, *) {
             XCTAssertNotNil(resource.attributes["process.owner"])
         }
-        #else
+        #elseif os(Linux)
         XCTAssertNotNil(resource.attributes["process.owner"])
         #endif
     }

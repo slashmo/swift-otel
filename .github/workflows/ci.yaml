@@ -9,10 +9,10 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.3
-        - swift:5.4
-        - swift:5.5
-        - swiftlang/swift:nightly-master
+          - swift:5.3
+          - swift:5.4
+          - swift:5.5
+          - swiftlang/swift:nightly-master
     container: ${{ matrix.images }}
     steps:
       - name: Checkout
@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.resolved') }}-v2
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.swift') }}
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve
@@ -34,10 +34,10 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.3
-        - swift:5.4
-        - swift:5.5
-        - swiftlang/swift:nightly-master
+          - swift:5.3
+          - swift:5.4
+          - swift:5.5
+          - swiftlang/swift:nightly-master
     container: ${{ matrix.images }}
     defaults:
       run:
@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./Examples/Onboarding/.build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Onboarding/Package.resolved') }}
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Onboarding/Package.swift') }}
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve

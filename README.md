@@ -29,7 +29,7 @@ a trace created by "onboarding":
 To add "OpenTelemetry Swift" to our project, we first need to include it as a package dependency:
 
 ```swift
-.package(url: "https://github.com/slashmo/opentelemetry-swift.git", from: "0.1.0"),
+.package(url: "https://github.com/slashmo/opentelemetry-swift.git", from: "0.3.0"),
 ```
 
 Then we add `OpenTelemetry` to our executable target:
@@ -63,7 +63,7 @@ try group.syncShutdownGracefully()
 ```
 
 > ⚠️ With this setup, ended spans will be ignored and not exported to a tracing backend. Read on to learn more
-about [how to configure processing & exporting](#configuring-processing-and-exporting).
+> about [how to configure processing & exporting](#configuring-processing-and-exporting).
 
 ### Configuring processing and exporting
 
@@ -380,7 +380,7 @@ OTel.ResourceDetection.none
 
 To ensure a consistent code style we use [SwiftFormat](https://github.com/nicklockwood/SwiftFormat).
 To automatically run it before you push to GitHub, you may define a `pre-push` Git hook executing
-the *soundness* script:
+the _soundness_ script:
 
 ```sh
 echo './scripts/soundness.sh' > .git/hooks/pre-push

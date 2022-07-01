@@ -18,7 +18,7 @@ import Tracing
 /// The main entry point to using OpenTelemetry.
 public final class OTel {
     /// The current `semver` version of the library.
-    public static let versionString = "0.1.0"
+    public static let versionString = "0.3.0"
 
     private let eventLoopGroup: EventLoopGroup
     private let resourceDetection: ResourceDetection

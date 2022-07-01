@@ -6,17 +6,8 @@
         "repositoryURL": "https://github.com/grpc/grpc-swift.git",
         "state": {
           "branch": null,
-          "revision": "9e464a75079928366aa7041769a271fac89271bf",
-          "version": "1.0.0"
-        }
-      },
-      {
-        "package": "opentelemetry-swift",
-        "repositoryURL": "https://github.com/slashmo/opentelemetry-swift.git",
-        "state": {
-          "branch": "main",
-          "revision": "0b6cbb2fbddefdc0e2e604119d015efe316c1a14",
-          "version": null
+          "revision": "d772b688d718c2eb29f99b535fc4d92ebba031c5",
+          "version": "1.8.1"
         }
       },
       {
@@ -24,8 +15,8 @@
         "repositoryURL": "https://github.com/apple/swift-distributed-tracing.git",
         "state": {
           "branch": null,
-          "revision": "fce1f7c91ad5a733500ea1cdd7ccd7aed9130536",
-          "version": "0.1.4"
+          "revision": "7a89c904d80fd2dc7c6071806f38d5d0b2d5a1b5",
+          "version": "0.2.0"
         }
       },
       {
@@ -33,17 +24,8 @@
         "repositoryURL": "https://github.com/apple/swift-distributed-tracing-baggage.git",
         "state": {
           "branch": null,
-          "revision": "b68b3277985555995298426a35084b832dbc51ae",
-          "version": "0.1.1"
-        }
-      },
-      {
-        "package": "swift-distributed-tracing-baggage-core",
-        "repositoryURL": "https://github.com/apple/swift-distributed-tracing-baggage-core.git",
-        "state": {
-          "branch": null,
-          "revision": "9a2884a37f39e08ebd225627c400feae9c6ea8df",
-          "version": "0.1.1"
+          "revision": "c8457ce61adc6a3b9e6223ca147f5196f99e22cc",
+          "version": "0.2.3"
         }
       },
       {
@@ -60,8 +42,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "3be4e0980075de10a4bc8dee07491d49175cfd7a",
-          "version": "2.27.0"
+          "revision": "124119f0bb12384cef35aa041d7c3a686108722d",
+          "version": "2.40.0"
         }
       },
       {
@@ -69,8 +51,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-extras.git",
         "state": {
           "branch": null,
-          "revision": "de1c80ad1fdff1ba772bcef6b392c3ef735f39a6",
-          "version": "1.8.0"
+          "revision": "a75e92bde3683241c15df3dd905b7a6dcac4d551",
+          "version": "1.12.1"
         }
       },
       {
@@ -78,8 +60,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-http2.git",
         "state": {
           "branch": null,
-          "revision": "f4736a3b78a2bbe3feb7fc0f33f6683a8c27974c",
-          "version": "1.16.3"
+          "revision": "108ac15087ea9b79abb6f6742699cf31de0e8772",
+          "version": "1.22.0"
         }
       },
       {
@@ -87,8 +69,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "07c160b8724ee53a4b776328122be6338ff12bf2",
-          "version": "2.11.0"
+          "revision": "42436a25ff32c390465567f5c089a9a8ce8d7baf",
+          "version": "2.20.0"
         }
       },
       {
@@ -96,8 +78,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-transport-services.git",
         "state": {
           "branch": null,
-          "revision": "1d28d48e071727f4558a8a4bb1894472abc47a58",
-          "version": "1.9.2"
+          "revision": "2cb54f91ddafc90832c5fa247faf5798d0a7c204",
+          "version": "1.13.0"
         }
       },
       {
@@ -105,8 +87,8 @@
         "repositoryURL": "https://github.com/apple/swift-protobuf.git",
         "state": {
           "branch": null,
-          "revision": "e1904bf5a5f79cb7e0ff68a427a53a93b652fcd1",
-          "version": "1.15.0"
+          "revision": "e1499bc69b9040b29184f7f2996f7bab467c1639",
+          "version": "1.19.0"
         }
       }
     ]

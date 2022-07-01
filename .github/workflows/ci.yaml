@@ -9,10 +9,11 @@ jobs:
       fail-fast: false
       matrix:
         images:
-        - swift:5.3
-        - swift:5.4
-        - swift:5.5
-        - swiftlang/swift:nightly-master
+          - swift:5.3
+          - swift:5.4
+          - swift:5.5
+          - swift:5.6
+          - swiftlang/swift:nightly-master
     container: ${{ matrix.images }}
     steps:
       - name: Checkout
@@ -21,7 +22,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Package.resolved') }}-v2
+          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('Package.swift') }}
           restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
       - name: Resolve Swift dependencies
         run: swift package resolve
@@ -30,28 +31,17 @@ jobs:
 
   compile-onboarding-example:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        images:
-        - swift:5.3
-        - swift:5.4
-        - swift:5.5
-        - swiftlang/swift:nightly-master
-    container: ${{ matrix.images }}
     defaults:
       run:
         working-directory: ./Examples/Onboarding
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Cache Swift PM
-        uses: actions/cache@v2
+      - name: Install Swift
+        uses: slashmo/install-swift@v0.1.0
         with:
-          path: ./Examples/Onboarding/.build
-          key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('**/Examples/Onboarding/Package.resolved') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.images }}-spm-
+          version: 5.6
       - name: Resolve Swift dependencies
         run: swift package resolve
       - name: Build
-        run: swift build --enable-test-discovery
+        run: swift build

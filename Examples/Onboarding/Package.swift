@@ -7,7 +7,7 @@ let package = Package(
         .executable(name: "onboarding", targets: ["Onboarding"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/slashmo/opentelemetry-swift.git", .branch("main")),
+        .package(path: "../.."),
     ],
     targets: [
         .target(name: "Onboarding", dependencies: [

@@ -34,7 +34,7 @@ extension OTel {
             if #available(macOS 10.12, *) {
                 attributes["process.owner"] = ProcessInfo.processInfo.userName
             }
-            #else
+            #elseif os(Linux)
             attributes["process.owner"] = ProcessInfo.processInfo.userName
             #endif
 

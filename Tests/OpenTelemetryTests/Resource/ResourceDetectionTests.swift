@@ -30,7 +30,9 @@ final class ResourceDetectionTests: XCTestCase {
 
         XCTAssertNotNil(resource.attributes["process.executable.name"])
         XCTAssertNotNil(resource.attributes["process.executable.path"])
+        #if os(macOS) || os(Linux)
         XCTAssertNotNil(resource.attributes["process.command"])
+        #endif
         XCTAssertNotNil(resource.attributes["process.command_line"])
         XCTAssertEqual(resource.attributes["process.pid"]?.toSpanAttribute(), 42)
         XCTAssertEqual(resource.attributes["custom"]?.toSpanAttribute(), "value")

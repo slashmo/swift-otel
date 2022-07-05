@@ -3,6 +3,12 @@ import PackageDescription
 
 let package = Package(
     name: "opentelemetry-swift",
+    platforms: [
+        .iOS(.v11),
+        .macOS(.v10_13),
+        .watchOS(.v4),
+        .tvOS(.v11),
+    ],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
         .library(name: "OtlpGRPCSpanExporting", targets: ["OtlpGRPCSpanExporting"]),

@@ -10,6 +10,7 @@ let package = Package(
         .tvOS(.v11),
     ],
     products: [
+        .executable(name: "Run", targets: ["Run"]),
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
         .library(name: "OtlpGRPCExporter", targets: ["OtlpGRPCExporter"]),
     ],

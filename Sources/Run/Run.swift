@@ -25,7 +25,7 @@ import NIO
         
         // Keep counting
         Task {
-            let timer = MetricsSystem.factory.makeCounter(label: "nl.orlandos.counter", dimensions: [])
+            let timer = MetricsSystem.factory.makeCounter(label: "orlandos_counter_total", dimensions: [])
             
             while true {
                 timer.increment(by: .random(in: 1..<3))
@@ -35,7 +35,7 @@ import NIO
         
         // Fluctuate between 10 and 255ms latency
         Task {
-            let recorder = MetricsSystem.factory.makeRecorder(label: "nl.orlandos.random-latency", dimensions: [], aggregate: false)
+            let recorder = MetricsSystem.factory.makeRecorder(label: "orlandos_random_latency_total", dimensions: [], aggregate: false)
             
             while true {
                 recorder.record(Double.random(in: 10..<255))
@@ -45,7 +45,7 @@ import NIO
         
         // Fluctuate between UInt8
         Task {
-            let timer = MetricsSystem.factory.makeTimer(label: "nl.orlandos.sleep-timer", dimensions: [])
+            let timer = MetricsSystem.factory.makeTimer(label: "orlandos_sleep_timer_total", dimensions: [])
             
             while true {
                 let sleep = Int64.random(in: 1_000_000 ..< 1_000_000_000)

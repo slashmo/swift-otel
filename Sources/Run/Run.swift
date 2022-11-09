@@ -10,7 +10,7 @@ import NIO
         }
         
         let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        let exporter = OtlpGRPCExporter(config: .init(eventLoopGroup: group))
+        let exporter = OtlpGRPCExporter(config: .init(eventLoopGroup: group, host: "simplest-collector.monitoring.svc.cluster.local"))
         let otel = OTel(
             serviceName: "nl.orlandos.test",
             eventLoopGroup: group,

@@ -21,6 +21,10 @@ let package = Package(
         .package(url: "https://github.com/grpc/grpc-swift.git", from: "1.0.0"),
     ],
     targets: [
+        .target(name: "Run", dependencies: [
+            .target(name: "OpenTelemetry"),
+            .target(name: "OtlpGRPCExporter"),
+        ]),
         .target(name: "OpenTelemetry", dependencies: [
             .product(name: "Logging", package: "swift-log"),
             .product(name: "Tracing", package: "swift-distributed-tracing"),

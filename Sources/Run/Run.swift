@@ -1,4 +1,5 @@
 import OpenTelemetry
+import OtlpGRPCExporter
 import Logging
 import NIO
 
@@ -6,9 +7,15 @@ import NIO
     static func main() async throws {
         guard #available(macOS 13, *) else {
             fatalError("Old version")
-            
         }
-        let otel = OTel(serviceName: "nl.orlandos.test", eventLoopGroup: MultiThreadedEventLoopGroup(numberOfThreads: 1))
+        
+        let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        let exporter = OtlpGRPCExporter(config: .init(eventLoopGroup: group))
+        let otel = OTel(
+            serviceName: "nl.orlandos.test",
+            eventLoopGroup: group,
+            logProcessor: OTel.SimpleLogProcessor(exporter: exporter)
+        )
         LoggingSystem.bootstrap { _ in
             otel.logHandler(logLevel: .trace)
         }

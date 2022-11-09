@@ -26,6 +26,7 @@ public final class OTel {
     private let idGenerator: OTelIDGenerator
     private let sampler: OTelSampler
     private let traceProcessor: OTelSpanProcessor
+    private let metricsProcessor: OTelMetricsProcessor
     private let logProcessor: OTelLogProcessor
     private let propagator: OTelPropagator
     private let logger: Logger
@@ -49,7 +50,8 @@ public final class OTel {
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
         idGenerator: OTelIDGenerator = RandomIDGenerator(),
         sampler: OTelSampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
-        processor: OTelSpanProcessor? = nil,
+        spanProcessor: OTelSpanProcessor? = nil,
+        metricsProcessor: OTelMetricsProcessor? = nil,
         logProcessor: OTelLogProcessor? = nil,
         propagator: OTelPropagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
@@ -59,7 +61,8 @@ public final class OTel {
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator
         self.sampler = sampler
-        self.traceProcessor = processor ?? NoOpSpanProcessor(eventLoopGroup: eventLoopGroup)
+        self.traceProcessor = spanProcessor ?? NoOpSpanProcessor(eventLoopGroup: eventLoopGroup)
+        self.metricsProcessor = metricsProcessor ?? NoOpMetricsProcessor(eventLoopGroup: eventLoopGroup)
         self.logProcessor = logProcessor ?? NoOpLogProcessor(eventLoopGroup: eventLoopGroup)
         self.propagator = propagator
         self.logger = logger
@@ -106,16 +109,12 @@ public final class OTel {
         )
     }
     
-//    public func metricsFactory() -> Metrics.MetricsFactory {
-//        MetricsFactory(
-//            resource: resource,
-//            idGenerator: idGenerator,
-//            sampler: sampler,
-//            processor: processor,
-//            propagator: propagator,
-//            logger: logger
-//        )
-//    }
+    public func metricsFactory() -> Metrics.MetricsFactory {
+        MetricsFactory(
+            resource: resource,
+            processor: metricsProcessor
+        )
+    }
     
     public func logHandler(
         logLevel: Logger.Level,

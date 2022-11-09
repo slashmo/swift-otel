@@ -1,6 +1,7 @@
 import OpenTelemetry
 import OtlpGRPCExporter
 import Logging
+import Metrics
 import NIO
 
 @main struct Run {
@@ -19,10 +20,42 @@ import NIO
         LoggingSystem.bootstrap { _ in
             otel.logHandler(logLevel: .trace)
         }
+        MetricsSystem.bootstrap(otel.metricsFactory())
+        
+        // Keep counting
+        Task {
+            let timer = MetricsSystem.factory.makeCounter(label: "nl.orlandos.counter", dimensions: [])
+            
+            while true {
+                timer.increment(by: .random(in: 1..<3))
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+        
+        // Fluctuate between 10 and 255ms latency
+        Task {
+            let recorder = MetricsSystem.factory.makeRecorder(label: "nl.orlandos.random-latency", dimensions: [], aggregate: false)
+            
+            while true {
+                recorder.record(Double.random(in: 10..<255))
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+        }
+        
+        // Fluctuate between UInt8
+        Task {
+            let timer = MetricsSystem.factory.makeTimer(label: "nl.orlandos.sleep-timer", dimensions: [])
+            
+            while true {
+                let sleep = Int64.random(in: 1_000_000 ..< 1_000_000_000)
+                
+                timer.recordNanoseconds(sleep)
+                try await Task.sleep(nanoseconds: .init(sleep))
+            }
+        }
         
         let logger = Logger(label: "nl.orlandos.counter")
         var i = 0
-        
         while true {
             i += 1
             try await Task.sleep(nanoseconds: 1_000_000_000)

@@ -39,7 +39,114 @@ extension Opentelemetry_Proto_Metrics_V1_ScopeMetrics {
 
 extension Opentelemetry_Proto_Metrics_V1_Metric {
     init(_ metric: OTel.RecordedMetric) {
-        self.name = metric.label
-//        self.
+        switch metric {
+        case .sum(let sum):
+            self.name = sum.label
+            self.sum = .init(sum)
+        case .gauge(let gauge):
+            self.name = gauge.label
+            self.gauge = .init(gauge)
+        case .histogram(let histogram):
+            self.name = histogram.label
+            self.histogram = .init(histogram)
+        case .exponentialHistogram, .summary:
+            ()// TODO: Implement
+//        case .exponentialHistogram(let histogram):
+//            self.exponentialHistogram = .init(histogram, attributes: metric.dimensions)
+        }
+    }
+}
+
+extension Opentelemetry_Proto_Metrics_V1_Sum {
+    init(_ sum: OTel.Sum) {
+        self.dataPoints = sum.dataPoints.map(Opentelemetry_Proto_Metrics_V1_NumberDataPoint.init)
+        self.aggregationTemporality = sum.isCumulative ? .cumulative : .delta
+        self.isMonotonic = sum.isMonotonic
+    }
+}
+
+extension Opentelemetry_Proto_Metrics_V1_Gauge {
+    init(_ gauge: OTel.Gauge) {
+        self.dataPoints = gauge.dataPoints.map(Opentelemetry_Proto_Metrics_V1_NumberDataPoint.init)
+    }
+}
+
+extension Opentelemetry_Proto_Metrics_V1_Histogram {
+    init(_ histogram: OTel.Histogram) {
+        self.dataPoints = histogram.dataPoints.map { dataPoint in
+            Opentelemetry_Proto_Metrics_V1_HistogramDataPoint(
+                dataPoint: dataPoint,
+                attributes: histogram.dimensions
+            )
+        }
+    }
+}
+
+extension Opentelemetry_Proto_Metrics_V1_HistogramDataPoint {
+    init(dataPoint: OTel.HistogramDataPoint, attributes: [(String, String)]) {
+        self.timeUnixNano = dataPoint.unixTimeNanoseconds
+        self.startTimeUnixNano = dataPoint.unixTimeNanoseconds
+        self.exemplars = [.init(dataPoint: dataPoint)]
+        self.attributes = attributes.map { (key, value) in
+            var pair = Opentelemetry_Proto_Common_V1_KeyValue()
+            var pairValue = Opentelemetry_Proto_Common_V1_AnyValue()
+            
+            pairValue.value = .stringValue(value)
+            
+            pair.key = key
+            pair.value = pairValue
+            
+            return pair
+        }
+    }
+}
+
+//extension Opentelemetry_Proto_Metrics_V1_Summary {
+//    init(_ summary: OTel.MetricValue.Summary, attributes: [(String, String)]) {
+//        self.dataPoints = summary.dataPoints.map { dataPoint in
+//            Opentelemetry_Proto_Metrics_V1_SummaryDataPoint(dataPoint, attributes: attributes)
+//        }
+//    }
+//}
+
+//extension Opentelemetry_Proto_Metrics_V1_SummaryDataPoint {
+//    init(_ dataPoint: OTel.HistogramDataPoint, attributes: [(String, String)]) {
+//        self.timeUnixNano = dataPoint.startTimeUnixNano
+//        self.startTimeUnixNano = dataPoint.startTimeUnixNano
+//        self.attributes = attributes.map { (key, value) in
+//            var pair = Opentelemetry_Proto_Common_V1_KeyValue()
+//            var pairValue = Opentelemetry_Proto_Common_V1_AnyValue()
+//
+//            pairValue.value = .stringValue(value)
+//
+//            pair.key = key
+//            pair.value = pairValue
+//
+//            return pair
+//        }
+//    }
+//}
+
+extension Opentelemetry_Proto_Metrics_V1_Exemplar {
+    init(dataPoint: OTel.HistogramDataPoint) {
+        self.timeUnixNano = dataPoint.unixTimeNanoseconds
+        
+        switch dataPoint.value {
+        case .int(let int):
+            self.value = .asInt(int)
+        case .double(let double):
+            self.value = .asDouble(double)
+        }
+    }
+}
+
+extension Opentelemetry_Proto_Metrics_V1_NumberDataPoint {
+    init(_ value: OTel.NumericValue) {
+        switch value {
+        case .int(let int):
+            self.value = .asInt(int)
+        case .double(let double):
+            self.value = .asDouble(double)
+        }
     }
 }

@@ -15,51 +15,116 @@ import struct Dispatch.DispatchWallTime
 import Tracing
 
 extension OTel {
+    public enum NumericValue {
+        case double(Double)
+        case int(Int64)
+    }
+    
     public struct NumericDataPoint {
-        public enum Value {
-            case double(Double)
-            case int(Int64)
-        }
-        
         public let unixTimeNanoseconds: UInt64
         public let attributes: [(String, String)]
-        public let value: Value
+        public let value: NumericValue
     }
     
-    public enum MetricValue {
-//        case sum()
+    public struct HistogramDataPoint {
+        public let unixTimeNanoseconds: UInt64
+        public let value: NumericValue
     }
     
-    public struct RecordedMetric {
+    public enum RecordedMetric {
+        case sum(Sum)
+        case gauge(Gauge)
+        case histogram(Histogram)
+        case exponentialHistogram(ExponentialHistogram)
+        case summary(Summary)
+        
+        public var resource: OTel.Resource {
+            switch self {
+            case .sum(let metric):
+                return metric.resource
+            case .gauge(let metric):
+                return metric.resource
+            case .histogram(let metric):
+                return metric.resource
+            case .exponentialHistogram(let metric):
+                return metric.resource
+            case .summary(let metric):
+                return metric.resource
+            }
+        }
+        
+        public var label: String {
+            switch self {
+            case .sum(let metric):
+                return metric.label
+            case .gauge(let metric):
+                return metric.label
+            case .histogram(let metric):
+                return metric.label
+            case .exponentialHistogram(let metric):
+                return metric.label
+            case .summary(let metric):
+                return metric.label
+            }
+        }
+    }
+    
+    public struct Sum {
         /// The resource on which this metric was recorded.
         public let resource: OTel.Resource
         
         public let label: String
-         
+        
+        public let dimensions: [(String, String)]
+        
+        public let dataPoints: [NumericValue]
+        
+        public let isCumulative: Bool
+        
+        public let isMonotonic: Bool
+    }
+    
+    public struct Gauge {
+        /// The resource on which this metric was recorded.
+        public let resource: OTel.Resource
+        
+        public let label: String
+        
+        public let dimensions: [(String, String)]
+        
+        public let dataPoints: [NumericValue]
+    }
+    
+    public struct Histogram {
+        /// The resource on which this metric was recorded.
+        public let resource: OTel.Resource
+        
+        public let label: String
+        
+        public let dimensions: [(String, String)]
+        
+        public let dataPoints: [HistogramDataPoint]
+    }
+    
+    public struct ExponentialHistogram {
+        /// The resource on which this metric was recorded.
+        public let resource: OTel.Resource
+        
+        public let label: String
+        
+        public let dimensions: [(String, String)]
+        
+        public let dataPoints: [HistogramDataPoint]
+    }
+    
+    public struct Summary {
+        /// The resource on which this metric was recorded.
+        public let resource: OTel.Resource
+        
+        public let label: String
+        
+        public let dimensions: [(String, String)]
+        
+        // public let dataPoints: [HistogramDataPoint]
     }
 }
-//
-//extension OTel.RecordedSpan {
-//    init?(_ span: OTel.Tracer.Span) {
-//        guard let context = span.baggage.spanContext else { return nil }
-//        guard let endTime = span.endTime else { return nil }
-//
-//        self.operationName = span.operationName
-//        self.kind = span.kind
-//        self.status = span.status
-//        self.context = context
-//
-//        // strip span context from baggage because it's already stored as `context`.
-//        var baggage = span.baggage
-//        baggage.spanContext = nil
-//        self.baggage = baggage
-//
-//        self.startTime = span.startTime
-//        self.endTime = endTime
-//
-//        self.attributes = span.attributes
-//        self.events = span.events
-//        self.links = span.links
-//        self.resource = span.resource
-//    }
-//}

@@ -14,7 +14,7 @@
 import NIO
 
 public protocol OTelMetricsProcessor {
-    func processMetric(_ log: OTel.RecordedMetric)
+    func processMetric(_ metric: OTel.RecordedMetric)
     
     /// Shutdown the processor by trying to finish currently processed metrics, but not allowing new ones to be processed.
     func shutdownGracefully() -> EventLoopFuture<Void>

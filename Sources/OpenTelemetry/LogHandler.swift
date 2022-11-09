@@ -14,7 +14,12 @@
 import struct Dispatch.DispatchWallTime
 import Logging
 import NIOConcurrencyHelpers
+
+#if os(Linux)
+import Glibc
+#else
 import Darwin
+#endif
 
 extension OTel {
     final class LogHandler: Logging.LogHandler {

@@ -2,7 +2,6 @@ import OpenTelemetry
 import Logging
 import NIO
 
-
 @main struct Run {
     static func main() async throws {
         guard #available(macOS 13, *) else {

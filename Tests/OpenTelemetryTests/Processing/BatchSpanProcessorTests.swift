@@ -164,7 +164,7 @@ private final class AwaitingSpanExporter: OTelSpanExporter {
         exportPromise = eventLoopGroup.next().makePromise()
     }
 
-    func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
+    func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
         numberOfBatches += 1
         spans.append(contentsOf: batch)
         return eventLoopGroup.next().makeSucceededVoidFuture()

@@ -25,7 +25,7 @@ extension OTel {
         private let maxBatchSize: Int
 
         private var queue = CircularBuffer<OTel.RecordedSpan>()
-        private let queueLock = Lock()
+        private let queueLock = NIOLock()
         private var exportTask: RepeatedTask!
 
         /// Initialize a batch span processor.
@@ -76,7 +76,7 @@ extension OTel {
                 }
                 let spans = queue.prefix(maxBatchSize)
                 queue.removeFirst(spans.count)
-                return exporter.export(spans)
+                return exporter.exportSpans(spans)
             }
         }
     }

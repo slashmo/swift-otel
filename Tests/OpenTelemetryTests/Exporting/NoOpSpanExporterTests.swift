@@ -24,6 +24,6 @@ final class NoOpSpanExporterTests: XCTestCase {
         span.end()
         let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
-        XCTAssertNoThrow(exporter.export([recordedSpan]))
+        XCTAssertNoThrow(exporter.exportSpans([recordedSpan]))
     }
 }

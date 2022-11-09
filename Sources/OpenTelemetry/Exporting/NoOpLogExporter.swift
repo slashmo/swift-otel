@@ -15,20 +15,20 @@ import NIO
 
 extension OTel {
     /// A no-op span exporter that simply ignores the given spans and always succeeds.
-    public struct NoOpSpanExporter: OTelSpanExporter {
+    public struct NoOpLogExporter: OTelLogExporter {
         private let eventLoopGroup: EventLoopGroup
-
+        
         /// Initialize a new no-op span exporter.
         ///
         /// - Parameter eventLoopGroup: The event loop group used to return the succeeding future.
         public init(eventLoopGroup: EventLoopGroup) {
             self.eventLoopGroup = eventLoopGroup
         }
-
-        public func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
+        
+        public func exportLogs<C>(_ batch: C) -> EventLoopFuture<Void> where C : Collection, C.Element == OTel.RecordedLog {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }
-
+        
         public func shutdownGracefully() -> EventLoopFuture<Void> {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }

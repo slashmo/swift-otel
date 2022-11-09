@@ -14,6 +14,7 @@
 import Logging
 import NIO
 import Tracing
+import Metrics
 
 /// The main entry point to using OpenTelemetry.
 public final class OTel {
@@ -24,7 +25,8 @@ public final class OTel {
     private let resourceDetection: ResourceDetection
     private let idGenerator: OTelIDGenerator
     private let sampler: OTelSampler
-    private let processor: OTelSpanProcessor
+    private let traceProcessor: OTelSpanProcessor
+    private let logProcessor: OTelLogProcessor
     private let propagator: OTelPropagator
     private let logger: Logger
 
@@ -48,6 +50,7 @@ public final class OTel {
         idGenerator: OTelIDGenerator = RandomIDGenerator(),
         sampler: OTelSampler = ParentBasedSampler(rootSampler: ConstantSampler(isOn: true)),
         processor: OTelSpanProcessor? = nil,
+        logProcessor: OTelLogProcessor? = nil,
         propagator: OTelPropagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
     ) {
@@ -56,7 +59,8 @@ public final class OTel {
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator
         self.sampler = sampler
-        self.processor = processor ?? NoOpSpanProcessor(eventLoopGroup: eventLoopGroup)
+        self.traceProcessor = processor ?? NoOpSpanProcessor(eventLoopGroup: eventLoopGroup)
+        self.logProcessor = logProcessor ?? NoOpLogProcessor(eventLoopGroup: eventLoopGroup)
         self.propagator = propagator
         self.logger = logger
     }
@@ -96,9 +100,32 @@ public final class OTel {
             resource: resource,
             idGenerator: idGenerator,
             sampler: sampler,
-            processor: processor,
+            processor: traceProcessor,
             propagator: propagator,
             logger: logger
+        )
+    }
+    
+//    public func metricsFactory() -> Metrics.MetricsFactory {
+//        MetricsFactory(
+//            resource: resource,
+//            idGenerator: idGenerator,
+//            sampler: sampler,
+//            processor: processor,
+//            propagator: propagator,
+//            logger: logger
+//        )
+//    }
+    
+    public func logHandler(
+        logLevel: Logger.Level,
+        metadata: Logger.Metadata = .init()
+    ) -> Logging.LogHandler {
+        LogHandler(
+            resource: resource,
+            logLevel: logLevel,
+            metadata: metadata,
+            processor: logProcessor
         )
     }
 
@@ -106,6 +133,6 @@ public final class OTel {
     ///
     /// - Returns: A future that completes once `OTel` and its sub-components was shutdown.
     public func shutdown() -> EventLoopFuture<Void> {
-        processor.shutdownGracefully()
+        traceProcessor.shutdownGracefully()
     }
 }

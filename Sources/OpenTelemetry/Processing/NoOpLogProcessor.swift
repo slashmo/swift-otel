@@ -14,21 +14,19 @@
 import NIO
 
 extension OTel {
-    /// A no-op span exporter that simply ignores the given spans and always succeeds.
-    public struct NoOpSpanExporter: OTelSpanExporter {
+    /// A no-op span processor that simply ignores the given spans.
+    public struct NoOpLogProcessor: OTelLogProcessor {
         private let eventLoopGroup: EventLoopGroup
-
-        /// Initialize a new no-op span exporter.
+        
+        /// Initialize a new no-op processor.
         ///
-        /// - Parameter eventLoopGroup: The event loop group used to return the succeeding future.
+        /// - Parameter eventLoopGroup: The event loop group on which to shut down.
         public init(eventLoopGroup: EventLoopGroup) {
             self.eventLoopGroup = eventLoopGroup
         }
-
-        public func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
-            eventLoopGroup.next().makeSucceededVoidFuture()
-        }
-
+        
+        public func processLog(_ log: OTel.RecordedLog) { }
+        
         public func shutdownGracefully() -> EventLoopFuture<Void> {
             eventLoopGroup.next().makeSucceededVoidFuture()
         }

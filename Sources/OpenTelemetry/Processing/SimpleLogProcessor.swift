@@ -11,26 +11,24 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
 import NIO
 
 extension OTel {
-    /// A span processor that simply forwards all *sampled* spans to a given exporter.
-    public struct SimpleSpanProcessor: OTelSpanProcessor {
-        private let exporter: OTelSpanExporter
-
-        /// Initialize a simple span processor forwarding to the given exporter.
+    /// A log processor that simply forwards all *sampled* spans to a given exporter.
+    public struct SimpleLogProcessor: OTelLogProcessor {
+        private let exporter: OTelLogExporter
+        
+        /// Initialize a new no-op processor.
         ///
-        /// - Parameter exporter: The exporter to forward sampled spans to.
-        public init(exportingTo exporter: OTelSpanExporter) {
+        /// - Parameter eventLoopGroup: The event loop group on which to shut down.
+        public init(exporter: OTelLogExporter) {
             self.exporter = exporter
         }
-
-        public func processEndedSpan(_ span: OTel.RecordedSpan) {
-            guard span.context.traceFlags.contains(.sampled) else { return }
-            _ = exporter.exportSpans([span])
+        
+        public func processLog(_ log: OTel.RecordedLog) {
+            _ = exporter.exportLogs([log])
         }
-
+        
         public func shutdownGracefully() -> EventLoopFuture<Void> {
             exporter.shutdownGracefully()
         }

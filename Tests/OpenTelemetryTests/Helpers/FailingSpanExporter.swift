@@ -23,7 +23,7 @@ struct FailingSpanExporter: OTelSpanExporter {
         self.error = error
     }
 
-    func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
+    func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
         eventLoopGroup.next().makeFailedFuture(error)
     }
 

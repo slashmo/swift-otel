@@ -149,7 +149,7 @@ extension OTel.Tracer {
         let resource: OTel.Resource
 
         private let logger: Logger
-        private let lock = Lock()
+        private let lock = NIOLock()
 
         private let onEnd: (OTel.RecordedSpan) -> Void
 

@@ -94,11 +94,11 @@ docker-compose -f docker/docker-compose.yaml up --build
 
 After a couple of seconds everything should be up-and-running. Let's go ahead and
 **configure OTel to export to the collector**. "OpenTelemetry Swift" contains a second library called
-"OtlpGRPCSpanExporting", providing the necessary span exporter. We need to also include it in our target in
+"OtlpGRPCExporter", providing the necessary span exporter. We need to also include it in our target in
 `Package.swift`:
 
 ```swift
-.product(name: "OtlpGRPCSpanExporting", package: "opentelemetry-swift"),
+.product(name: "OtlpGRPCExporter", package: "opentelemetry-swift"),
 ```
 
 On to the fun part - Configuring the `OtlpGRPCSpanExporter`:
@@ -272,7 +272,7 @@ let otel = OTel(
 ### Exporting processed spans
 
 To actually send span data to a tracing backend like [Jaeger](https://www.jaegertracing.io), spans need to be
-"exported". [`OtlpGRPCSpanExporting`](Sources/OtlpGRPCSpanExporting), which is a library included in this package
+"exported". [`OtlpGRPCExporter`](Sources/OtlpGRPCExporter), which is a library included in this package
 implements exporting using the OpenTelemetry protocol (OTLP) by sending span data via gRPC to the
 [OpenTelemetry collector](https://github.com/open-telemetry/opentelemetry-collector). The collector can then be
 configured to forward received spans to tracing backends.

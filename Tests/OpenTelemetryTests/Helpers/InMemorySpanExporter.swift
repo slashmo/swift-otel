@@ -17,7 +17,7 @@ import OpenTelemetry
 
 final class InMemorySpanExporter: OTelSpanExporter {
     private let eventLoopGroup: EventLoopGroup
-    private let lock = Lock()
+    private let lock = NIOLock()
     private var _spans = [OTel.RecordedSpan]()
     private(set) var numberOfExports = 0
 
@@ -29,7 +29,7 @@ final class InMemorySpanExporter: OTelSpanExporter {
         self.eventLoopGroup = eventLoopGroup
     }
 
-    func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
+    func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
         numberOfExports += 1
         lock.withLockVoid {
             _spans.append(contentsOf: batch)

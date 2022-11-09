@@ -13,15 +13,15 @@
 
 import NIO
 
-/// An exporter receives processed, sampled spans to export them, e.g. over the network.
-public protocol OTelSpanExporter {
-    /// Export the given batch of spans asynchronously.
+/// An exporter receives processed logs to export them, e.g. over the network.
+public protocol OTelLogExporter {
+    /// Export the given batch of logs asynchronously.
     ///
     /// - Parameters:
-    ///   - batch: The batch of spans to export.
+    ///   - batch: The batch of logs to export.
     /// - Returns: An `EventLoopFuture` indicating whether the export succeeded.
-    func exportSpans<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan
-
+    func exportLogs<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedLog
+    
     /// Shutdown the exporter by trying to finish current exports, but not allowing new ones to be exported.
     func shutdownGracefully() -> EventLoopFuture<Void>
 }

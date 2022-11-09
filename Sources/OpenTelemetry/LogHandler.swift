@@ -58,7 +58,7 @@ extension OTel {
             function: String,
             line: UInt
         ) {
-            var timespec: timespec! = nil
+            var timespec: timespec = .init()
             clock_gettime(CLOCK_REALTIME, &timespec)
             
             let log = RecordedLog(

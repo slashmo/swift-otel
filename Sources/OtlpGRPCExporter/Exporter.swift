@@ -74,8 +74,8 @@ extension OtlpGRPCExporter: OTelLogExporter {
     }
 }
 
-//extension OtlpGRPCExporter: OTelMetricsExporter {
-//    public func exportMetrics<C>(_ batch: C) -> EventLoopFuture<Void> where C : Collection, C.Element == OTel.RecordedLog {
-//        return metricsClient.export(.init(batch)).response.map { _ in }
-//    }
-//}
+extension OtlpGRPCExporter: OTelMetricsExporter {
+    public func exportMetrics<C>(_ batch: C) -> EventLoopFuture<Void> where C : Collection, C.Element == OTel.RecordedMetric {
+        return metricsClient.export(.init(batch)).response.map { _ in }
+    }
+}

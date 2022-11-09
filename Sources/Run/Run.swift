@@ -15,6 +15,7 @@ import NIO
         let otel = OTel(
             serviceName: "nl.orlandos.test",
             eventLoopGroup: group,
+            metricsProcessor: OTel.SimpleMetricsProcessor(exporter: exporter),
             logProcessor: OTel.SimpleLogProcessor(exporter: exporter)
         )
         LoggingSystem.bootstrap { _ in

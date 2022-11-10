@@ -37,7 +37,7 @@ public final class OTel {
     /// Initialize `OTel` with the given configuration. Don't forget to also call `start` early on in your application.
     ///
     /// - Parameters:
-    ///   - serviceName: The name of the service being traced, e.g. "checkout".
+    ///   - resource: The Resource being exported for, e.g. 'checkout'
     ///   - eventLoopGroup: The `EventLoopGroup` to run on.
     ///   - resourceDetection: Configures how resource attribution may be detected, defaults to `.automatic`.
     ///   - sampler: Configures the sampler to be used, defaults to an *always on* sampler as the root of a parent-based sampler.
@@ -45,7 +45,7 @@ public final class OTel {
     ///   - propagator: Configures the propagator to be used, defaults to a `W3CPropagator`.
     ///   - logger: The Logger used by OTel and its sub-components.
     public init(
-        serviceName: String,
+        resource: Resource,
         eventLoopGroup: EventLoopGroup,
         resourceDetection: ResourceDetection = .automatic(additionalDetectors: []),
         idGenerator: OTelIDGenerator = RandomIDGenerator(),
@@ -56,8 +56,7 @@ public final class OTel {
         propagator: OTelPropagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
     ) {
-        let serviceName = serviceName.replacingOccurrences(of: ".", with: "_")
-        resource = Resource(attributes: ["name": .string(serviceName)])
+        self.resource = resource
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator

@@ -120,8 +120,15 @@ let processor = OTel.SimpleSpanProcessor(exportingTo: exporter)
 The only thing left to do is to tell `OTel` to use this processor:
 
 ```diff
-- let otel = OTel(serviceName: "onboarding", eventLoopGroup: group)
-+ let otel = OTel(serviceName: "onboarding", eventLoopGroup: group, processor: processor)
+- let otel = OTel(
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
+    eventLoopGroup: group
+)
++ let otel = OTel(
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
+    eventLoopGroup: group, 
+    processor: processor
+)
 ```
 
 ### Starting spans
@@ -201,7 +208,7 @@ Simply pass a different ID generator when initializing `OTel` like this:
 
 ```swift
 let otel = OTel(
-    serviceName: "service",
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
     eventLoopGroup: group,
     idGenerator: MyAwesomeIDGenerator()
 )
@@ -229,7 +236,7 @@ The `OTel` initializer allows you to inject a sampler:
 
 ```swift
 let otel = OTel(
-    serviceName: "service",
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
     eventLoopGroup: group,
     sampler: ConstantSampler(isOn: false)
 )
@@ -257,7 +264,7 @@ To configure which span processor should be used, pass it along to the `OTel` in
 
 ```swift
 let otel = OTel(
-    serviceName: "service",
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
     eventLoopGroup: group,
     processor: MyAwesomeSpanProcessor()
 )
@@ -286,7 +293,7 @@ Instead of passing the exporter directly to `OTel`, you need to wrap it inside a
 
 ```swift
 let otel = OTel(
-    serviceName: "service",
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
     eventLoopGroup: group,
     processor: SimpleSpanProcessor(
         exportingTo: MyAwesomeSpanExporter()
@@ -316,7 +323,7 @@ Pass your propagator of choice to the `OTel` initializer like this:
 
 ```swift
 let otel = OTel(
-    serviceName: "service",
+    resource: OTel.Resource(attributes: ["service.name": "service"]),
     eventLoopGroup: group,
     propagator: MyAwesomePropagator()
 )

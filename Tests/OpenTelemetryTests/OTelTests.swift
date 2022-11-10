@@ -28,7 +28,10 @@ final class OTelTests: XCTestCase {
     }
 
     func test_detectsResourceAttributes() {
-        let otel = OTel(serviceName: #function, eventLoopGroup: eventLoopGroup)
+        let otel = OTel(
+            resource: OTel.Resource(attributes: ["service.name": #function]),
+            eventLoopGroup: eventLoopGroup
+        )
         XCTAssertNoThrow(try otel.start().wait())
 
         let attributes = otel.resource.attributes

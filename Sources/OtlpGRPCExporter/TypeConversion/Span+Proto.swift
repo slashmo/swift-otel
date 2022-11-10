@@ -16,7 +16,7 @@ import OpenTelemetry
 
 extension Opentelemetry_Proto_Trace_V1_Span {
     init(_ span: OTel.RecordedSpan) {
-        self.name = span.operationName.replacingOccurrences(of: ".", with: "_")
+        self.name = span.operationName
         self.kind = SpanKind(span.kind)
         self.traceID = Data(span.context.traceID.bytes)
         self.spanID = Data(span.context.spanID.bytes)

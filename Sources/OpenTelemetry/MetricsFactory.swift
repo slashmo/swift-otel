@@ -199,7 +199,7 @@ extension OTel.MetricsFactory {
                 dimensions: dimensions,
                 dataPoints: [
                     .init(
-                        unixTimeNanoseconds: UInt64(unixTime) * 1_000_000,
+                        unixTimeNanoseconds: UInt64(unixTime) * 1_000_000_000,
                         value: .int(value)
                     )
                 ]
@@ -217,7 +217,7 @@ extension OTel.MetricsFactory {
                 dimensions: dimensions,
                 dataPoints: [
                     .init(
-                        unixTimeNanoseconds: UInt64(unixTime) * 1_000_000,
+                        unixTimeNanoseconds: UInt64(unixTime) * 1_000_000_000,
                         value: .double(value)
                     )
                 ]

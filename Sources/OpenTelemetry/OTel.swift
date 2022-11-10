@@ -57,7 +57,7 @@ public final class OTel {
         logger: Logger = Logger(label: "OTel")
     ) {
         let serviceName = serviceName.replacingOccurrences(of: ".", with: "_")
-        resource = Resource(attributes: ["service.name": .string(serviceName)])
+        resource = Resource(attributes: ["name": .string(serviceName)])
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection
         self.idGenerator = idGenerator

@@ -56,6 +56,7 @@ public final class OTel {
         propagator: OTelPropagator = W3CPropagator(),
         logger: Logger = Logger(label: "OTel")
     ) {
+        let serviceName = serviceName.replacingOccurrences(of: ".", with: "_")
         resource = Resource(attributes: ["service.name": .string(serviceName)])
         self.eventLoopGroup = eventLoopGroup
         self.resourceDetection = resourceDetection

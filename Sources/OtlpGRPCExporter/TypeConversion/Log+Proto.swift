@@ -16,7 +16,7 @@ import Logging
 
 extension Opentelemetry_Proto_Logs_V1_ScopeLogs {
     init(logs: [OTel.RecordedLog]) {
-        logRecords = logs.map(Opentelemetry_Proto_Logs_V1_LogRecord.init)
+        self.logRecords = logs.map(Opentelemetry_Proto_Logs_V1_LogRecord.init)
     }
 }
 

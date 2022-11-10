@@ -41,13 +41,13 @@ extension Opentelemetry_Proto_Metrics_V1_Metric {
     init(_ metric: OTel.RecordedMetric) {
         switch metric {
         case .sum(let sum):
-            self.name = sum.label
+            self.name = sum.label.replacingOccurrences(of: ".", with: "_")
             self.sum = .init(sum)
         case .gauge(let gauge):
-            self.name = gauge.label
+            self.name = gauge.label.replacingOccurrences(of: ".", with: "_")
             self.gauge = .init(gauge)
         case .histogram(let histogram):
-            self.name = histogram.label
+            self.name = histogram.label.replacingOccurrences(of: ".", with: "_")
             self.histogram = .init(histogram)
         case .exponentialHistogram, .summary:
             ()// TODO: Implement

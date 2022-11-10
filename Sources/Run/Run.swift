@@ -55,7 +55,7 @@ import NIO
             }
         }
         
-        let logger = Logger(label: "nl.orlandos.counter")
+        let logger = Logger(label: "nl_orlandos_counter")
         var i = 0
         while true {
             i += 1

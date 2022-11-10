@@ -191,8 +191,7 @@ extension OTel.MetricsFactory {
         }
 
         func record(_ value: Int64) {
-            var now: timespec = .init()
-            clock_gettime(CLOCK_REALTIME, &now)
+            let unixTime = time(nil)
             
             let histogram = OTel.Histogram(
                 resource: resource,
@@ -200,7 +199,7 @@ extension OTel.MetricsFactory {
                 dimensions: dimensions,
                 dataPoints: [
                     .init(
-                        unixTimeNanoseconds: UInt64(now.tv_nsec),
+                        unixTimeNanoseconds: UInt64(unixTime),
                         value: .int(value)
                     )
                 ]
@@ -210,8 +209,7 @@ extension OTel.MetricsFactory {
         }
         
         func record(_ value: Double) {
-            var now: timespec = .init()
-            clock_gettime(CLOCK_REALTIME, &now)
+            let unixTime = time(nil)
             
             let histogram = OTel.Histogram(
                 resource: resource,
@@ -219,7 +217,7 @@ extension OTel.MetricsFactory {
                 dimensions: dimensions,
                 dataPoints: [
                     .init(
-                        unixTimeNanoseconds: UInt64(now.tv_nsec),
+                        unixTimeNanoseconds: UInt64(unixTime),
                         value: .double(value)
                     )
                 ]

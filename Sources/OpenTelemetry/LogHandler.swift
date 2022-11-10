@@ -58,12 +58,11 @@ extension OTel {
             function: String,
             line: UInt
         ) {
-            var now: timespec = .init()
-            clock_gettime(CLOCK_REALTIME, &now)
+            let unixTime = time(nil)
             
             let log = RecordedLog(
                 resource: resource,
-                unixTimeNanoseconds: UInt64(now.tv_nsec),
+                unixTimeNanoseconds: UInt64(unixTime),
                 level: level,
                 message: message,
                 metadata: metadata,

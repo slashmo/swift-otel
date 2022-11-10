@@ -62,7 +62,7 @@ extension OTel {
             
             let log = RecordedLog(
                 resource: resource,
-                unixTimeNanoseconds: UInt64(unixTime),
+                unixTimeNanoseconds: UInt64(unixTime) * 1_000_000,
                 level: level,
                 message: message,
                 metadata: metadata,

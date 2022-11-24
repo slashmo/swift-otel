@@ -11,8 +11,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "Onboarding", dependencies: [
-            .product(name: "OpenTelemetry", package: "opentelemetry-swift"),
-            .product(name: "OtlpGRPCSpanExporting", package: "opentelemetry-swift"),
+            .product(name: "OpenTelemetry", package: "swift-otel"),
+            .product(name: "OtlpGRPCSpanExporting", package: "swift-otel"),
         ]),
     ]
 )

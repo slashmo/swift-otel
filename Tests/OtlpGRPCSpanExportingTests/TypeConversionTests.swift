@@ -100,7 +100,7 @@ final class TypeConversionTests: XCTestCase {
             Opentelemetry_Proto_Trace_V1_InstrumentationLibrarySpans(spans: [span]),
             .with {
                 $0.instrumentationLibrary = .with { library in
-                    library.name = "opentelemetry-swift"
+                    library.name = "swift-otel"
                     library.version = OTel.versionString
                 }
                 $0.spans = [.init(span)]

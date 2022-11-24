@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/apple/swift-distributed-tracing.git",
         "state": {
           "branch": null,
-          "revision": "7a89c904d80fd2dc7c6071806f38d5d0b2d5a1b5",
-          "version": "0.2.0"
+          "revision": "6173049f396771a35e82f6a19b6f63b5cedc4603",
+          "version": "0.3.1"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/apple/swift-distributed-tracing-baggage.git",
         "state": {
           "branch": null,
-          "revision": "c8457ce61adc6a3b9e6223ca147f5196f99e22cc",
-          "version": "0.2.3"
+          "revision": "05f21f55bc5b3f71f6c8a986025c0d0c40c9eed2",
+          "version": "0.3.0"
         }
       },
       {

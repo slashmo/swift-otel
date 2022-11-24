@@ -17,7 +17,7 @@ extension Opentelemetry_Proto_Trace_V1_InstrumentationLibrarySpans {
     init<C: Collection>(spans: C) where C.Element == OTel.RecordedSpan {
         self = .with {
             $0.instrumentationLibrary = .with { library in
-                library.name = "opentelemetry-swift"
+                library.name = "swift-otel"
                 library.version = OTel.versionString
             }
             $0.spans = spans.map(Opentelemetry_Proto_Trace_V1_Span.init)

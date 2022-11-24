@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "opentelemetry-swift",
+    name: "swift-otel",
     platforms: [
         .iOS(.v11),
         .macOS(.v10_13),

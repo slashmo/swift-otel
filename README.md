@@ -3,7 +3,7 @@
 [![Swift 5.3](https://img.shields.io/badge/Swift-5.3-%23f05137)](https://swift.org)
 [![Swift 5.4](https://img.shields.io/badge/Swift-5.4-%23f05137)](https://swift.org)
 [![Swift 5.5](https://img.shields.io/badge/Swift-5.5-%23f05137)](https://swift.org)
-[![CI](https://github.com/slashmo/opentelemetry-swift/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/slashmo/opentelemetry-swift/actions/workflows/ci.yaml)
+[![CI](https://github.com/slashmo/swift-otel/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/slashmo/swift-otel/actions/workflows/ci.yaml)
 
 [![Made for Swift Distributed Tracing](https://img.shields.io/badge/Made%20for-Swift%20Distributed%20Tracing-%23f05137)](https://github.com/apple/swift-distributed-tracing)
 
@@ -29,13 +29,13 @@ a trace created by "onboarding":
 To add "OpenTelemetry Swift" to our project, we first need to include it as a package dependency:
 
 ```swift
-.package(url: "https://github.com/slashmo/opentelemetry-swift.git", from: "0.3.0"),
+.package(url: "https://github.com/slashmo/swift-otel.git", from: "0.3.0"),
 ```
 
 Then we add `OpenTelemetry` to our executable target:
 
 ```swift
-.product(name: "OpenTelemetry", package: "opentelemetry-swift"),
+.product(name: "OpenTelemetry", package: "swift-otel"),
 ```
 
 ### Bootstrapping
@@ -98,7 +98,7 @@ After a couple of seconds everything should be up-and-running. Let's go ahead an
 `Package.swift`:
 
 ```swift
-.product(name: "OtlpGRPCSpanExporting", package: "opentelemetry-swift"),
+.product(name: "OtlpGRPCSpanExporting", package: "swift-otel"),
 ```
 
 On to the fun part - Configuring the `OtlpGRPCSpanExporter`:
@@ -189,8 +189,8 @@ A ["W3C TraceContext"](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/)
 for this by default. As the name suggests, it generates completely random IDs.
 
 Some tracing systems require IDs in a slightly different format.
-[`XRayIDGenerator`](https://slashmo.github.io/opentelemetry-swift-xray/XRayIDGenerator/) from the [X-Ray compatibility
-library](https://github.com/slashmo/opentelemetry-swift-xray) e.g. will include the current timestamp at the start of
+[`XRayIDGenerator`](https://slashmo.github.io/swift-otel-xray/XRayIDGenerator/) from the [X-Ray compatibility
+library](https://github.com/slashmo/swift-otel-xray) e.g. will include the current timestamp at the start of
 each generated trace ID.
 
 To create your own ID generator you need to implement the `OTelIDGenerator` protocol.
@@ -209,16 +209,16 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelIDGenerator](https://slashmo.github.io/opentelemetry-swift/OTelIDGenerator/)
+- [📖 API Docs: OTelIDGenerator](https://slashmo.github.io/swift-otel/OTelIDGenerator/)
 - [📖 OpenTelemetry Specification: ID Generator](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#id-generators)
-- [🧩 AWS X-Ray support library](https://github.com/slashmo/opentelemetry-swift-xray)
+- [🧩 AWS X-Ray support library](https://github.com/slashmo/swift-otel-xray)
 
 ### Sampling
 
 If your application creates a large amount of spans you might want to look into sampling out certain spans. By default,
 "OpenTelemetry Swift" ships with a
-"[parent-based](https://slashmo.github.io/opentelemetry-swift/OTel_ParentBasedSampler/)" sampler, configured to always
-sample root spans using a "[constant sampler](https://slashmo.github.io/opentelemetry-swift/OTel_ConstantSampler/)".
+"[parent-based](https://slashmo.github.io/swift-otel/OTel_ParentBasedSampler/)" sampler, configured to always
+sample root spans using a "[constant sampler](https://slashmo.github.io/swift-otel/OTel_ConstantSampler/)".
 Parent-based means that this sampler takes into account whether the parent span was sampled.
 
 To create your own sampler you need to implement the `OTelSampler` protocol.
@@ -239,9 +239,9 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSampler](https://slashmo.github.io/opentelemetry-swift/OTelSampler/)
-- [📖 API Docs: OTel.ParentBasedSampler](https://slashmo.github.io/opentelemetry-swift/OTel_ParentBasedSampler/)
-- [📖 API Docs: OTel.ConstantSampler](https://slashmo.github.io/opentelemetry-swift/OTel_ConstantSampler/)
+- [📖 API Docs: OTelSampler](https://slashmo.github.io/swift-otel/OTelSampler/)
+- [📖 API Docs: OTel.ParentBasedSampler](https://slashmo.github.io/swift-otel/OTel_ParentBasedSampler/)
+- [📖 API Docs: OTel.ConstantSampler](https://slashmo.github.io/swift-otel/OTel_ConstantSampler/)
 - [📖 OpenTelemetry Specification: Sampling](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#sampling)
 
 ### Processing ended spans
@@ -265,8 +265,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSpanProcessor](https://slashmo.github.io/opentelemetry-swift/OTelSpanProcessor/)
-- [📖 API Docs: OTel.SimpleSpanProcessor](https://slashmo.github.io/opentelemetry-swift/OTel_SimpleSpanProcessor/)
+- [📖 API Docs: OTelSpanProcessor](https://slashmo.github.io/swift-otel/OTelSpanProcessor/)
+- [📖 API Docs: OTel.SimpleSpanProcessor](https://slashmo.github.io/swift-otel/OTel_SimpleSpanProcessor/)
 - [📖 OpenTelemetry Specification: Span Processor](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-processor)
 
 ### Exporting processed spans
@@ -296,8 +296,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSpanExporter](https://slashmo.github.io/opentelemetry-swift/OTelSpanExporter/)
-- [📖 API Docs: OtlpGRPCSpanExporter](https://slashmo.github.io/opentelemetry-swift/OtlpGRPCSpanExporter/)
+- [📖 API Docs: OTelSpanExporter](https://slashmo.github.io/swift-otel/OTelSpanExporter/)
+- [📖 API Docs: OtlpGRPCSpanExporter](https://slashmo.github.io/swift-otel/OtlpGRPCSpanExporter/)
 - [📖 OpenTelemetry Collector](https://opentelemetry.io/docs/collector)
 - [📖 OpenTelemetry Specification: Span Exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-exporter)
 
@@ -306,7 +306,7 @@ let otel = OTel(
 OpenTelemetry uses the [W3C TraceContext format](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/) to propagate
 span context across HTTP requests by default. Some tracing backends may not fully support this standard and need to use
 a custom propagator. X-Ray e.g. propagates using the `X-Amzn-Trace-Id` header. Support for this header is implemented
-in the [X-Ray support library](https://github.com/slashmo/opentelemetry-swift-xray).
+in the [X-Ray support library](https://github.com/slashmo/swift-otel-xray).
 
 To create your own propagator you need to implement the `OTelPropagator` protocol.
 
@@ -324,8 +324,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelPropagator](https://slashmo.github.io/opentelemetry-swift/OTelPropagator/)
-- [📖 API Docs: W3CPropagator](https://slashmo.github.io/opentelemetry-swift/OTel_W3CPropagator/)
+- [📖 API Docs: OTelPropagator](https://slashmo.github.io/swift-otel/OTelPropagator/)
+- [📖 API Docs: W3CPropagator](https://slashmo.github.io/swift-otel/OTel_W3CPropagator/)
 - [📖 OpenTelemetry Specification: Propagators API](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/context/api-propagators.md)
 
 ### Detecting resource information
@@ -370,8 +370,8 @@ OTel.ResourceDetection.none
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelResourceDetector](https://slashmo.github.io/opentelemetry-swift/OTelResourceDetector/)
-- [📖 API Docs: OTelResourceDetection](https://slashmo.github.io/opentelemetry-swift/OTel_ResourceDetection/)
+- [📖 API Docs: OTelResourceDetector](https://slashmo.github.io/swift-otel/OTelResourceDetector/)
+- [📖 API Docs: OTelResourceDetection](https://slashmo.github.io/swift-otel/OTel_ResourceDetection/)
 - [📖 OpenTelemetry Specification: Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md)
 
 ## Development

@@ -3,7 +3,7 @@
 ##
 ## This source file is part of the Swift OpenTelemetry open source project
 ##
-## Copyright (c) 2021 Moritz Lang and the Swift OpenTelemetry project authors
+## Copyright (c) 2023 Moritz Lang and the Swift OpenTelemetry project authors
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
@@ -31,7 +31,7 @@ here="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function replace_acceptable_years() {
   # this needs to replace all acceptable forms with 'YEARS'
-  sed -e 's/2020-2022/YEARS/' -e 's/2020/YEARS/' -e 's/2021/YEARS/' -e 's/2022/YEARS/'
+  sed -e 's/2020-2023/YEARS/' -e 's/2020/YEARS/' -e 's/2021/YEARS/' -e 's/2022/YEARS/' -e 's/2023/YEARS/'
 }
 
 printf "=> Checking license headers\n"

@@ -56,6 +56,7 @@ struct Server: ParsableCommand {
         app.encoder = JSONEncoder()
         app.db = Database()
         app.middleware.add(HBTracingMiddleware(recordingHeaders: ["content-type", "x-forwarded-for"]))
+        app.middleware.add(SyncMiddleware())
 
         app.router.post("/users") { request in
             let payload = try request.decode(as: CreateUserRequest.self)
@@ -86,5 +87,11 @@ extension User: HBResponseCodable {}
 extension UUID: LosslessStringConvertible {
     public init?(_ description: String) {
         self.init(uuidString: description)
+    }
+}
+
+struct SyncMiddleware: HBMiddleware {
+    func apply(to request: HBRequest, next: HBResponder) -> EventLoopFuture<HBResponse> {
+        request.eventLoop.submit { }.flatMap { next.respond(to: request) }
     }
 }

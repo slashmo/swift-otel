@@ -64,6 +64,4 @@ extension OTel {
     }
 }
 
-#if swift(>=5.5) && canImport(_Concurrency)
 extension OTel.SpanContext: Sendable {}
-#endif

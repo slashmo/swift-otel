@@ -14,7 +14,6 @@
 import InstrumentationBaggage
 import Logging
 
-#if swift(>=5.5) && canImport(_Concurrency)
 @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 extension Logger.MetadataProvider {
     /// A metadata provider exposing the current trace and span ID.
@@ -36,4 +35,3 @@ extension Logger.MetadataProvider {
     /// A metadata provider exposing the current trace and span ID.
     public static let otel = Logger.MetadataProvider.otel()
 }
-#endif

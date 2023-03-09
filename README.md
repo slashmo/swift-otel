@@ -1,8 +1,7 @@
 # OpenTelemetry for Swift
 
-[![Swift 5.7](https://img.shields.io/badge/Swift-5.7-%23f05137)](https://swift.org)
 [![CI](https://github.com/slashmo/swift-otel/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/slashmo/swift-otel/actions/workflows/ci.yaml)
-
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fslashmo%2Fswift-otel%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/slashmo/swift-otel)
 [![Made for Swift Distributed Tracing](https://img.shields.io/badge/Made%20for-Swift%20Distributed%20Tracing-%23f05137)](https://github.com/apple/swift-distributed-tracing)
 
 An OpenTelemetry client implementation for Swift.

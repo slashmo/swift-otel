@@ -17,7 +17,7 @@ import OpenTelemetry
 
 final class InMemorySpanExporter: OTelSpanExporter {
     private let eventLoopGroup: EventLoopGroup
-    private let lock = Lock()
+    private let lock = NIOLock()
     private var _spans = [OTel.RecordedSpan]()
     private(set) var numberOfExports = 0
 

@@ -45,6 +45,4 @@ extension OTel.TraceState: CustomStringConvertible {
     }
 }
 
-#if swift(>=5.5) && canImport(_Concurrency)
 extension OTel.TraceState: Sendable {}
-#endif

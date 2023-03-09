@@ -18,7 +18,6 @@ import XCTest
 
 final class MetadataProviderTests: XCTestCase {
     func test_providesMetadataFromSpanContext_withDefaultLabels() throws {
-        #if swift(>=5.5) && canImport(_Concurrency)
         guard #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) else {
             throw XCTSkip("Task locals are not supported on this platform.")
         }
@@ -47,11 +46,9 @@ final class MetadataProviderTests: XCTestCase {
         XCTAssertTrue(message.contains("trace-id=\(spanContext.traceID)"))
         XCTAssertTrue(message.contains("explicit=42"))
         XCTAssertTrue(message.contains("This is a test message"))
-        #endif
     }
 
     func test_providesMetadataFromSpanContext_withCustomLabels() throws {
-        #if swift(>=5.5) && canImport(_Concurrency)
         guard #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) else {
             throw XCTSkip("Task locals are not supported on this platform.")
         }
@@ -81,11 +78,9 @@ final class MetadataProviderTests: XCTestCase {
         XCTAssertTrue(message.contains("custom_trace_id=\(spanContext.traceID)"))
         XCTAssertTrue(message.contains("explicit=42"))
         XCTAssertTrue(message.contains("This is a test message"))
-        #endif
     }
 
     func test_doesNotProvideMetadataWithoutSpanContext() throws {
-        #if swift(>=5.5) && canImport(_Concurrency)
         guard #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) else {
             throw XCTSkip("Task locals are not supported on this platform.")
         }
@@ -104,7 +99,6 @@ final class MetadataProviderTests: XCTestCase {
         XCTAssertFalse(message.contains("span-id"))
         XCTAssertTrue(message.contains("explicit=42"))
         XCTAssertTrue(message.contains("This is a test message"))
-        #endif
     }
 }
 
@@ -118,6 +112,4 @@ final class InterceptingStream: TextOutputStream {
     }
 }
 
-#if compiler(>=5.6)
 extension InterceptingStream: @unchecked Sendable {}
-#endif

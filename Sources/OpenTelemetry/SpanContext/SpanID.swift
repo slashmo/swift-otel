@@ -91,6 +91,4 @@ extension OTel.SpanID: Hashable {
     }
 }
 
-#if swift(>=5.5) && canImport(_Concurrency)
 extension OTel.SpanID: Sendable {}
-#endif

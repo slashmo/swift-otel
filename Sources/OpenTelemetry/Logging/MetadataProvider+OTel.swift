@@ -19,15 +19,15 @@ extension Logger.MetadataProvider {
     /// A metadata provider exposing the current trace and span ID.
     ///
     /// - Parameters:
-    ///   - traceIDKey: The metadata key of the trace ID. Defaults to "trace-id".
-    ///   - spanIDKey: The metadata key of the span ID. Defaults to "span-id".
+    ///   - traceIDKey: The metadata key of the trace ID. Defaults to "trace_id".
+    ///   - spanIDKey: The metadata key of the span ID. Defaults to "span_id".
     /// - Returns: A metadata provider ready to use with Logging.
-    public static func otel(traceIDKey: String = "trace-id", spanIDKey: String = "span-id") -> Logger.MetadataProvider {
+    public static func otel(traceIDKey: String = "trace_id", spanIDKey: String = "span_id") -> Logger.MetadataProvider {
         .init {
             guard let spanContext = Baggage.current?.spanContext else { return [:] }
             return [
-                traceIDKey: "\(spanContext.traceID)",
-                spanIDKey: "\(spanContext.spanID)",
+                traceIDKey: .stringConvertible(spanContext.traceID),
+                spanIDKey: .stringConvertible(spanContext.spanID),
             ]
         }
     }

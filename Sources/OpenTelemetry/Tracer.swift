@@ -123,7 +123,17 @@ extension OTel.Tracer: Tracer {
             resource: resource,
             logger: logger
         ) { [weak self] recordedSpan in
-            self?.processor.processEndedSpan(recordedSpan)
+            if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) {
+                /*
+                 We don't want to propagate the current span's baggage into
+                 processing or exporting since it's not part of the span's scope.
+                 */
+                Baggage.$current.withValue(nil) { [weak self] in
+                    self?.processor.processEndedSpan(recordedSpan)
+                }
+            } else {
+                self?.processor.processEndedSpan(recordedSpan)
+            }
         }
     }
 

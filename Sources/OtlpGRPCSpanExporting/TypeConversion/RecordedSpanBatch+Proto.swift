@@ -19,13 +19,17 @@ extension Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest {
             request.resourceSpans = batch.reduce(into: []) { r, span in
                 let spanResource = Opentelemetry_Proto_Resource_V1_Resource(span.resource)
                 if let existingIndex = r.firstIndex(where: { $0.resource == spanResource }) {
-                    r[existingIndex].instrumentationLibrarySpans[0].spans.append(.init(span))
-                } else {
-                    r.append(.with {
-                        $0.resource = spanResource
-                        $0.instrumentationLibrarySpans = [.init(spans: [span])]
-                    })
+                    r[existingIndex].scopeSpans[0].spans.append(.init(span))
                 }
+                r.append(.with { resourceSpans in
+                    resourceSpans.resource = spanResource
+                    resourceSpans.scopeSpans = [
+                        .with {
+                            $0.scope = .with { _ in }
+                            $0.spans = [.init(span)]
+                        },
+                    ]
+                })
             }
         }
     }

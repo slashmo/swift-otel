@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OpenTelemetry open source project
 //
-// Copyright (c) 2021 Moritz Lang and the Swift OpenTelemetry project authors
+// Copyright (c) 2023 Moritz Lang and the Swift OpenTelemetry project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -11,41 +11,42 @@
 //
 //===----------------------------------------------------------------------===//
 
+import struct Foundation.Data
 import class Foundation.ProcessInfo
 import struct Foundation.URL
 import GRPC
 import Logging
 import NIO
-@_exported import OpenTelemetry
+import OpenTelemetry
 
-/// A span exporter which sends spans to an OTel collector via gRPC in the OpenTelemetry protocol (OTLP).
-///
-/// - Warning: In order for this exporter to work you must have a running instance of the OTel collector deployed.
-/// Check out the ['OTel Collector: Getting Started'](https://opentelemetry.io/docs/collector/getting-started/) docs in case you don't have
-/// the collector running yet.
-public final class OtlpGRPCSpanExporter: OTelSpanExporter {
-    private let client: Opentelemetry_Proto_Collector_Trace_V1_TraceServiceNIOClient
+public final class OtlpGRPCLogRecordExporter: OTelLogRecordExporter {
+    private let client: Opentelemetry_Proto_Collector_Logs_V1_LogsServiceNIOClient
     private let logger: Logger
 
-    /// Initialize a new span exporter with the given configuration.
-    ///
-    /// - Parameter config: The config to be applied to the exporter.
-    public init(config: Config) {
+    public init(config: OtlpGRPCSpanExporter.Config) {
         let channel = ClientConnection
             .insecure(group: config.eventLoopGroup)
             .connect(host: config.host, port: config.port)
 
-        self.client = Opentelemetry_Proto_Collector_Trace_V1_TraceServiceNIOClient(
+        self.client = Opentelemetry_Proto_Collector_Logs_V1_LogsServiceNIOClient(
             channel: channel,
             defaultCallOptions: .init(timeLimit: .timeout(.seconds(10)))
         )
-        self.logger = config.logger
+        self.logger = Logger(
+            label: "OtlpGRPCLogRecordExporter",
+            factory: { label in
+                var handler = StreamLogHandler.standardOutput(label: label)
+                handler.logLevel = .trace
+                return handler
+            }
+        )
     }
 
-    public func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.RecordedSpan {
-        logger.trace("Exporting batch of spans", metadata: ["batch-size": .stringConvertible(batch.count)])
+    public func export<C: Collection>(_ batch: C) -> EventLoopFuture<Void> where C.Element == OTel.LogRecord {
+        logger.trace("Exporting batch of log records", metadata: ["batch-size": .stringConvertible(batch.count)])
 
-        return client.export(.init(batch)).response
+        return client.export(.init(batch))
+            .response
             .always { [weak self] result in
                 switch result {
                 case .success:

@@ -7,6 +7,7 @@ receivers:
 exporters:
   logging:
     logLevel: debug
+    verbosity: detailed
 
   jaeger:
     endpoint: "jaeger:14250"
@@ -21,4 +22,8 @@ service:
   pipelines:
     traces:
       receivers: otlp
-      exporters: [logging, jaeger, zipkin]
+      # exporters: [logging, jaeger, zipkin]
+      exporters: [jaeger, zipkin]
+    logs:
+      receivers: otlp
+      exporters: [logging]

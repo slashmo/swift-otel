@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.3.0
       - name: Cache Swift PM
-        uses: actions/cache@v3.3.0
+        uses: actions/cache@v3.3.1
         with:
           path: .build
           key: ${{ runner.os }}-${{ matrix.images }}-spm-${{ hashFiles('Package.swift') }}

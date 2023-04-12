@@ -42,7 +42,7 @@ extension OTel {
     }
 }
 
-extension OTel.Tracer: InstrumentProtocol {
+extension OTel.Tracer: Instrument {
     public func extract<Carrier, Extract>(
         _ carrier: Carrier,
         into baggage: inout Baggage,
@@ -68,7 +68,7 @@ extension OTel.Tracer: InstrumentProtocol {
     }
 }
 
-extension OTel.Tracer: TracerProtocol {
+extension OTel.Tracer: Tracer {
     public typealias TracerSpan = Span
 
     public func startAnySpan<Clock>(
@@ -131,7 +131,7 @@ extension OTel.Tracer: TracerProtocol {
             operationName: operationName,
             baggage: childBaggage,
             kind: kind,
-            startTime: clock.now.millisecondsSinceEpoch,
+            startTime: clock.now.nanosecondsSinceEpoch,
             attributes: samplingResult.attributes,
             resource: resource,
             logger: logger
@@ -145,8 +145,17 @@ extension OTel.Tracer: TracerProtocol {
 
 extension OTel.Tracer {
     public final class Span: Tracing.Span {
-        #warning("TODO: Lock access")
-        public var operationName: String
+        public var operationName: String {
+            get {
+                lock.withLock { _operationName }
+            }
+            set {
+                lock.withLockVoid {
+                    _operationName = newValue
+                }
+            }
+        }
+        private var _operationName: String
 
         public let kind: SpanKind
         public private(set) var status: SpanStatus?
@@ -155,7 +164,6 @@ extension OTel.Tracer {
 
         public let isRecording = true
 
-        #warning("TODO: Milli vs. nano")
         public let startTime: UInt64
         private(set) var endTime: UInt64?
 
@@ -179,7 +187,7 @@ extension OTel.Tracer {
             logger: Logger,
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
-            self.operationName = operationName
+            self._operationName = operationName
             self.baggage = baggage
             self.kind = kind
             self.startTime = startTime
@@ -231,8 +239,7 @@ extension OTel.Tracer {
                     }
                     return
                 }
-                #warning("TODO: millis vs. nanos")
-                endTime = clock.now.millisecondsSinceEpoch
+                endTime = clock.now.nanosecondsSinceEpoch
                 guard let recordedSpan = OTel.RecordedSpan(self) else { return }
                 onEnd(recordedSpan)
             }

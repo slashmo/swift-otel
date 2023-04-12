@@ -33,11 +33,9 @@ extension OTel {
         /// - Note: This `Baggage` doesn't contain the `OTel.SpanContext` as that's already unwrapped and accessible through `self.context`.
         public let baggage: Baggage
 
-        #warning("TODO: millis vs. nanos")
         /// The absolute time at which this span was started.
         public let startTime: UInt64
 
-#warning("TODO: millis vs. nanos")
         /// The absolute time at which this span was ended.
         public let endTime: UInt64
 

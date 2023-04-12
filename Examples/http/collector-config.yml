@@ -6,7 +6,7 @@ receivers:
 
 exporters:
   logging:
-    logLevel: debug
+    verbosity: detailed
 
   jaeger:
     endpoint: "jaeger:14250"

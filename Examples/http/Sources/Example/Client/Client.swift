@@ -92,7 +92,7 @@ struct Client: ParsableCommand {
             headers: headers
         )
         let jsonEncoder = JSONEncoder()
-        let payload = CreateUserPayload(name: "Moritz")
+        let payload = CreateUserPayload(name: name)
         let bodyData = try jsonEncoder.encode(payload)
         request.body = .bytes(bodyData)
 

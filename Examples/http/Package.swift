@@ -1,13 +1,10 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
     name: "http",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .watchOS(.v6),
-        .tvOS(.v13),
+        .macOS(.v13),
     ],
     products: [
         .executable(name: "example", targets: ["Example"]),
@@ -18,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.1"),
         .package(url: "https://github.com/hummingbird-project/hummingbird.git", branch: "feature/request-baggage"),
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
-        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "0.3.1"),
+        .package(url: "https://github.com/slashmo/swift-distributed-tracing.git", branch: "feature/span-event-nanoseconds"),
 
         .package(path: "../../"),
     ],

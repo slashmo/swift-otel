@@ -33,15 +33,17 @@ final class SpanTests: XCTestCase {
             onEndWasCalled = true
         }
 
-        let endTime = DispatchWallTime.now()
-        span.end(at: endTime)
+        let clock = MockClock()
+        clock.setTime(42)
+        span.end(clock: clock)
 
         XCTAssertTrue(onEndWasCalled)
-        XCTAssertEqual(span.endTime, endTime)
+        XCTAssertEqual(span.endTime, 42)
 
-        span.end()
+        clock.setTime(84)
+        span.end(clock: clock)
 
-        XCTAssertEqual(span.endTime, endTime)
+        XCTAssertEqual(span.endTime, 42)
     }
 
     func test_recordsErrorAsEvent() {

@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "onboarding",
+    platforms: [.macOS(.v13)],
     products: [
         .executable(name: "onboarding", targets: ["Onboarding"]),
     ],
@@ -10,7 +11,7 @@ let package = Package(
         .package(path: "../.."),
     ],
     targets: [
-        .target(name: "Onboarding", dependencies: [
+        .executableTarget(name: "Onboarding", dependencies: [
             .product(name: "OpenTelemetry", package: "swift-otel"),
             .product(name: "OtlpGRPCSpanExporting", package: "swift-otel"),
         ]),

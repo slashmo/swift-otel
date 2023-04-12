@@ -44,12 +44,12 @@ InstrumentationSystem.bootstrap(otel.tracer())
 
 // MARK: - Create spans
 
-let rootSpan = InstrumentationSystem.tracer.startSpan("hello", baggage: .topLevel)
+let rootSpan = startSpan("hello")
 sleep(1)
 rootSpan.addEvent(SpanEvent(name: "Discovered the meaning of life", attributes: ["meaning_of_life": 42]))
 
 // By passing `rootSpan`'s baggage, "OpenTelemetry Swift" will automatically create it as child span.
-let childSpan = InstrumentationSystem.tracer.startSpan("world", baggage: rootSpan.baggage)
+let childSpan = startSpan("world", baggage: rootSpan.baggage)
 sleep(1)
 childSpan.end()
 sleep(1)

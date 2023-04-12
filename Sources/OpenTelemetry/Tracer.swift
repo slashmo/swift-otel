@@ -71,26 +71,37 @@ extension OTel.Tracer: Instrument {
 extension OTel.Tracer: Tracer {
     public typealias TracerSpan = Span
 
-    public func startAnySpan<Clock>(
+    public func startAnySpan<Clock: TracerClock>(
         _ operationName: String,
-        baggage: @autoclosure () -> InstrumentationBaggage.Baggage,
-        ofKind kind: Tracing.SpanKind,
+        baggage: @autoclosure () -> Baggage,
+        ofKind kind: SpanKind,
         clock: Clock,
         function: String,
         file fileID: String,
         line: UInt
-    ) -> Tracing.Span where Clock: TracerClock {
-        startSpan(operationName, baggage: baggage(), ofKind: kind, clock: clock)
+    ) -> any Tracing.Span {
+        startSpan(
+            operationName,
+            baggage: baggage(),
+            ofKind: kind,
+            clock: clock,
+            function: function,
+            file: fileID,
+            line: line
+        )
     }
 
     public func startSpan<Clock: TracerClock>(
         _ operationName: String,
-        baggage: Baggage,
+        baggage: @autoclosure () -> Baggage,
         ofKind kind: SpanKind,
-        clock: Clock
-    ) -> Tracing.Span {
-        let parentBaggage = baggage
-        var childBaggage = baggage
+        clock: Clock,
+        function: String,
+        file fileID: String,
+        line: UInt
+    ) -> Span {
+        let parentBaggage = baggage()
+        var childBaggage = parentBaggage
 
         let traceID: OTel.TraceID
         let traceState: OTel.TraceState?
@@ -124,7 +135,18 @@ extension OTel.Tracer: Tracer {
         childBaggage.spanContext = spanContext
 
         if samplingResult.decision == .drop {
-            return NoOpTracer.NoOpSpan(baggage: childBaggage)
+            return Span(
+                operationName: operationName,
+                baggage: childBaggage,
+                kind: kind,
+                startTime: clock.now.nanosecondsSinceEpoch,
+                attributes: samplingResult.attributes,
+                resource: resource,
+                isRecording: false,
+                logger: logger
+            ) { [weak self] recordedSpan in
+                self?.processor.processEndedSpan(recordedSpan)
+            }
         }
 
         return Span(
@@ -147,22 +169,23 @@ extension OTel.Tracer {
     public final class Span: Tracing.Span {
         public var operationName: String {
             get {
-                lock.withLock { _operationName }
+                operationNameLock.withLock { _operationName }
             }
             set {
-                lock.withLockVoid {
+                operationNameLock.withLockVoid {
                     _operationName = newValue
                 }
             }
         }
         private var _operationName: String
+        private let operationNameLock = NIOLock()
 
         public let kind: SpanKind
         public private(set) var status: SpanStatus?
 
         public let baggage: Baggage
 
-        public let isRecording = true
+        public let isRecording: Bool
 
         public let startTime: UInt64
         private(set) var endTime: UInt64?
@@ -184,6 +207,7 @@ extension OTel.Tracer {
             startTime: UInt64,
             attributes: SpanAttributes,
             resource: OTel.Resource,
+            isRecording: Bool = true,
             logger: Logger,
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
@@ -193,6 +217,7 @@ extension OTel.Tracer {
             self.startTime = startTime
             self.attributes = attributes
             self.resource = resource
+            self.isRecording = isRecording
             self.logger = logger
             self.onEnd = onEnd
         }

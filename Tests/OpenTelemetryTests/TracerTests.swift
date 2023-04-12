@@ -34,7 +34,8 @@ final class TracerTests: XCTestCase {
             logger: Logger(label: #function)
         )
 
-        let span = tracer.startSpan(#function, baggage: .topLevel)
+        let clock = MockClock()
+        let span = tracer.startSpan(#function, baggage: .topLevel, clock: clock)
 
         let spanContext = try XCTUnwrap(span.baggage.spanContext)
 
@@ -131,6 +132,26 @@ final class TracerTests: XCTestCase {
         let span = tracer.startSpan(#function, baggage: .topLevel)
 
         XCTAssertEqual(span.attributes, ["test": true])
+    }
+
+    func test_startedSpan_includesStartTimeFromCustomClock() {
+        let idGenerator = StubIDGenerator()
+        let sampler = MockSampler(delegatingTo: OTel.ConstantSampler(isOn: true))
+        let tracer = OTel.Tracer(
+            resource: OTel.Resource(),
+            idGenerator: idGenerator,
+            sampler: sampler,
+            processor: OTel.NoOpSpanProcessor(eventLoopGroup: eventLoopGroup),
+            propagator: OTel.W3CPropagator(),
+            logger: Logger(label: #function)
+        )
+
+        let clock = MockClock()
+        clock.setTime(42)
+
+        let span = tracer.startSpan(#function, clock: clock)
+
+        XCTAssertEqual(span.startTime, 42)
     }
 
     // MARK: - Context Propagation

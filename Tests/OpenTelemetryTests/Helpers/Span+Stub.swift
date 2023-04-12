@@ -11,7 +11,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Dispatch.DispatchWallTime
 import Logging
 @testable import OpenTelemetry
 import Tracing
@@ -21,7 +20,7 @@ extension OTel.Tracer.Span {
         operationName: String = #function,
         spanContext: OTel.SpanContext? = .stub(),
         kind: SpanKind = .internal,
-        startTime: DispatchWallTime = .now(),
+        startTime: UInt64 = 0,
         attributes: SpanAttributes = [:],
         resource: OTel.Resource = OTel.Resource(),
         logger: Logger = Logger(label: #function),

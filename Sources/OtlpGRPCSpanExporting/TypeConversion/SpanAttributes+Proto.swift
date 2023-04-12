@@ -25,10 +25,14 @@ extension Opentelemetry_Proto_Common_V1_AnyValue {
                 value.stringValue = String(describing: stringConvertible)
             case .stringConvertibleArray(let stringConvertibleArray):
                 value.arrayValue = .init(stringConvertibleArray, transform: SpanAttribute.stringConvertible)
-            case .int(let int):
+            case .int32(let int):
+                value.intValue = Int64(int)
+            case .int64(let int):
                 value.intValue = int
-            case .intArray(let intArray):
-                value.arrayValue = .init(intArray, transform: SpanAttribute.int)
+            case .int32Array(let intArray):
+                value.arrayValue = .init(intArray, transform: SpanAttribute.int32)
+            case .int64Array(let intArray):
+                value.arrayValue = .init(intArray, transform: SpanAttribute.int64)
             case .double(let double):
                 value.doubleValue = double
             case .doubleArray(let doubleArray):
@@ -37,6 +41,8 @@ extension Opentelemetry_Proto_Common_V1_AnyValue {
                 value.boolValue = bool
             case .boolArray(let boolArray):
                 value.arrayValue = .init(boolArray, transform: SpanAttribute.bool)
+            default:
+                fatalError()
             }
         }
     }

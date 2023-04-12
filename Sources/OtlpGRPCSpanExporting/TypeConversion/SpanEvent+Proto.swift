@@ -16,6 +16,7 @@ import Tracing
 extension Opentelemetry_Proto_Trace_V1_Span.Event {
     init(_ spanEvent: SpanEvent) {
         name = spanEvent.name
+//        spanEvent.millisecondsSinceEpoch * 100_000
         timeUnixNano = spanEvent.time.unixNanoseconds
         attributes = .init(spanEvent.attributes)
     }

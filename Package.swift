@@ -3,18 +3,13 @@ import PackageDescription
 
 let package = Package(
     name: "swift-otel",
-    platforms: [
-        .iOS(.v11),
-        .macOS(.v10_13),
-        .watchOS(.v4),
-        .tvOS(.v11),
-    ],
+    platforms: [.macOS(.v13)],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
         .library(name: "OtlpGRPCSpanExporting", targets: ["OtlpGRPCSpanExporting"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-distributed-tracing.git", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0-beta.1"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.1"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.43.0"),
         .package(url: "https://github.com/grpc/grpc-swift.git", from: "1.0.0"),

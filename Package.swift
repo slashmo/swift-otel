@@ -9,8 +9,7 @@ let package = Package(
         .library(name: "OtlpGRPCSpanExporting", targets: ["OtlpGRPCSpanExporting"]),
     ],
     dependencies: [
-       .package(url: "https://github.com/slashmo/swift-distributed-tracing.git", branch: "feature/span-event-nanoseconds"),
-//        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0-beta.2"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0-beta.2"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.1"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.43.0"),
         .package(url: "https://github.com/grpc/grpc-swift.git", from: "1.0.0"),

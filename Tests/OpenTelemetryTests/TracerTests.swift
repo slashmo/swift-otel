@@ -35,7 +35,7 @@ final class TracerTests: XCTestCase {
         )
 
         let clock = MockClock()
-        let span = tracer.startSpan(#function, baggage: .topLevel, clock: clock)
+        let span = tracer.startSpan(#function, baggage: .topLevel, at: clock.now)
 
         let spanContext = try XCTUnwrap(span.baggage.spanContext)
 
@@ -149,7 +149,7 @@ final class TracerTests: XCTestCase {
         let clock = MockClock()
         clock.setTime(42)
 
-        let span = tracer.startSpan(#function, clock: clock)
+        let span = tracer.startSpan(#function, at: clock.now)
 
         XCTAssertEqual(span.startTime, 42)
     }

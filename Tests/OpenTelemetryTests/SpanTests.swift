@@ -35,13 +35,13 @@ final class SpanTests: XCTestCase {
 
         let clock = MockClock()
         clock.setTime(42)
-        span.end(clock: clock)
+        span.end(at: clock.now)
 
         XCTAssertTrue(onEndWasCalled)
         XCTAssertEqual(span.endTime, 42)
 
         clock.setTime(84)
-        span.end(clock: clock)
+        span.end(at: clock.now)
 
         XCTAssertEqual(span.endTime, 42)
     }

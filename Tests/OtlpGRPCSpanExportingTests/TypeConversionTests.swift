@@ -132,7 +132,7 @@ final class TypeConversionTests: XCTestCase {
             endTime: endTime,
             attributes: ["key": "value"],
             events: [
-                SpanEvent(name: "test", clock: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)))
+                SpanEvent(name: "test", at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now)
             ],
             // will be filtered out due to missing span context
             links: [SpanLink(baggage: .topLevel, attributes: [:])],
@@ -153,7 +153,7 @@ final class TypeConversionTests: XCTestCase {
                 $0.attributes = .init(["key": "value"])
                 $0.events = [.init(SpanEvent(
                     name: "test",
-                    clock: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime))
+                    at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now
                 ))]
             }
         )
@@ -362,7 +362,7 @@ final class TypeConversionTests: XCTestCase {
 
     func test_convertSpanEvent() {
         let clock = TracerClockMock(now: .init(nanosecondsSinceEpoch: 42))
-        let event = SpanEvent(name: "test", clock: clock)
+        let event = SpanEvent(name: "test", at: clock.now)
 
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span.Event(event),
@@ -375,7 +375,7 @@ final class TypeConversionTests: XCTestCase {
 
     func test_convertSpanEvent_withAttributes() {
         let clock = TracerClockMock(now: .init(nanosecondsSinceEpoch: 42))
-        let event = SpanEvent(name: "test", clock: clock, attributes: ["key": "value"])
+        let event = SpanEvent(name: "test", at: clock.now, attributes: ["key": "value"])
 
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span.Event(event),
@@ -421,7 +421,7 @@ final class TypeConversionTests: XCTestCase {
     }
 }
 
-private struct TracerClockMock: TracerClock {
+private struct TracerClockMock {
     let now: Instant
 
     struct Instant: TracerInstant {

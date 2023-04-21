@@ -26,7 +26,7 @@
 
 import Tracing
 
-final class MockClock: TracerClock {
+final class MockClock {
     var _now: UInt64 = 0
 
     init() {}

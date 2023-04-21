@@ -51,7 +51,7 @@ final class RecordedSpanTests: XCTestCase {
         span.addLink(SpanLink(baggage: .topLevel, attributes: [:]))
 
         clock.setTime(84)
-        span.end(clock: clock)
+        span.end(at: clock.now)
 
         let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 

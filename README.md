@@ -30,7 +30,7 @@ To wet your appetite, here are screenshots from both [Jaeger](https://www.jaeger
 To add "swift-otel" to our project, we first need to include it as a package dependency:
 
 ```swift
-.package(url: "https://github.com/slashmo/swift-otel.git", from: "0.3.0"),
+.package(url: "https://github.com/slashmo/swift-otel.git", from: "0.7.0"),
 ```
 
 Then we add `OpenTelemetry` to our executable target:

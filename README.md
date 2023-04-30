@@ -210,7 +210,7 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelIDGenerator](https://slashmo.github.io/swift-otel/OTelIDGenerator/)
+- [📖 API Docs: OTelIDGenerator](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelidgenerator)
 - [📖 OpenTelemetry Specification: ID Generator](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#id-generators)
 - [🧩 AWS X-Ray support library](https://github.com/slashmo/swift-otel-xray)
 
@@ -218,8 +218,8 @@ let otel = OTel(
 
 If your application creates a large amount of spans you might want to look into sampling out certain spans. By default,
 "swift-otel" ships with a
-"[parent-based](https://slashmo.github.io/swift-otel/OTel_ParentBasedSampler/)" sampler, configured to always
-sample root spans using a "[constant sampler](https://slashmo.github.io/swift-otel/OTel_ConstantSampler/)".
+"[parent-based](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/parentbasedsampler)" sampler, configured to always
+sample root spans using a "[constant sampler](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/constantsampler)".
 Parent-based means that this sampler takes into account whether the parent span was sampled.
 
 To create your own sampler you need to implement the `OTelSampler` protocol.
@@ -240,9 +240,9 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSampler](https://slashmo.github.io/swift-otel/OTelSampler/)
-- [📖 API Docs: OTel.ParentBasedSampler](https://slashmo.github.io/swift-otel/OTel_ParentBasedSampler/)
-- [📖 API Docs: OTel.ConstantSampler](https://slashmo.github.io/swift-otel/OTel_ConstantSampler/)
+- [📖 API Docs: OTelSampler](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelsampler)
+- [📖 API Docs: OTel.ParentBasedSampler](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/parentbasedsampler)
+- [📖 API Docs: OTel.ConstantSampler](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/constantsampler)
 - [📖 OpenTelemetry Specification: Sampling](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#sampling)
 
 ### Processing ended spans
@@ -266,8 +266,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSpanProcessor](https://slashmo.github.io/swift-otel/OTelSpanProcessor/)
-- [📖 API Docs: OTel.SimpleSpanProcessor](https://slashmo.github.io/swift-otel/OTel_SimpleSpanProcessor/)
+- [📖 API Docs: OTelSpanProcessor](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelspanprocessor)
+- [📖 API Docs: OTel.SimpleSpanProcessor](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/simplespanprocessor)
 - [📖 OpenTelemetry Specification: Span Processor](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-processor)
 
 ### Exporting processed spans
@@ -297,8 +297,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelSpanExporter](https://slashmo.github.io/swift-otel/OTelSpanExporter/)
-- [📖 API Docs: OtlpGRPCSpanExporter](https://slashmo.github.io/swift-otel/OtlpGRPCSpanExporter/)
+- [📖 API Docs: OTelSpanExporter](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelspanexporter)
+- [📖 API Docs: OtlpGRPCSpanExporter](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/otlpgrpcspanexporting/otlpgrpcspanexporter)
 - [📖 OpenTelemetry Collector](https://opentelemetry.io/docs/collector)
 - [📖 OpenTelemetry Specification: Span Exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#span-exporter)
 
@@ -325,8 +325,8 @@ let otel = OTel(
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelPropagator](https://slashmo.github.io/swift-otel/OTelPropagator/)
-- [📖 API Docs: W3CPropagator](https://slashmo.github.io/swift-otel/OTel_W3CPropagator/)
+- [📖 API Docs: OTelPropagator](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelpropagator)
+- [📖 API Docs: W3CPropagator](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/w3cpropagator)
 - [📖 OpenTelemetry Specification: Propagators API](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/context/api-propagators.md)
 
 ### Detecting resource information
@@ -371,8 +371,8 @@ OTel.ResourceDetection.none
 
 #### Resources 🔗
 
-- [📖 API Docs: OTelResourceDetector](https://slashmo.github.io/swift-otel/OTelResourceDetector/)
-- [📖 API Docs: OTelResourceDetection](https://slashmo.github.io/swift-otel/OTel_ResourceDetection/)
+- [📖 API Docs: OTelResourceDetector](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otelresourcedetector)
+- [📖 API Docs: OTelResourceDetection](https://swiftpackageindex.com/slashmo/swift-otel/0.6.0/documentation/opentelemetry/otel/resourcedetection)
 - [📖 OpenTelemetry Specification: Resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md)
 
 ## Development

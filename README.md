@@ -6,24 +6,28 @@
 
 An OpenTelemetry client implementation for Swift.
 
-"OpenTelemetry Swift" builds on top of [Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing)
-by implementing its instrumentation & tracing API. This means that [any library instrumented using Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing#libraries--frameworks) will automatically work with "OpenTelemetry Swift".
+"swift-otel" builds on top of [Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing)
+by implementing its instrumentation & tracing API. This means that [any library instrumented using Swift Distributed Tracing](https://github.com/apple/swift-distributed-tracing#libraries--frameworks) will automatically work with "swift-otel".
 
 ## Getting Started
 
-In this guide we'll create a service called "onboarding". It won't do anything other than starting a couple of spans
-and exporting them, but it highlights the key aspects of "OpenTelemetry Swift" and how to set it up. To wet your
-appetite, here are screenshots from both [Jaeger](https://www.jaegertracing.io) & [Zipkin](https://zipkin.io) displaying
-a trace created by "onboarding":
+In this guide we'll create a service called "example". It simulates and HTTP server receiving a request for product
+information. To handle this request, our "server" simulates querying a database. The first attempt, however, will fail.
+Our server copes with that failure by retrying the request which finally succeeds.
+
+Throughout this example, you'll see the key aspects of "swift-otel" and using "Swift Distributed Tracing" in general.
+
+To wet your appetite, here are screenshots from both [Jaeger](https://www.jaegertracing.io) and
+[Zipkin](https://zipkin.io) displaying a trace created by our "server":
 
 ![Our trace exported to Jaeger](images/jaeger.png)
 ![Our trace exported to Zipkin](images/zipkin.png)
 
-> You can find the source code of the "onboarding" example [here](Examples/Onboarding).
+> You can find the source code of this example [here](Examples/Basic).
 
 ### Installation
 
-To add "OpenTelemetry Swift" to our project, we first need to include it as a package dependency:
+To add "swift-otel" to our project, we first need to include it as a package dependency:
 
 ```swift
 .package(url: "https://github.com/slashmo/swift-otel.git", from: "0.3.0"),
@@ -37,7 +41,7 @@ Then we add `OpenTelemetry` to our executable target:
 
 ### Bootstrapping
 
-Now that we installed "OpenTelemetry Swift", it's time to bootstrap the instrumentation system to use OpenTelemetry.
+Now that we installed "swift-otel", it's time to bootstrap the instrumentation system to use OpenTelemetry.
 Before we can retrieve a tracer we need to configure and start the main object `OTel`:
 
 ```swift
@@ -46,7 +50,7 @@ import OpenTelemetry
 import Tracing
 
 let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-let otel = OTel(serviceName: "onboarding", eventLoopGroup: group)
+let otel = OTel(serviceName: "example", eventLoopGroup: group)
 
 try otel.start().wait()
 InstrumentationSystem.bootstrap(otel.tracer())
@@ -65,7 +69,7 @@ try group.syncShutdownGracefully()
 ### Configuring processing and exporting
 
 To start processing and exporting spans, we must pass a **processor** to the `OTel` initializer.
-"OpenTelemetry Swift" comes with a number of built in processors and you can even build your own.
+"swift-otel" comes with a number of built in processors and you can even build your own.
 Check out the ["Span Processors"](#processing-ended-spans) section to learn more.
 
 For now, we're going to use the `SimpleSpanProcessor`. As the name suggests, this processor doesn't do much except
@@ -76,21 +80,21 @@ the `SimpleSpanProcessor`.
 
 We want to export our spans to both Jaeger and Zipkin. The OpenTelemetry project provides the
 ["OpenTelemetry Collector"](https://github.com/open-telemetry/opentelemetry-collector) which acts as a middleman between
-clients such as "OpenTelemetry Swift" and tracing backends such as Jaeger and Zipkin. We won't go into much detail on
-how to configure the collector in this guide, but instead focus on our "onboarding" service.
+clients such as "swift-otel" and tracing backends such as Jaeger and Zipkin. We won't go into much detail on
+how to configure the collector in this guide, but instead focus on our "example" service.
 
 We use Docker to run the OTel collector, Jaeger, and Zipkin locally. Both `docker-compose.yaml` and
-`collector-config.yaml` are located in the ["docker"](Examples/Onboarding/docker) folder of the "onboarding" example.
+`collector-config.yaml` are located in the ["docker"](Examples/Basic/docker) folder of the "basic" example.
 
 ```sh
-# In Examples/Onboarding
+# In Examples/Basic
 docker-compose -f docker/docker-compose.yaml up --build
 ```
 
 #### Using OtlpGRPCSpanExporter
 
 After a couple of seconds everything should be up-and-running. Let's go ahead and
-**configure OTel to export to the collector**. "OpenTelemetry Swift" contains a second library called
+**configure OTel to export to the collector**. "swift-otel" contains a second library called
 "OtlpGRPCSpanExporting", providing the necessary span exporter. We need to also include it in our target in
 `Package.swift`:
 
@@ -117,8 +121,8 @@ let processor = OTel.SimpleSpanProcessor(exportingTo: exporter)
 The only thing left to do is to tell `OTel` to use this processor:
 
 ```diff
-- let otel = OTel(serviceName: "onboarding", eventLoopGroup: group)
-+ let otel = OTel(serviceName: "onboarding", eventLoopGroup: group, processor: processor)
+- let otel = OTel(serviceName: "example", eventLoopGroup: group)
++ let otel = OTel(serviceName: "example", eventLoopGroup: group, processor: processor)
 ```
 
 ### Starting spans
@@ -162,7 +166,7 @@ find them at http://localhost:16686 & http://localhost:9411 respectively.
 
 ### Diving deeper 🤿
 
-- View the [complete example here](Examples/Onboarding).
+- View the [complete example here](Examples/Basic).
 
 - To learn more about the `InstrumentationSystem`, check out the [Swift Distributed Tracing docs on the subject](https://github.com/apple/swift-distributed-tracing/blob/main/README.md#bootstrapping-the-instrumentationsystem).
 
@@ -174,7 +178,7 @@ find them at http://localhost:16686 & http://localhost:9411 respectively.
 
 ## Customization
 
-"OpenTelemetry Swift" is designed to be easily customizable. This sections goes over the different moving parts that
+"swift-otel" is designed to be easily customizable. This sections goes over the different moving parts that
 may be switched out with other non-default implementations.
 
 ### Generating trace & span ids
@@ -213,7 +217,7 @@ let otel = OTel(
 ### Sampling
 
 If your application creates a large amount of spans you might want to look into sampling out certain spans. By default,
-"OpenTelemetry Swift" ships with a
+"swift-otel" ships with a
 "[parent-based](https://slashmo.github.io/swift-otel/OTel_ParentBasedSampler/)" sampler, configured to always
 sample root spans using a "[constant sampler](https://slashmo.github.io/swift-otel/OTel_ConstantSampler/)".
 Parent-based means that this sampler takes into account whether the parent span was sampled.
@@ -333,7 +337,7 @@ span. But this would be cumbersome and inefficient. Therefore, OpenTelemetry has
 Resource detectors run once on start-up, detect some attributes collected in a `Resource` and hand them off to `OTel`.
 From then on, the resulting `Resource` will be passed along to span exporters for them to include these attributes.
 
-"OpenTelemetry Swift" comes with two built-in resource detectors which are enabled by default:
+"swift-otel" comes with two built-in resource detectors which are enabled by default:
 
 #### `ProcessResourceDetector`
 

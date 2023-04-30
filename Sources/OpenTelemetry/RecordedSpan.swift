@@ -58,9 +58,9 @@ extension OTel.RecordedSpan {
         guard let context = span.baggage.spanContext else { return nil }
         guard let endTime = span.endTime else { return nil }
 
-        self.operationName = span.operationName
-        self.kind = span.kind
-        self.status = span.status
+        operationName = span.operationName
+        kind = span.kind
+        status = span.status
         self.context = context
 
         // strip span context from baggage because it's already stored as `context`.
@@ -68,12 +68,12 @@ extension OTel.RecordedSpan {
         baggage.spanContext = nil
         self.baggage = baggage
 
-        self.startTime = span.startTime
+        startTime = span.startTime
         self.endTime = endTime
 
-        self.attributes = span.attributes
-        self.events = span.events
-        self.links = span.links
-        self.resource = span.resource
+        attributes = span.attributes
+        events = span.events
+        links = span.links
+        resource = span.resource
     }
 }

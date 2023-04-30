@@ -177,6 +177,7 @@ extension OTel.Tracer {
                 }
             }
         }
+
         private var _operationName: String
         private let operationNameLock = NIOLock()
 
@@ -211,7 +212,7 @@ extension OTel.Tracer {
             logger: Logger,
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
-            self._operationName = operationName
+            _operationName = operationName
             self.baggage = baggage
             self.kind = kind
             self.startTime = startTime

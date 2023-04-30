@@ -1,9 +1,8 @@
 //===----------------------------------------------------------------------===//
 //
-// This source file is part of the Swift Distributed Tracing open source project
+// This source file is part of the Swift OpenTelemetry open source project
 //
-// Copyright (c) 2020-2023 Apple Inc. and the Swift Distributed Tracing project
-// authors
+// Copyright (c) 2023 Moritz Lang and the Swift OpenTelemetry project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -13,9 +12,10 @@
 //===----------------------------------------------------------------------===//
 //===----------------------------------------------------------------------===//
 //
-// This source file is part of the Swift OpenTelemetry open source project
+// This source file is part of the Swift Distributed Tracing open source project
 //
-// Copyright (c) 2023 Moritz Lang and the Swift OpenTelemetry project authors
+// Copyright (c) 2020-2023 Apple Inc. and the Swift Distributed Tracing project
+// authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -32,7 +32,7 @@ final class MockClock {
     init() {}
 
     func setTime(_ time: UInt64) {
-        self._now = time
+        _now = time
     }
 
     struct Instant: TracerInstant {
@@ -43,6 +43,6 @@ final class MockClock {
     }
 
     var now: Instant {
-        Instant(nanosecondsSinceEpoch: self._now)
+        Instant(nanosecondsSinceEpoch: _now)
     }
 }

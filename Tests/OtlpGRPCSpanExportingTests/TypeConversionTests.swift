@@ -132,7 +132,7 @@ final class TypeConversionTests: XCTestCase {
             endTime: endTime,
             attributes: ["key": "value"],
             events: [
-                SpanEvent(name: "test", at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now)
+                SpanEvent(name: "test", at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now),
             ],
             // will be filtered out due to missing span context
             links: [SpanLink(baggage: .topLevel, attributes: [:])],

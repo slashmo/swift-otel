@@ -29,8 +29,9 @@ final class RecordedSpanTests: XCTestCase {
         baggage.spanContext = spanContext
         baggage[TestBaggageKey.self] = 42
 
-        let startTime = DispatchWallTime.now()
-        let endTime = DispatchWallTime.now()
+        let clock = MockClock()
+        clock.setTime(42)
+
         let status = SpanStatus(code: .ok)
         let attributes: SpanAttributes = ["test": true]
         let events: [SpanEvent] = ["test"]
@@ -39,7 +40,7 @@ final class RecordedSpanTests: XCTestCase {
             operationName: #function,
             baggage: baggage,
             kind: .internal,
-            startTime: startTime,
+            startTime: clock.now.nanosecondsSinceEpoch,
             attributes: attributes,
             resource: OTel.Resource(attributes: ["key": "value"]),
             logger: Logger(label: #function)
@@ -47,8 +48,10 @@ final class RecordedSpanTests: XCTestCase {
 
         span.addEvent(events[0])
         span.setStatus(status)
-        span.addLink(SpanLink(baggage: .topLevel))
-        span.end(at: endTime)
+        span.addLink(SpanLink(baggage: .topLevel, attributes: [:]))
+
+        clock.setTime(84)
+        span.end(at: clock.now)
 
         let recordedSpan = try XCTUnwrap(OTel.RecordedSpan(span))
 
@@ -61,8 +64,8 @@ final class RecordedSpanTests: XCTestCase {
             "The baggage of a recorded span should not contain the span context."
         )
         XCTAssertEqual(recordedSpan.baggage[TestBaggageKey.self], 42)
-        XCTAssertEqual(recordedSpan.startTime, startTime)
-        XCTAssertEqual(recordedSpan.endTime, endTime)
+        XCTAssertEqual(recordedSpan.startTime, 42)
+        XCTAssertEqual(recordedSpan.endTime, 84)
         XCTAssertEqual(recordedSpan.attributes, attributes)
         XCTAssertEqual(recordedSpan.events, events)
         XCTAssertEqual(recordedSpan.links.count, 1)

@@ -29,8 +29,8 @@ extension Opentelemetry_Proto_Trace_V1_Span {
         if let status = span.status {
             self.status = .init(status)
         }
-        self.startTimeUnixNano = span.startTime.unixNanoseconds
-        self.endTimeUnixNano = span.endTime.unixNanoseconds
+        self.startTimeUnixNano = span.startTime
+        self.endTimeUnixNano = span.endTime
         self.attributes = .init(span.attributes)
         self.events = span.events.map(Opentelemetry_Proto_Trace_V1_Span.Event.init)
         self.links = span.links.compactMap(Opentelemetry_Proto_Trace_V1_Span.Link.init)

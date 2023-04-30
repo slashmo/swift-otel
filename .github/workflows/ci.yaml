@@ -10,6 +10,7 @@ jobs:
       matrix:
         images:
           - swift:5.7
+          - swift:5.8
           - swiftlang/swift:nightly-main-focal
     container: ${{ matrix.images }}
     steps:
@@ -26,18 +27,18 @@ jobs:
       - name: Build & Test
         run: swift test --enable-test-discovery --parallel
 
-  compile-onboarding-example:
+  compile-basic-example:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./Examples/Onboarding
+        working-directory: ./Examples/Basic
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
       - name: Install Swift
         uses: slashmo/install-swift@v0.4.0
         with:
-          version: 5.7
+          version: 5.8
       - name: Resolve Swift dependencies
         run: swift package resolve
       - name: Build

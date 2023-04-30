@@ -20,8 +20,8 @@ final class TypeConversionTests: XCTestCase {
     // MARK: - Export Request
 
     func test_convertToExportRequest() throws {
-        let startTime = DispatchWallTime.now()
-        let endTime = startTime + .seconds(1)
+        let startTime: UInt64 = 42
+        let endTime: UInt64 = 84
 
         let resource = OTel.Resource(attributes: ["id": "1"])
 
@@ -73,8 +73,8 @@ final class TypeConversionTests: XCTestCase {
     // MARK: - Instrumentation Library Spans
 
     func test_convertInstrumentationLibrarySpans() {
-        let startTime = DispatchWallTime.now()
-        let endTime = startTime + .seconds(1)
+        let startTime: UInt64 = 42
+        let endTime: UInt64 = 84
 
         let resource = OTel.Resource(attributes: ["key": "value"])
         let span = OTel.RecordedSpan(
@@ -111,9 +111,9 @@ final class TypeConversionTests: XCTestCase {
     // MARK: - Span
 
     func test_convertSpan() {
-        let startTime = DispatchWallTime.now()
-        let eventStartTime = DispatchWallTime.now() + .seconds(1)
-        let endTime = startTime + .seconds(2)
+        let startTime: UInt64 = 42
+        let eventStartTime: UInt64 = 63
+        let endTime: UInt64 = 84
 
         let span = OTel.RecordedSpan(
             operationName: "test",
@@ -131,17 +131,19 @@ final class TypeConversionTests: XCTestCase {
             startTime: startTime,
             endTime: endTime,
             attributes: ["key": "value"],
-            events: [SpanEvent(name: "test", at: eventStartTime)],
+            events: [
+                SpanEvent(name: "test", at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now),
+            ],
             // will be filtered out due to missing span context
-            links: [SpanLink(baggage: .topLevel)],
+            links: [SpanLink(baggage: .topLevel, attributes: [:])],
             resource: OTel.Resource()
         )
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span(span),
             .with {
                 $0.name = "test"
-                $0.startTimeUnixNano = startTime.unixNanoseconds
-                $0.endTimeUnixNano = endTime.unixNanoseconds
+                $0.startTimeUnixNano = startTime
+                $0.endTimeUnixNano = endTime
                 $0.kind = .server
                 $0.status = .init(.init(code: .ok))
                 $0.traceID = Data([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
@@ -149,7 +151,10 @@ final class TypeConversionTests: XCTestCase {
                 $0.parentSpanID = Data([9, 10, 11, 12, 13, 14, 15, 16])
                 $0.traceState = "vendor=value"
                 $0.attributes = .init(["key": "value"])
-                $0.events = [.init(SpanEvent(name: "test", at: eventStartTime))]
+                $0.events = [.init(SpanEvent(
+                    name: "test",
+                    at: TracerClockMock(now: .init(nanosecondsSinceEpoch: eventStartTime)).now
+                ))]
             }
         )
     }
@@ -254,9 +259,23 @@ final class TypeConversionTests: XCTestCase {
         XCTAssertEqual(Opentelemetry_Proto_Common_V1_AnyValue(.int(42)), .with { $0.intValue = 42 })
     }
 
-    func test_convertSpanAttribute_intArray() {
+    func test_convertSpanAttribute_int32Array() {
         XCTAssertEqual(
-            Opentelemetry_Proto_Common_V1_AnyValue(.intArray([1, 2])),
+            Opentelemetry_Proto_Common_V1_AnyValue(.int32Array([1, 2])),
+            .with { value in
+                value.arrayValue = .with {
+                    $0.values = [
+                        .with { v in v.intValue = 1 },
+                        .with { v in v.intValue = 2 },
+                    ]
+                }
+            }
+        )
+    }
+
+    func test_convertSpanAttribute_int64Array() {
+        XCTAssertEqual(
+            Opentelemetry_Proto_Common_V1_AnyValue(.int64Array([1, 2])),
             .with { value in
                 value.arrayValue = .with {
                     $0.values = [
@@ -342,25 +361,27 @@ final class TypeConversionTests: XCTestCase {
     // MARK: - SpanEvent
 
     func test_convertSpanEvent() {
-        let event = SpanEvent(name: "test")
+        let clock = TracerClockMock(now: .init(nanosecondsSinceEpoch: 42))
+        let event = SpanEvent(name: "test", at: clock.now)
 
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span.Event(event),
             .with {
                 $0.name = "test"
-                $0.timeUnixNano = event.time.unixNanoseconds
+                $0.timeUnixNano = 42
             }
         )
     }
 
     func test_convertSpanEvent_withAttributes() {
-        let event = SpanEvent(name: "test", attributes: ["key": "value"])
+        let clock = TracerClockMock(now: .init(nanosecondsSinceEpoch: 42))
+        let event = SpanEvent(name: "test", at: clock.now, attributes: ["key": "value"])
 
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span.Event(event),
             .with {
                 $0.name = "test"
-                $0.timeUnixNano = event.time.unixNanoseconds
+                $0.timeUnixNano = 42
                 $0.attributes = [
                     .with { kv in
                         kv.key = "key"
@@ -383,7 +404,7 @@ final class TypeConversionTests: XCTestCase {
             isRemote: false
         )
 
-        let link = SpanLink(baggage: baggage)
+        let link = SpanLink(baggage: baggage, attributes: [:])
 
         XCTAssertEqual(
             Opentelemetry_Proto_Trace_V1_Span.Link(link),
@@ -396,6 +417,22 @@ final class TypeConversionTests: XCTestCase {
     }
 
     func test_convertSpanLink_withoutSpanContext() {
-        XCTAssertNil(Opentelemetry_Proto_Trace_V1_Span.Link(SpanLink(baggage: .topLevel)))
+        XCTAssertNil(Opentelemetry_Proto_Trace_V1_Span.Link(SpanLink(baggage: .topLevel, attributes: [:])))
+    }
+}
+
+private struct TracerClockMock {
+    let now: Instant
+
+    struct Instant: TracerInstant {
+        let nanosecondsSinceEpoch: UInt64
+
+        static func < (lhs: Self, rhs: Self) -> Bool {
+            lhs.nanosecondsSinceEpoch < rhs.nanosecondsSinceEpoch
+        }
+
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.nanosecondsSinceEpoch == rhs.nanosecondsSinceEpoch
+        }
     }
 }

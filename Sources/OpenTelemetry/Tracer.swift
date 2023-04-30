@@ -11,13 +11,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-import struct Dispatch.DispatchWallTime
 import Logging
 import NIOConcurrencyHelpers
 import Tracing
 
 extension OTel {
-    final class Tracer {
+    public final class Tracer {
         private let resource: OTel.Resource
         private var idGenerator: OTelIDGenerator
         private let sampler: OTelSampler
@@ -44,7 +43,7 @@ extension OTel {
 }
 
 extension OTel.Tracer: Instrument {
-    func extract<Carrier, Extract>(
+    public func extract<Carrier, Extract>(
         _ carrier: Carrier,
         into baggage: inout Baggage,
         using extractor: Extract
@@ -59,7 +58,7 @@ extension OTel.Tracer: Instrument {
         }
     }
 
-    func inject<Carrier, Inject>(
+    public func inject<Carrier, Inject>(
         _ baggage: Baggage,
         into carrier: inout Carrier,
         using injector: Inject
@@ -70,14 +69,39 @@ extension OTel.Tracer: Instrument {
 }
 
 extension OTel.Tracer: Tracer {
-    func startSpan(
+    public typealias TracerSpan = Span
+
+    public func startAnySpan<Instant: TracerInstant>(
         _ operationName: String,
-        baggage: Baggage,
+        baggage: @autoclosure () -> Baggage,
         ofKind kind: SpanKind,
-        at time: DispatchWallTime
-    ) -> Tracing.Span {
-        let parentBaggage = baggage
-        var childBaggage = baggage
+        at instant: @autoclosure () -> Instant,
+        function: String,
+        file fileID: String,
+        line: UInt
+    ) -> any Tracing.Span {
+        startSpan(
+            operationName,
+            baggage: baggage(),
+            ofKind: kind,
+            at: instant(),
+            function: function,
+            file: fileID,
+            line: line
+        )
+    }
+
+    public func startSpan<Instant: TracerInstant>(
+        _ operationName: String,
+        baggage: @autoclosure () -> Baggage,
+        ofKind kind: SpanKind,
+        at instant: @autoclosure () -> Instant,
+        function: String,
+        file fileID: String,
+        line: UInt
+    ) -> TracerSpan {
+        let parentBaggage = baggage()
+        var childBaggage = parentBaggage
 
         let traceID: OTel.TraceID
         let traceState: OTel.TraceState?
@@ -111,14 +135,25 @@ extension OTel.Tracer: Tracer {
         childBaggage.spanContext = spanContext
 
         if samplingResult.decision == .drop {
-            return NoOpTracer.NoOpSpan(baggage: childBaggage)
+            return Span(
+                operationName: operationName,
+                baggage: childBaggage,
+                kind: kind,
+                startTime: instant().nanosecondsSinceEpoch,
+                attributes: samplingResult.attributes,
+                resource: resource,
+                isRecording: false,
+                logger: logger
+            ) { [weak self] recordedSpan in
+                self?.processor.processEndedSpan(recordedSpan)
+            }
         }
 
         return Span(
             operationName: operationName,
             baggage: childBaggage,
             kind: kind,
-            startTime: time,
+            startTime: instant().nanosecondsSinceEpoch,
             attributes: samplingResult.attributes,
             resource: resource,
             logger: logger
@@ -127,25 +162,38 @@ extension OTel.Tracer: Tracer {
         }
     }
 
-    func forceFlush() {}
+    public func forceFlush() {}
 }
 
 extension OTel.Tracer {
-    final class Span: Tracing.Span {
-        let operationName: String
-        let kind: SpanKind
-        private(set) var status: SpanStatus?
+    public final class Span: Tracing.Span {
+        public var operationName: String {
+            get {
+                operationNameLock.withLock { _operationName }
+            }
+            set {
+                operationNameLock.withLockVoid {
+                    _operationName = newValue
+                }
+            }
+        }
 
-        let baggage: Baggage
+        private var _operationName: String
+        private let operationNameLock = NIOLock()
 
-        let isRecording = true
+        public let kind: SpanKind
+        public private(set) var status: SpanStatus?
 
-        let startTime: DispatchWallTime
-        private(set) var endTime: DispatchWallTime?
+        public let baggage: Baggage
 
-        var attributes: SpanAttributes = [:]
-        private(set) var events = [SpanEvent]()
-        private(set) var links = [SpanLink]()
+        public let isRecording: Bool
+
+        public let startTime: UInt64
+        private(set) var endTime: UInt64?
+
+        public var attributes: SpanAttributes = [:]
+        public private(set) var events = [SpanEvent]()
+        public private(set) var links = [SpanLink]()
         let resource: OTel.Resource
 
         private let logger: Logger
@@ -157,35 +205,37 @@ extension OTel.Tracer {
             operationName: String,
             baggage: Baggage,
             kind: SpanKind,
-            startTime: DispatchWallTime,
+            startTime: UInt64,
             attributes: SpanAttributes,
             resource: OTel.Resource,
+            isRecording: Bool = true,
             logger: Logger,
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
-            self.operationName = operationName
+            _operationName = operationName
             self.baggage = baggage
             self.kind = kind
             self.startTime = startTime
             self.attributes = attributes
             self.resource = resource
+            self.isRecording = isRecording
             self.logger = logger
             self.onEnd = onEnd
         }
 
-        func setStatus(_ status: SpanStatus) {
+        public func setStatus(_ status: SpanStatus) {
             lock.withLockVoid {
                 self.status = status
             }
         }
 
-        func addEvent(_ event: SpanEvent) {
+        public func addEvent(_ event: SpanEvent) {
             lock.withLockVoid {
                 events.append(event)
             }
         }
 
-        func recordError(_ error: Error) {
+        public func recordError<Instant: TracerInstant>(_ error: Error, attributes: SpanAttributes, at instant: @autoclosure () -> Instant) {
             let event = SpanEvent(name: "exception", attributes: [
                 "exception.type": .string(String(describing: type(of: error))),
                 "exception.message": .string(String(describing: error)),
@@ -193,29 +243,29 @@ extension OTel.Tracer {
             addEvent(event)
         }
 
-        func addLink(_ link: SpanLink) {
+        public func addLink(_ link: SpanLink) {
             lock.withLockVoid {
                 links.append(link)
             }
         }
 
-        func end(at time: DispatchWallTime) {
+        public func end<Instant: TracerInstant>(at instant: @autoclosure () -> Instant) {
             lock.withLockVoid {
-                if let endTime = endTime {
+                if let endTime = self.endTime {
                     if let spanContext = baggage.spanContext {
                         logger.trace("Ignoring a span that was ended before", metadata: [
-                            "previousEndTime": .stringConvertible(endTime.rawValue),
+                            "previousEndTime": .stringConvertible(endTime),
                             "traceID": .stringConvertible(spanContext.traceID),
                             "spanID": .stringConvertible(spanContext.spanID),
                         ])
                     } else {
                         logger.trace("Ignoring a span that was ended before", metadata: [
-                            "previousEndTime": .stringConvertible(endTime.rawValue),
+                            "previousEndTime": .stringConvertible(endTime),
                         ])
                     }
                     return
                 }
-                endTime = time
+                endTime = instant().nanosecondsSinceEpoch
                 guard let recordedSpan = OTel.RecordedSpan(self) else { return }
                 onEnd(recordedSpan)
             }

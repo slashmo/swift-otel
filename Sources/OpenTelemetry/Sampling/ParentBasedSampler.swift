@@ -53,16 +53,16 @@ extension OTel {
             traceID: OTel.TraceID,
             attributes: SpanAttributes,
             links: [SpanLink],
-            parentBaggage: Baggage
+            parentContext: ServiceContext
         ) -> OTel.SamplingResult {
-            guard let parentSpanContext = parentBaggage.spanContext else {
+            guard let parentSpanContext = parentContext.spanContext else {
                 return rootSampler.makeSamplingDecision(
                     operationName: operationName,
                     kind: kind,
                     traceID: traceID,
                     attributes: attributes,
                     links: links,
-                    parentBaggage: parentBaggage
+                    parentContext: parentContext
                 )
             }
 
@@ -85,7 +85,7 @@ extension OTel {
                 traceID: traceID,
                 attributes: attributes,
                 links: links,
-                parentBaggage: parentBaggage
+                parentContext: parentContext
             )
         }
     }

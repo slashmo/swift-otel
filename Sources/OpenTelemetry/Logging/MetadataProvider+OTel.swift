@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import InstrumentationBaggage
 import Logging
+import ServiceContextModule
 
 @available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 extension Logger.MetadataProvider {
@@ -24,7 +24,7 @@ extension Logger.MetadataProvider {
     /// - Returns: A metadata provider ready to use with Logging.
     public static func otel(traceIDKey: String = "trace-id", spanIDKey: String = "span-id") -> Logger.MetadataProvider {
         .init {
-            guard let spanContext = Baggage.current?.spanContext else { return [:] }
+            guard let spanContext = ServiceContext.current?.spanContext else { return [:] }
             return [
                 traceIDKey: "\(spanContext.traceID)",
                 spanIDKey: "\(spanContext.spanID)",

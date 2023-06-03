@@ -35,9 +35,9 @@ final class TracerTests: XCTestCase {
         )
 
         let clock = MockClock()
-        let span = tracer.startSpan(#function, baggage: .topLevel, at: clock.now)
+        let span = tracer.startSpan(#function, context: .topLevel, at: clock.now)
 
-        let spanContext = try XCTUnwrap(span.baggage.spanContext)
+        let spanContext = try XCTUnwrap(span.context.spanContext)
 
         XCTAssertEqual(spanContext.traceID, .stub)
         XCTAssertEqual(spanContext.spanID, .stub)
@@ -58,9 +58,9 @@ final class TracerTests: XCTestCase {
             logger: Logger(label: #function)
         )
 
-        let span = tracer.startSpan(#function, baggage: .topLevel)
+        let span = tracer.startSpan(#function, context: .topLevel)
 
-        let spanContext = try XCTUnwrap(span.baggage.spanContext)
+        let spanContext = try XCTUnwrap(span.context.spanContext)
 
         XCTAssertFalse(spanContext.traceFlags.contains(.sampled))
         XCTAssertEqual(sampler.numberOfSamplingDecisions, 1)
@@ -77,11 +77,11 @@ final class TracerTests: XCTestCase {
             logger: Logger(label: #function)
         )
 
-        let parentSpan = tracer.startSpan("parent", baggage: .topLevel)
-        let childSpan = tracer.startSpan("child", baggage: parentSpan.baggage)
+        let parentSpan = tracer.startSpan("parent", context: .topLevel)
+        let childSpan = tracer.startSpan("child", context: parentSpan.context)
 
-        let parentSpanContext = try XCTUnwrap(parentSpan.baggage.spanContext)
-        let childSpanContext = try XCTUnwrap(childSpan.baggage.spanContext)
+        let parentSpanContext = try XCTUnwrap(parentSpan.context.spanContext)
+        let childSpanContext = try XCTUnwrap(childSpan.context.spanContext)
 
         XCTAssertEqual(childSpanContext.traceID, childSpanContext.traceID)
         XCTAssertNotEqual(childSpanContext.spanID, parentSpanContext.spanID)
@@ -108,11 +108,11 @@ final class TracerTests: XCTestCase {
             traceFlags: [],
             isRemote: true
         )
-        var baggage = Baggage.topLevel
-        baggage.spanContext = parentSpanContext
-        let span = tracer.startSpan(#function, baggage: baggage)
+        var context = ServiceContext.topLevel
+        context.spanContext = parentSpanContext
+        let span = tracer.startSpan(#function, context: context)
 
-        let spanContext = try XCTUnwrap(span.baggage.spanContext)
+        let spanContext = try XCTUnwrap(span.context.spanContext)
 
         XCTAssertFalse(spanContext.traceFlags.contains(.sampled))
         XCTAssertEqual(sampler.numberOfSamplingDecisions, 1)
@@ -129,7 +129,7 @@ final class TracerTests: XCTestCase {
             logger: Logger(label: #function)
         )
 
-        let span = tracer.startSpan(#function, baggage: .topLevel)
+        let span = tracer.startSpan(#function, context: .topLevel)
 
         XCTAssertEqual(span.attributes, ["test": true])
     }
@@ -170,10 +170,10 @@ final class TracerTests: XCTestCase {
             "traceparent": "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01",
             "tracestate": "key=value",
         ]
-        var baggage = Baggage.topLevel
-        tracer.extract(headers, into: &baggage, using: DictionaryExtractor())
+        var context = ServiceContext.topLevel
+        tracer.extract(headers, into: &context, using: DictionaryExtractor())
 
-        let spanContext = try XCTUnwrap(baggage.spanContext)
+        let spanContext = try XCTUnwrap(context.spanContext)
 
         XCTAssertEqual(
             spanContext,
@@ -198,10 +198,10 @@ final class TracerTests: XCTestCase {
         )
 
         let headers = ["traceparent": "invalid-trace-parent"]
-        var baggage = Baggage.topLevel
-        tracer.extract(headers, into: &baggage, using: DictionaryExtractor())
+        var context = ServiceContext.topLevel
+        tracer.extract(headers, into: &context, using: DictionaryExtractor())
 
-        XCTAssertNil(baggage.spanContext)
+        XCTAssertNil(context.spanContext)
     }
 
     func test_injectsSpanContextUsingTheConfiguredPropagator() {
@@ -214,10 +214,10 @@ final class TracerTests: XCTestCase {
             logger: Logger(label: #function)
         )
 
-        let span = tracer.startSpan(#function, baggage: .topLevel)
+        let span = tracer.startSpan(#function, context: .topLevel)
         var headers = [String: String]()
 
-        tracer.inject(span.baggage, into: &headers, using: DictionaryInjector())
+        tracer.inject(span.context, into: &headers, using: DictionaryInjector())
 
         XCTAssertEqual(headers["traceparent"], "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01")
     }
@@ -264,7 +264,7 @@ private struct AttributedSampler: OTelSampler {
         traceID: OTel.TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
-        parentBaggage: Baggage
+        parentContext: ServiceContext
     ) -> OTel.SamplingResult {
         let result = sampler.makeSamplingDecision(
             operationName: operationName,
@@ -272,7 +272,7 @@ private struct AttributedSampler: OTelSampler {
             traceID: traceID,
             attributes: attributes,
             links: links,
-            parentBaggage: parentBaggage
+            parentContext: parentContext
         )
         return OTel.SamplingResult(decision: result.decision, attributes: samplingAttributes)
     }

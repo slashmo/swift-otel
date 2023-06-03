@@ -28,7 +28,7 @@ final class MockSampler: OTelSampler {
         traceID: OTel.TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
-        parentBaggage: Baggage
+        parentContext: ServiceContext
     ) -> OTel.SamplingResult {
         numberOfSamplingDecisions += 1
         return sampler.makeSamplingDecision(
@@ -37,7 +37,7 @@ final class MockSampler: OTelSampler {
             traceID: traceID,
             attributes: attributes,
             links: links,
-            parentBaggage: parentBaggage
+            parentContext: parentContext
         )
     }
 }

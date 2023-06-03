@@ -45,11 +45,11 @@ extension OTel {
 extension OTel.Tracer: Instrument {
     public func extract<Carrier, Extract>(
         _ carrier: Carrier,
-        into baggage: inout Baggage,
+        into context: inout ServiceContext,
         using extractor: Extract
     ) where Carrier == Extract.Carrier, Extract: Extractor {
         do {
-            baggage.spanContext = try propagator.extractSpanContext(from: carrier, using: extractor)
+            context.spanContext = try propagator.extractSpanContext(from: carrier, using: extractor)
         } catch {
             logger.debug("Failed to extract span context", metadata: [
                 "carrier": .string(String(describing: carrier)),
@@ -59,11 +59,11 @@ extension OTel.Tracer: Instrument {
     }
 
     public func inject<Carrier, Inject>(
-        _ baggage: Baggage,
+        _ context: ServiceContext,
         into carrier: inout Carrier,
         using injector: Inject
     ) where Carrier == Inject.Carrier, Inject: Injector {
-        guard let spanContext = baggage.spanContext else { return }
+        guard let spanContext = context.spanContext else { return }
         propagator.inject(spanContext, into: &carrier, using: injector)
     }
 }
@@ -73,7 +73,7 @@ extension OTel.Tracer: Tracer {
 
     public func startAnySpan<Instant: TracerInstant>(
         _ operationName: String,
-        baggage: @autoclosure () -> Baggage,
+        context: @autoclosure () -> ServiceContext,
         ofKind kind: SpanKind,
         at instant: @autoclosure () -> Instant,
         function: String,
@@ -82,7 +82,7 @@ extension OTel.Tracer: Tracer {
     ) -> any Tracing.Span {
         startSpan(
             operationName,
-            baggage: baggage(),
+            context: context(),
             ofKind: kind,
             at: instant(),
             function: function,
@@ -93,21 +93,21 @@ extension OTel.Tracer: Tracer {
 
     public func startSpan<Instant: TracerInstant>(
         _ operationName: String,
-        baggage: @autoclosure () -> Baggage,
+        context: @autoclosure () -> ServiceContext,
         ofKind kind: SpanKind,
         at instant: @autoclosure () -> Instant,
         function: String,
         file fileID: String,
         line: UInt
     ) -> TracerSpan {
-        let parentBaggage = baggage()
-        var childBaggage = parentBaggage
+        let parentContext = context()
+        var childContext = parentContext
 
         let traceID: OTel.TraceID
         let traceState: OTel.TraceState?
         let spanID = idGenerator.generateSpanID()
 
-        if let parentSpanContext = parentBaggage.spanContext {
+        if let parentSpanContext = parentContext.spanContext {
             traceID = parentSpanContext.traceID
             traceState = parentSpanContext.traceState
         } else {
@@ -121,23 +121,23 @@ extension OTel.Tracer: Tracer {
             traceID: traceID,
             attributes: [:],
             links: [],
-            parentBaggage: parentBaggage
+            parentContext: parentContext
         )
         let traceFlags: OTel.TraceFlags = samplingResult.decision == .recordAndSample ? .sampled : []
         let spanContext = OTel.SpanContext(
             traceID: traceID,
             spanID: spanID,
-            parentSpanID: parentBaggage.spanContext?.spanID,
+            parentSpanID: parentContext.spanContext?.spanID,
             traceFlags: traceFlags,
             traceState: traceState,
             isRemote: false
         )
-        childBaggage.spanContext = spanContext
+        childContext.spanContext = spanContext
 
         if samplingResult.decision == .drop {
             return Span(
                 operationName: operationName,
-                baggage: childBaggage,
+                context: childContext,
                 kind: kind,
                 startTime: instant().nanosecondsSinceEpoch,
                 attributes: samplingResult.attributes,
@@ -151,7 +151,7 @@ extension OTel.Tracer: Tracer {
 
         return Span(
             operationName: operationName,
-            baggage: childBaggage,
+            context: childContext,
             kind: kind,
             startTime: instant().nanosecondsSinceEpoch,
             attributes: samplingResult.attributes,
@@ -184,7 +184,7 @@ extension OTel.Tracer {
         public let kind: SpanKind
         public private(set) var status: SpanStatus?
 
-        public let baggage: Baggage
+        public let context: ServiceContext
 
         public let isRecording: Bool
 
@@ -203,7 +203,7 @@ extension OTel.Tracer {
 
         init(
             operationName: String,
-            baggage: Baggage,
+            context: ServiceContext,
             kind: SpanKind,
             startTime: UInt64,
             attributes: SpanAttributes,
@@ -213,7 +213,7 @@ extension OTel.Tracer {
             onEnd: @escaping (OTel.RecordedSpan) -> Void
         ) {
             _operationName = operationName
-            self.baggage = baggage
+            self.context = context
             self.kind = kind
             self.startTime = startTime
             self.attributes = attributes
@@ -252,7 +252,7 @@ extension OTel.Tracer {
         public func end<Instant: TracerInstant>(at instant: @autoclosure () -> Instant) {
             lock.withLockVoid {
                 if let endTime = self.endTime {
-                    if let spanContext = baggage.spanContext {
+                    if let spanContext = context.spanContext {
                         logger.trace("Ignoring a span that was ended before", metadata: [
                             "previousEndTime": .stringConvertible(endTime),
                             "traceID": .stringConvertible(spanContext.traceID),

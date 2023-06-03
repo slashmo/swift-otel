@@ -26,12 +26,12 @@ extension OTel {
         public let status: SpanStatus?
 
         /// The context of this span.
-        public let context: OTel.SpanContext
+        public let spanContext: OTel.SpanContext
 
-        /// The baggage propagated with this span.
+        /// The service context propagated with this span.
         ///
-        /// - Note: This `Baggage` doesn't contain the `OTel.SpanContext` as that's already unwrapped and accessible through `self.context`.
-        public let baggage: Baggage
+        /// - Note: This `ServiceContext` doesn't contain the `OTel.SpanContext` as that's already unwrapped and accessible through `self.context`.
+        public let context: ServiceContext
 
         /// The absolute time at which this span was started.
         public let startTime: UInt64
@@ -55,18 +55,18 @@ extension OTel {
 
 extension OTel.RecordedSpan {
     init?(_ span: OTel.Tracer.Span) {
-        guard let context = span.baggage.spanContext else { return nil }
+        guard let spanContext = span.context.spanContext else { return nil }
         guard let endTime = span.endTime else { return nil }
 
         operationName = span.operationName
         kind = span.kind
         status = span.status
-        self.context = context
+        self.spanContext = spanContext
 
-        // strip span context from baggage because it's already stored as `context`.
-        var baggage = span.baggage
-        baggage.spanContext = nil
-        self.baggage = baggage
+        // strip span context from service context because it's already stored as `context`.
+        var context = span.context
+        context.spanContext = nil
+        self.context = context
 
         startTime = span.startTime
         self.endTime = endTime

@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-import InstrumentationBaggage
+import ServiceContextModule
 
-extension Baggage {
+extension ServiceContext {
     public internal(set) var spanContext: OTel.SpanContext? {
         get {
             self[SpanContextKey.self]
@@ -31,7 +31,7 @@ extension OTel.SpanContext: CustomStringConvertible {
     }
 }
 
-private enum SpanContextKey: BaggageKey {
+private enum SpanContextKey: ServiceContextKey {
     typealias Value = OTel.SpanContext
 
     static var nameOverride: String? = "otel-span-context"

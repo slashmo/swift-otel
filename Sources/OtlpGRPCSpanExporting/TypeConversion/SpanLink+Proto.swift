@@ -16,7 +16,7 @@ import Tracing
 
 extension Opentelemetry_Proto_Trace_V1_Span.Link {
     init?(_ spanLink: SpanLink) {
-        guard let spanContext = spanLink.baggage.spanContext else { return nil }
+        guard let spanContext = spanLink.context.spanContext else { return nil }
         self.traceID = Data(spanContext.traceID.bytes)
         self.spanID = Data(spanContext.spanID.bytes)
         if let traceState = spanContext.traceState {

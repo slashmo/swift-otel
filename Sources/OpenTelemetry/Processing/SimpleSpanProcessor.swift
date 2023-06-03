@@ -27,7 +27,7 @@ extension OTel {
         }
 
         public func processEndedSpan(_ span: OTel.RecordedSpan) {
-            guard span.context.traceFlags.contains(.sampled) else { return }
+            guard span.spanContext.traceFlags.contains(.sampled) else { return }
             _ = exporter.export([span])
         }
 

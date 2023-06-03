@@ -131,7 +131,7 @@ Our demo application creates two spans: `hello` and `world`. To make things even
 the `hello` span:
 
 ```swift
-let rootSpan = InstrumentationSystem.tracer.startSpan("hello", baggage: .topLevel)
+let rootSpan = InstrumentationSystem.tracer.startSpan("hello", context: .topLevel)
 
 sleep(1)
 rootSpan.addEvent(SpanEvent(
@@ -139,7 +139,7 @@ rootSpan.addEvent(SpanEvent(
     attributes: ["meaning_of_life": 42]
 ))
 
-let childSpan = InstrumentationSystem.tracer.startSpan("world", baggage: rootSpan.baggage)
+let childSpan = InstrumentationSystem.tracer.startSpan("world", context: rootSpan.context)
 
 sleep(1)
 childSpan.end()

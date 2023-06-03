@@ -63,9 +63,9 @@ final class BatchSpanProcessorTests: XCTestCase {
         XCTAssertEqual(exporter.spans.count, 3, "All 3 spans should have been exported.")
         XCTAssertEqual(exporter.numberOfBatches, 1, "All 3 spans should have been exported in one batch.")
 
-        XCTAssertEqual(exporter.spans[0].context.spanID, span1.context.spanID)
-        XCTAssertEqual(exporter.spans[1].context.spanID, span2.context.spanID)
-        XCTAssertEqual(exporter.spans[2].context.spanID, span3.context.spanID)
+        XCTAssertEqual(exporter.spans[0].spanContext.spanID, span1.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[1].spanContext.spanID, span2.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[2].spanContext.spanID, span3.spanContext.spanID)
 
         try processor.shutdownGracefully().wait()
     }
@@ -96,13 +96,13 @@ final class BatchSpanProcessorTests: XCTestCase {
         XCTAssertEqual(exporter.spans.count, 7, "All 7 spans should have been exported.")
         XCTAssertEqual(exporter.numberOfBatches, 3, "The 7 spans should have been exported in 3 batches.")
 
-        XCTAssertEqual(exporter.spans[0].context.spanID, span1.context.spanID)
-        XCTAssertEqual(exporter.spans[1].context.spanID, span2.context.spanID)
-        XCTAssertEqual(exporter.spans[2].context.spanID, span3.context.spanID)
-        XCTAssertEqual(exporter.spans[3].context.spanID, span4.context.spanID)
-        XCTAssertEqual(exporter.spans[4].context.spanID, span5.context.spanID)
-        XCTAssertEqual(exporter.spans[5].context.spanID, span6.context.spanID)
-        XCTAssertEqual(exporter.spans[6].context.spanID, span7.context.spanID)
+        XCTAssertEqual(exporter.spans[0].spanContext.spanID, span1.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[1].spanContext.spanID, span2.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[2].spanContext.spanID, span3.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[3].spanContext.spanID, span4.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[4].spanContext.spanID, span5.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[5].spanContext.spanID, span6.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[6].spanContext.spanID, span7.spanContext.spanID)
 
         try processor.shutdownGracefully().wait()
     }
@@ -131,9 +131,9 @@ final class BatchSpanProcessorTests: XCTestCase {
         XCTAssertEqual(exporter.spans.count, 3, "All 3 spans should have been exported.")
         XCTAssertEqual(exporter.numberOfBatches, 1, "All 3 spans should have been exported in one batch.")
 
-        XCTAssertEqual(exporter.spans[0].context.spanID, span2.context.spanID)
-        XCTAssertEqual(exporter.spans[1].context.spanID, span3.context.spanID)
-        XCTAssertEqual(exporter.spans[2].context.spanID, span4.context.spanID)
+        XCTAssertEqual(exporter.spans[0].spanContext.spanID, span2.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[1].spanContext.spanID, span3.spanContext.spanID)
+        XCTAssertEqual(exporter.spans[2].spanContext.spanID, span4.spanContext.spanID)
 
         try processor.shutdownGracefully().wait()
     }

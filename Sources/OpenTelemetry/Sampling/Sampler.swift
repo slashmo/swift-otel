@@ -24,7 +24,7 @@ public protocol OTelSampler {
     ///   - traceID: The trace id, either propagated or newly generated.
     ///   - attributes: A set of default span attributes.
     ///   - links: A set of default span links.
-    ///   - parentBaggage: The parent baggage which might contain a `OTel.SpanContext`.
+    ///   - parentContext: The parent service context which might contain a `OTel.SpanContext`.
     /// - Returns: A decision on whether the span to be started should be dropped, only recorded, or recorded and sampled.
     func makeSamplingDecision(
         operationName: String,
@@ -32,6 +32,6 @@ public protocol OTelSampler {
         traceID: OTel.TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
-        parentBaggage: Baggage
+        parentContext: ServiceContext
     ) -> OTel.SamplingResult
 }

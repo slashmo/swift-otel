@@ -26,7 +26,7 @@ final class ConstantSamplerTests: XCTestCase {
             traceID: OTel.TraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
             attributes: [:],
             links: [],
-            parentBaggage: .topLevel
+            parentContext: .topLevel
         )
 
         XCTAssertEqual(result.decision, .recordAndSample)
@@ -41,7 +41,7 @@ final class ConstantSamplerTests: XCTestCase {
             traceID: OTel.TraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
             attributes: [:],
             links: [],
-            parentBaggage: .topLevel
+            parentContext: .topLevel
         )
 
         XCTAssertEqual(result.decision, .drop)

@@ -127,8 +127,8 @@ extension OTelSampler {
         operationName: String = #function,
         parentSpanContext: OTel.SpanContext?
     ) -> OTel.SamplingResult {
-        var baggage = Baggage.topLevel
-        baggage.spanContext = parentSpanContext
+        var context = ServiceContext.topLevel
+        context.spanContext = parentSpanContext
 
         return makeSamplingDecision(
             operationName: operationName,
@@ -136,7 +136,7 @@ extension OTelSampler {
             traceID: OTel.TraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
             attributes: [:],
             links: [],
-            parentBaggage: baggage
+            parentContext: context
         )
     }
 }

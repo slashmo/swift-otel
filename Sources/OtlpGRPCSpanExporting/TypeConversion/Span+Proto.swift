@@ -18,12 +18,12 @@ extension Opentelemetry_Proto_Trace_V1_Span {
     init(_ span: OTel.RecordedSpan) {
         self.name = span.operationName
         self.kind = SpanKind(span.kind)
-        self.traceID = Data(span.context.traceID.bytes)
-        self.spanID = Data(span.context.spanID.bytes)
-        if let parentSpanID = span.context.parentSpanID {
+        self.traceID = Data(span.spanContext.traceID.bytes)
+        self.spanID = Data(span.spanContext.spanID.bytes)
+        if let parentSpanID = span.spanContext.parentSpanID {
             self.parentSpanID = Data(parentSpanID.bytes)
         }
-        if let traceState = span.context.traceState {
+        if let traceState = span.spanContext.traceState {
             self.traceState = traceState.description
         }
         if let status = span.status {

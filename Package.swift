@@ -21,6 +21,12 @@ let package = Package(
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
             ]
         ),
+        .testTarget(
+            name: "OpenTelemetryTests",
+            dependencies: [
+                .target(name: "OpenTelemetry"),
+            ]
+        ),
 
         // MARK: - OTLP
 

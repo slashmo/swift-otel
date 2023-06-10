@@ -19,3 +19,4 @@ implementing Swift Distributed Tracing will automatically export traces using Op
 
 - ``OTelSpanExporter``
 - ``OTelSpanExporterAlreadyShutDownError``
+- ``OTelNoOpSpanExporter``

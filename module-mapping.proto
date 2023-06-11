@@ -1,0 +1,6 @@
+mapping {
+  module_name: "OTLPCore"
+  proto_file_path: "opentelemetry/proto/common/v1/common.proto"
+  proto_file_path: "opentelemetry/proto/resource/v1/resource.proto"
+  proto_file_path: "opentelemetry/proto/trace/v1/trace.proto"
+}

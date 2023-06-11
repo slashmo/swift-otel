@@ -14,6 +14,11 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
 
+        // MARK: - OTLP
+
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.0.0"),
+        .package(url: "https://github.com/grpc/grpc-swift.git", from: "1.0.0"),
+
         // MARK: - Plugins
 
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
@@ -52,6 +57,7 @@ let package = Package(
             name: "OTLPCore",
             dependencies: [
                 .target(name: "OpenTelemetry"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
             ]
         ),
         .testTarget(
@@ -66,6 +72,8 @@ let package = Package(
             dependencies: [
                 .target(name: "OpenTelemetry"),
                 .target(name: "OTLPCore"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+                .product(name: "GRPC", package: "grpc-swift"),
             ]
         ),
         .testTarget(

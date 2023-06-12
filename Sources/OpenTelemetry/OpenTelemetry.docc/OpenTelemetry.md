@@ -11,6 +11,7 @@ An OpenTelemetry client for server-side Swift.
 @Links(visualStyle: list) {
     - ``OTelTraceID``
     - ``OTelSpanID``
+    - ``OTelTraceFlags``
 }
 
 ## Distributed Tracing
@@ -61,6 +62,7 @@ using OpenTelemetry.
 
 - ``OTelTraceID``
 - ``OTelSpanID``
+- ``OTelTraceFlags``
 
 ### Configuration
 

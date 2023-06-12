@@ -20,4 +20,13 @@ generate:
 		opentelemetry/proto/collector/trace/v1/trace_service.proto
 	@echo "Generated OTLPGRPC Swift files 🏭"
 
+	@rm -rf Tests/OTLPGRPCTests/Generated
+	@mkdir Tests/OTLPGRPCTests/Generated
+	@cd opentelemetry-proto && protoc \
+		--swift_out=../Tests/OTLPGRPCTests/Generated \
+		--swift_opt=ProtoPathModuleMappings=../module-mapping.proto \
+		--grpc-swift_out=Client=false,Server=true:../Tests/OTLPGRPCTests/Generated \
+		opentelemetry/proto/collector/trace/v1/trace_service.proto
+	@echo "Generated OTLPGRPC Swift test files 🏭"
+
 .PHONY: generate

@@ -31,31 +31,6 @@ public struct OTelEnvironment {
         self.values = values
     }
 
-    /// Extract headers from a given environment key.
-    ///
-    /// - Parameter key: The key for which to extract headers.
-    /// - Returns: The extracted headers as an array of key-value pairs, or nil if no value exists for the given key.
-    public func headers(fromValueForKey key: String) throws -> [(key: String, value: String)]? {
-        guard let value = values[key] else { return nil }
-
-        var headers = [(key: String, value: String)]()
-
-        let keyValuePairs = value.split(separator: ",")
-        for keyValuePair in keyValuePairs {
-            guard let valueSeparatorIndex = keyValuePair.firstIndex(of: "=") else {
-                throw OTelEnvironmentValueError(key: key, value: value)
-            }
-            let key = keyValuePair
-                .prefix(upTo: valueSeparatorIndex)
-                .trimmingCharacters(in: .whitespaces)
-            let value = keyValuePair[keyValuePair.index(after: valueSeparatorIndex)...]
-                .trimmingCharacters(in: .whitespaces)
-            headers.append((key, value))
-        }
-
-        return headers
-    }
-
     /// Retrieve a configuration value by transforming an appropriate senvironment value into the given type.
     ///
     /// ## Value Precedence
@@ -142,6 +117,29 @@ public struct OTelEnvironment {
         }
 
         return OTelEnvironment(values: values)
+    }
+
+    /// Extract headers from a given environment value.
+    ///
+    /// - Parameter value: The value containing a comma-separated list of headers.
+    /// - Returns: The extracted headers as an array of key-value pairs, or nil if parsing fails.
+    public static func headers(parsingValue value: String) -> [(key: String, value: String)]? {
+        var headers = [(key: String, value: String)]()
+
+        let keyValuePairs = value.split(separator: ",")
+        for keyValuePair in keyValuePairs {
+            guard let valueSeparatorIndex = keyValuePair.firstIndex(of: "=") else {
+                return nil
+            }
+            let key = keyValuePair
+                .prefix(upTo: valueSeparatorIndex)
+                .trimmingCharacters(in: .whitespaces)
+            let value = keyValuePair[keyValuePair.index(after: valueSeparatorIndex)...]
+                .trimmingCharacters(in: .whitespaces)
+            headers.append((key, value))
+        }
+
+        return headers
     }
 
     private func transformedValue<T>(

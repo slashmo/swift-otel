@@ -28,28 +28,18 @@ final class OTelEnvironmentTests: XCTestCase {
         }
     }
 
-    // MARK: - headersFromValueForKey
+    // MARK: - headersParsingValue
 
-    func test_headersFromValueForKey_missingKey_returnsNil() throws {
-        let environment = OTelEnvironment(values: [:])
-
-        XCTAssertNil(try environment.headers(fromValueForKey: "HEADERS"))
-    }
-
-    func test_headersFromValueForKey_singleHeader() throws {
-        let environment: OTelEnvironment = ["HEADERS": "key=value"]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_singleHeader() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: "key=value"))
         XCTAssertEqual(headers.count, 1)
         let (key, value) = try XCTUnwrap(headers.first)
         XCTAssertEqual(key, "key")
         XCTAssertEqual(value, "value")
     }
 
-    func test_headersFromValueForKey_multipleHeaders() throws {
-        let environment: OTelEnvironment = ["HEADERS": "key1=foo,key2=bar"]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_multipleHeaders() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: "key1=foo,key2=bar"))
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers[0].key, "key1")
         XCTAssertEqual(headers[0].value, "foo")
@@ -57,10 +47,8 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(headers[1].value, "bar")
     }
 
-    func test_headersFromValueForKey_multipleHeadersWithSameKey() throws {
-        let environment: OTelEnvironment = ["HEADERS": "key=value1,key=value2"]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_multipleHeadersWithSameKey() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: "key=value1,key=value2"))
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers[0].key, "key")
         XCTAssertEqual(headers[0].value, "value1")
@@ -68,30 +56,24 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(headers[1].value, "value2")
     }
 
-    func test_headersFromValueForKey_stripsWhitespaceInKey() throws {
-        let environment: OTelEnvironment = ["HEADERS": " key  =value"]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_stripsWhitespaceInKey() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: " key  =value"))
         XCTAssertEqual(headers.count, 1)
         let (key, value) = try XCTUnwrap(headers.first)
         XCTAssertEqual(key, "key")
         XCTAssertEqual(value, "value")
     }
 
-    func test_headersFromValueForKey_stripsWhitespaceInValue() throws {
-        let environment: OTelEnvironment = ["HEADERS": "key=  value "]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_stripsWhitespaceInValue() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: "key=  value "))
         XCTAssertEqual(headers.count, 1)
         let (key, value) = try XCTUnwrap(headers.first)
         XCTAssertEqual(key, "key")
         XCTAssertEqual(value, "value")
     }
 
-    func test_headersFromValueForKey_multipleHeaders_withWhitespace() throws {
-        let environment: OTelEnvironment = ["HEADERS": " key1=foo  , key2  = bar     "]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_multipleHeaders_withWhitespace() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: " key1=foo  , key2  = bar     "))
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers[0].key, "key1")
         XCTAssertEqual(headers[0].value, "foo")
@@ -99,10 +81,8 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(headers[1].value, "bar")
     }
 
-    func test_headersFromValueForKey_multipleHeaders_withoutValue() throws {
-        let environment: OTelEnvironment = ["HEADERS": " key1=,key2=value"]
-
-        let headers = try XCTUnwrap(try environment.headers(fromValueForKey: "HEADERS"))
+    func test_headersParsingValue_multipleHeaders_withoutValue() throws {
+        let headers = try XCTUnwrap(OTelEnvironment.headers(parsingValue: "key1=,key2=value"))
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers[0].key, "key1")
         XCTAssertEqual(headers[0].value, "")
@@ -110,15 +90,8 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(headers[1].value, "value")
     }
 
-    func test_headersFromValueForKey_withoutValueSeparator_throwsEnvironmentValueError() throws {
-        let environment: OTelEnvironment = ["HEADERS": "this-is-still-the-key"]
-
-        do {
-            let headers = try environment.headers(fromValueForKey: "HEADERS")
-            XCTFail("Expected to fail parsing headers, got \(headers ?? [])")
-        } catch let error as OTelEnvironmentValueError {
-            XCTAssertEqual(error, OTelEnvironmentValueError(key: "HEADERS", value: "this-is-still-the-key"))
-        }
+    func test_headersParsingValue_withoutValueSeparator_returnsNil() throws {
+        XCTAssertNil(OTelEnvironment.headers(parsingValue: "this-is-still-the-key"))
     }
 
     // MARK: - value

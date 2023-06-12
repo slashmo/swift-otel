@@ -11,6 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// The supported instrumentation signals.
 public enum OTelSignal: String {
+    /// Distributed tracing.
     case traces
 }

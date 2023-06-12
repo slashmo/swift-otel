@@ -10,6 +10,7 @@ An OpenTelemetry client for server-side Swift.
 
 @Links(visualStyle: list) {
     - ``OTelTraceID``
+    - ``OTelSpanID``
 }
 
 ## Distributed Tracing
@@ -27,6 +28,7 @@ using OpenTelemetry.
 
 @Links(visualStyle: list) {
     - ``OTelSpan``
+    - ``OTelSpanID``
     - ``OTelFinishedSpan``
 }
 
@@ -58,6 +60,7 @@ using OpenTelemetry.
 ### Context
 
 - ``OTelTraceID``
+- ``OTelSpanID``
 
 ### Configuration
 

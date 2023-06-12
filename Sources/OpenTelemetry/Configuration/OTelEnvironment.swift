@@ -55,7 +55,73 @@ public struct OTelEnvironment {
 
         return headers
     }
+
+    /// Retrieve a configuration value by transforming an appropriate senvironment value into the given type.
+    ///
+    /// ## Value Precedence
+    ///
+    /// When retrieving a configuration value the following precedence applies:
+    /// 1. `programmaticOverride`, unless it's `nil`
+    /// 2. `signalSpecificKey`, if a value is present
+    /// 3. `sharedKey`, if a value is present
+    ///
+    /// - Parameters:
+    ///   - programmaticOverride: A value override directly from code, taking precendence over all other values.
+    ///   - signalSpecificKey: The environment key for the signal-specific configuration value.
+    ///   - sharedKey: The environment key for the configuration value shared amongst all signals.
+    ///   - transformValue: A closure transforming environment values into the given type.
+    ///
+    /// - Returns: The configuration value with the highest specificity, or `nil` if no configuration value was found.
+    /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
+    public func value<T>(
+        programmaticOverride: T?,
+        signalSpecificKey: String,
+        sharedKey: String,
+        transformValue: @escaping (_ value: String) -> T?
+    ) throws -> T? {
+        if let programmaticOverride {
+            return programmaticOverride
+        }
+
+        if let value = values[signalSpecificKey] {
+            return try transformedValue(value, forKey: signalSpecificKey, using: transformValue)
+        } else if let value = values[sharedKey] {
+            return try transformedValue(value, forKey: sharedKey, using: transformValue)
+        }
+
+        return nil
+    }
     
+    /// Retrieve a boolean by transforming an appropriate environment value.
+    ///
+    /// - Parameters:
+    ///   - programmaticOverride: A value override directly from code, taking precendence over all other values.
+    ///   - signalSpecificKey: The environment key for the signal-specific configuration value.
+    ///   - sharedKey: The environment key for the configuration value shared amongst all signals.
+    ///
+    /// - Returns: The configuration value with the highest specificity, or `nil` if no configuration value was found.
+    /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
+    public func value(
+        programmaticOverride: Bool?,
+        signalSpecificKey: String,
+        sharedKey: String
+    ) throws -> Bool? {
+        try value(
+            programmaticOverride: programmaticOverride,
+            signalSpecificKey: signalSpecificKey,
+            sharedKey: sharedKey,
+            transformValue: { value in
+                if value.lowercased() == "true" {
+                    return true
+                } else if value.lowercased() == "false" {
+                    return false
+                } else {
+                    return nil
+                }
+            }
+        )
+    }
+
     /// An ``OTelEnvironment`` exposing the process-wide environment values.
     ///
     /// - Returns: An ``OTelEnvironment`` exposing the process-wide environment values.
@@ -76,6 +142,17 @@ public struct OTelEnvironment {
         }
 
         return OTelEnvironment(values: values)
+    }
+
+    private func transformedValue<T>(
+        _ value: String,
+        forKey key: String,
+        using transform: (String) -> T?
+    ) throws -> T {
+        guard let value = transform(value) else {
+            throw OTelEnvironmentValueError(key: key, value: value)
+        }
+        return value
     }
 }
 

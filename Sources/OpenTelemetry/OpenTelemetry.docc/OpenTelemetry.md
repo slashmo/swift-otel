@@ -6,6 +6,12 @@
 
 An OpenTelemetry client for server-side Swift.
 
+## Context Propagation
+
+@Links(visualStyle: list) {
+    - ``OTelTraceID``
+}
+
 ## Distributed Tracing
 
 Distributed tracing support in `OpenTelemetry` is implemented
@@ -31,6 +37,13 @@ using OpenTelemetry.
     - ``OTelNoOpSpanExporter``    
 }
 
+## Configuration
+
+@Links(visualStyle: list) {
+    - ``OTelEnvironment``
+    - ``OTelEnvironmentValueError``
+}
+
 ## Topics
 
 ### Tracing
@@ -42,7 +55,16 @@ using OpenTelemetry.
 - ``OTelMultiplexSpanExporter``
 - ``OTelSpanExporterAlreadyShutDownError``
 
+### Context
+
+- ``OTelTraceID``
+
 ### Configuration
 
 - ``OTelEnvironment``
 - ``OTelEnvironmentValueError``
+
+### Misc
+
+- ``OTelLibrary``
+- ``OTelSignal``

@@ -41,3 +41,8 @@ using OpenTelemetry.
 - ``OTelNoOpSpanExporter``
 - ``OTelMultiplexSpanExporter``
 - ``OTelSpanExporterAlreadyShutDownError``
+
+### Configuration
+
+- ``OTelEnvironment``
+- ``OTelEnvironmentValueError``

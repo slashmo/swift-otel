@@ -9,6 +9,7 @@ An OpenTelemetry client for server-side Swift.
 ## Context Propagation
 
 @Links(visualStyle: list) {
+    - ``OTelSpanContext``
     - ``OTelTraceID``
     - ``OTelSpanID``
     - ``OTelTraceFlags``
@@ -30,6 +31,7 @@ using OpenTelemetry.
 
 @Links(visualStyle: list) {
     - ``OTelSpan``
+    - ``OTelSpanContext``
     - ``OTelSpanID``
     - ``OTelFinishedSpan``
 }
@@ -61,6 +63,7 @@ using OpenTelemetry.
 
 ### Context
 
+- ``OTelSpanContext``
 - ``OTelTraceID``
 - ``OTelSpanID``
 - ``OTelTraceFlags``

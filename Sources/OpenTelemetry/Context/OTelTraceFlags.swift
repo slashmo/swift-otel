@@ -28,3 +28,5 @@ public struct OTelTraceFlags: OptionSet {
     /// [W3C TraceContext: Sampled flag](https://www.w3.org/TR/trace-context-1/#sampled-flag)
     public static let sampled = OTelTraceFlags(rawValue: 1)
 }
+
+extension OTelTraceFlags: Sendable {}

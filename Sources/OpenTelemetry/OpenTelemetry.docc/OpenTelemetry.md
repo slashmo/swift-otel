@@ -12,6 +12,8 @@ An OpenTelemetry client for server-side Swift.
     - ``OTelSpanContext``
     - ``OTelTraceID``
     - ``OTelSpanID``
+    - ``OTelIDGenerator``
+    - ``OTelRandomIDGenerator``
     - ``OTelTraceFlags``
     - ``OTelTraceState``
 }
@@ -66,6 +68,8 @@ using OpenTelemetry.
 - ``OTelSpanContext``
 - ``OTelTraceID``
 - ``OTelSpanID``
+- ``OTelIDGenerator``
+- ``OTelRandomIDGenerator``
 - ``OTelTraceFlags``
 - ``OTelTraceState``
 

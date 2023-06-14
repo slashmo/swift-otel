@@ -17,34 +17,34 @@ import XCTest
 final class OTelTraceStateTests: XCTestCase {
     func test_equatable_equals() {
         XCTAssertEqual(
-            OTelTraceState(storage: [(vendor: "1", value: "1"), (vendor: "2", value: "2")]),
-            OTelTraceState(storage: [(vendor: "1", value: "1"), (vendor: "2", value: "2")])
+            OTelTraceState(items: [(vendor: "1", value: "1"), (vendor: "2", value: "2")]),
+            OTelTraceState(items: [(vendor: "1", value: "1"), (vendor: "2", value: "2")])
         )
     }
 
     func test_equatable_notEquals_differentCount() {
         XCTAssertNotEqual(
-            OTelTraceState(storage: [(vendor: "1", value: "1"), (vendor: "2", value: "2")]),
-            OTelTraceState(storage: [(vendor: "1", value: "1")])
+            OTelTraceState(items: [(vendor: "1", value: "1"), (vendor: "2", value: "2")]),
+            OTelTraceState(items: [(vendor: "1", value: "1")])
         )
     }
 
     func test_equatable_notEquals_differentVendors() {
         XCTAssertNotEqual(
-            OTelTraceState(storage: [(vendor: "1", value: "1")]),
-            OTelTraceState(storage: [(vendor: "2", value: "1")])
+            OTelTraceState(items: [(vendor: "1", value: "1")]),
+            OTelTraceState(items: [(vendor: "2", value: "1")])
         )
     }
 
     func test_equatable_notEquals_differentValues() {
         XCTAssertNotEqual(
-            OTelTraceState(storage: [(vendor: "1", value: "1")]),
-            OTelTraceState(storage: [(vendor: "1", value: "2")])
+            OTelTraceState(items: [(vendor: "1", value: "1")]),
+            OTelTraceState(items: [(vendor: "1", value: "2")])
         )
     }
 
     func test_description_keepsOrder() {
-        let traceState = OTelTraceState(storage: [
+        let traceState = OTelTraceState(items: [
             (vendor: "3", value: "3"),
             (vendor: "2", value: "2"),
             (vendor: "1", value: "1"),

@@ -16,7 +16,7 @@ import XCTest
 
 final class OTelTraceFlagsTests: XCTestCase {
     func test_sampled() {
-        XCTAssertEqual(OTelTraceFlags([.sampled]).rawValue, 1)
+        XCTAssertEqual(OTelTraceFlags.sampled.rawValue, 1)
 
         XCTAssertEqual(OTelTraceFlags([]).rawValue, 0)
 

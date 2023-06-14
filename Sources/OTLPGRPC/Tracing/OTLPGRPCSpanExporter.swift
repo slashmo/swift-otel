@@ -17,7 +17,9 @@ import Logging
 import NIO
 import NIOHPACK
 import NIOSSL
+import OTLPCore
 import OpenTelemetry
+import Tracing
 
 /// A span exporter emitting span batches to an OTel collector via gRPC.
 public final class OTLPGRPCSpanExporter: OTelSpanExporter {
@@ -81,7 +83,28 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
         }
 
         // TODO: Convert batch to OTLP request
-        _ = try await client.export(Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest())
+        let request = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest.with { request in
+            request.resourceSpans = [
+                .with { resourceSpans in
+                    // TODO: Add resource
+                    resourceSpans.resource = .with { resource in
+                        resource.attributes = .init(["service.name": "test"])
+                    }
+
+                    resourceSpans.scopeSpans = [
+                        .with { scopeSpans in
+                            scopeSpans.scope = .with { scope in
+                                scope.name = "swift-otel"
+                                scope.version = OTelLibrary.version
+                            }
+                            scopeSpans.spans = batch.map(Opentelemetry_Proto_Trace_V1_Span.init)
+                        }
+                    ]
+                }
+            ]
+        }
+
+        _ = try await client.export(request)
     }
 
     public func shutdown() async {

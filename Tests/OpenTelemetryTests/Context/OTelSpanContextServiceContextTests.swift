@@ -12,19 +12,13 @@
 //===----------------------------------------------------------------------===//
 
 @testable import OpenTelemetry
+import OTelTesting
 import ServiceContextModule
 import XCTest
 
 final class OTelSpanContextServiceContextTests: XCTestCase {
     func test_spanContext_storedInsideServiceContext() {
-        let spanContext = OTelSpanContext(
-            traceID: OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),
-            spanID: OTelSpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8)),
-            parentSpanID: nil,
-            traceFlags: .sampled,
-            traceState: nil,
-            isRemote: false
-        )
+        let spanContext = OTelSpanContext.stub()
 
         var serviceContext = ServiceContext.topLevel
         XCTAssertTrue(serviceContext.isEmpty)

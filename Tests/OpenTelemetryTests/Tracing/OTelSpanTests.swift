@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 @testable import OpenTelemetry
+import OTelTesting
 import Tracing
 import XCTest
 
@@ -19,21 +20,19 @@ final class OTelSpanTests: XCTestCase {
     // MARK: - context
     
     func test_context_whenNoOp_returnsContext() {
-        var context = ServiceContext.topLevel
-        context.testValue = 42
-        
+        let context = ServiceContext.withStubValue(42)
+
         let span = OTelSpan.noOpStub(context: context)
         
-        XCTAssertEqual(span.context.testValue, 42)
+        XCTAssertEqual(span.context.stubValue, 42)
     }
     
     func test_context_whenSampled_returnsContext() {
-        var context = ServiceContext.topLevel
-        context.testValue = 42
+        let context = ServiceContext.withStubValue(42)
         
         let span = OTelSpan.sampledStub(context: context)
         
-        XCTAssertEqual(span.context.testValue, 42)
+        XCTAssertEqual(span.context.stubValue, 42)
     }
     
     // MARK: - isRecording
@@ -249,17 +248,16 @@ final class OTelSpanTests: XCTestCase {
         XCTAssertTrue(span.links.isEmpty)
     }
     
-    func test_addLink_set_whenSampled_whenNotEnded_addsLink() throws {
+    func test_addLink_whenSampled_whenNotEnded_addsLink() throws {
         let span = OTelSpan.sampledStub()
         
-        var linkedContext = ServiceContext.topLevel
-        linkedContext.testValue = 42
+        let linkedContext = ServiceContext.withStubValue(42)
         span.addLink(SpanLink(context: linkedContext, attributes: ["test": 42]))
-        
+
         XCTAssertEqual(span.links.count, 1)
         let link = try XCTUnwrap(span.links.first)
         
-        XCTAssertEqual(link.context.testValue, 42)
+        XCTAssertEqual(link.context.stubValue, 42)
         XCTAssertEqual(link.attributes, ["test": 42])
     }
     
@@ -384,21 +382,6 @@ final class OTelSpanTests: XCTestCase {
 
 fileprivate enum TestError: Error {
     case test(value: Int)
-}
-
-fileprivate enum TestContextKey: ServiceContextKey {
-    typealias Value = Int
-}
-
-extension ServiceContext {
-    var testValue: Int? {
-        get {
-            return self[TestContextKey.self]
-        }
-        set {
-            self[TestContextKey.self] = newValue
-        }
-    }
 }
 
 extension NoOpTracer.NoOpSpan {

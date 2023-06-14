@@ -14,8 +14,9 @@
 import GRPC
 @testable import Logging
 import NIO
-import OTLPGRPC
 @testable import OpenTelemetry
+import OTelTesting
+import OTLPGRPC
 import Tracing
 import XCTest
 
@@ -55,6 +56,7 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
 
     func test_export_withCustomHeaders_includesCustomHeadersInExportRequest() async throws {
         let collector = OTLPGRPCTraceCollectorMock(group: group)
+        let span = OTelFinishedSpan.stub()
 
         try await collector.withServer { endpoint in
             let configuration = try OTLPGRPCSpanExporterConfiguration(
@@ -67,7 +69,6 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
             )
             let exporter = OTLPGRPCSpanExporter(configuration: configuration, group: group)
 
-            let span = OTelFinishedSpan.stub()
             try await exporter.export([span])
 
             await exporter.shutdown()
@@ -75,6 +76,19 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
 
         XCTAssertEqual(collector.requests.count, 1)
         let request = try XCTUnwrap(collector.requests.first)
+
+        XCTAssertEqual(request.exportRequest.resourceSpans.count, 1)
+        let resourceSpans = try XCTUnwrap(request.exportRequest.resourceSpans.first)
+        XCTAssertEqual(resourceSpans.resource, .with {
+            $0.attributes = .init(["service.name": "test"])
+        })
+        XCTAssertEqual(resourceSpans.scopeSpans.count, 1)
+        let scopeSpans = try XCTUnwrap(resourceSpans.scopeSpans.first)
+        XCTAssertEqual(scopeSpans.scope, .with {
+            $0.name = "swift-otel"
+            $0.version = OTelLibrary.version
+        })
+        XCTAssertEqual(scopeSpans.spans, [.init(span)])
 
         XCTAssertEqual(request.headers.first(name: "key1"), "42")
         XCTAssertEqual(request.headers.first(name: "key2"), "84")
@@ -95,29 +109,5 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
                 XCTFail("Expected exporter to throw error, successfully exported instead.")
             }
         } catch is OTelSpanExporterAlreadyShutDownError {}
-    }
-}
-
-// MARK: - Helpers
-
-extension OTelFinishedSpan {
-    fileprivate static func stub(
-        operationName: String = "test",
-        status: SpanStatus? = nil,
-        startTimeNanosecondsSinceEpoch: UInt64 = 1,
-        endTimeNanosecondsSinceEpoch: UInt64 = 2,
-        attributes: SpanAttributes = [:],
-        events: [SpanEvent] = [],
-        links: [SpanLink] = []
-    ) -> OTelFinishedSpan {
-        OTelFinishedSpan(
-            operationName: operationName,
-            status: status,
-            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
-            endTimeNanosecondsSinceEpoch: endTimeNanosecondsSinceEpoch,
-            attributes: attributes,
-            events: events,
-            links: links
-        )
     }
 }

@@ -14,7 +14,7 @@
 import Tracing
 
 /// The result returned by ``OTelSampler``s.
-public struct OTelSamplingResult {
+public struct OTelSamplingResult: Equatable {
     /// The decision on whether a span should be recorded/sampled.
     public let decision: Decision
     
@@ -28,7 +28,7 @@ public struct OTelSamplingResult {
     /// | ``Decision/drop`` | ❌ | ❌ |
     /// | ``Decision/record`` | ✅ | ❌ |
     /// | ``Decision/recordAndSample`` | ✅ | ✅ |
-    public enum Decision {
+    public enum Decision: Equatable {
         /// Don't record the span and drop all events and attributes.
         case drop
 

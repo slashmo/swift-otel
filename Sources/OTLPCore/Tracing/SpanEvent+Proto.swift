@@ -10,3 +10,16 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
+import Tracing
+
+extension Opentelemetry_Proto_Trace_V1_Span.Event {
+    /// Create an event from a `SpanEvent`.
+    ///
+    /// - Parameter event: The `SpanEvent` to cast.
+    public init(_ event: SpanEvent) {
+        self.name = event.name
+        self.timeUnixNano = event.nanosecondsSinceEpoch
+        self.attributes = .init(event.attributes)
+    }
+}

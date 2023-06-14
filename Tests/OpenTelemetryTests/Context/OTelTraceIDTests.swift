@@ -12,17 +12,18 @@
 //===----------------------------------------------------------------------===//
 
 import OpenTelemetry
+import OTelTesting
 import XCTest
 
 final class OTelTraceIDTests: XCTestCase {
     func test_bytes_returnsUnderlyingBytesAsByteArray() {
-        let traceID = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID = OTelTraceID.oneToSixteen
 
         XCTAssertEqual(traceID.bytes, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     }
 
     func test_hexBytes_returnsHexByteRepresentation() {
-        let traceID = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID = OTelTraceID.oneToSixteen
 
         XCTAssertEqual(
             traceID.hexBytes,
@@ -34,27 +35,27 @@ final class OTelTraceIDTests: XCTestCase {
     }
 
     func test_description_returnsHexStringRepresentation() {
-        let traceID = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID = OTelTraceID.oneToSixteen
 
         XCTAssertEqual(traceID.description, "0102030405060708090a0b0c0d0e0f10")
     }
 
     func test_hash_createsUniqueHashValue() {
-        let traceID1 = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID1 = OTelTraceID.oneToSixteen
         let traceID2 = OTelTraceID(bytes: (17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32))
 
         XCTAssertNotEqual(traceID1.hashValue, traceID2.hashValue)
     }
 
     func test_equatable_equals() {
-        let traceID1 = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
-        let traceID2 = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID1 = OTelTraceID.oneToSixteen
+        let traceID2 = OTelTraceID.oneToSixteen
 
         XCTAssertEqual(traceID1, traceID2)
     }
 
     func test_equatable_notEquals() {
-        let traceID1 = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+        let traceID1 = OTelTraceID.oneToSixteen
         let traceID2 = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17))
 
         XCTAssertNotEqual(traceID1, traceID2)

@@ -15,9 +15,15 @@ import Tracing
 
 /// A read-only representation of an ended ``OTelSpan``.
 public struct OTelFinishedSpan {
+    /// The context of this span.
+    public let spanContext: OTelSpanContext
+
     /// The spans operation name.
     public let operationName: String
     
+    /// The spans kind.
+    public let kind: SpanKind
+
     /// The spans status.
     public let status: SpanStatus?
 

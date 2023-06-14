@@ -22,9 +22,9 @@ public struct OTelTraceState {
     
     /// Create a trace state with the given vendor-value pairs.
     ///
-    /// - Parameter storage: The vendor-value pairs stored in the trace state.
-    public init(storage: Storage) {
-        self.storage = storage
+    /// - Parameter items: The vendor-value pairs stored in the trace state.
+    public init(items: Storage) {
+        self.storage = items
     }
 }
 

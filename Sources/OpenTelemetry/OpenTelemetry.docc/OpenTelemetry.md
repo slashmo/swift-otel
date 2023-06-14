@@ -31,6 +31,7 @@ using OpenTelemetry.
 @Links(visualStyle: list) {
     - ``OTelSampler``
     - ``OTelConstantSampler``
+    - ``OTelParentBasedSampler``
 }
 
 ### Export
@@ -72,6 +73,7 @@ using OpenTelemetry.
 - ``OTelSampler``
 - ``OTelSamplingResult``
 - ``OTelConstantSampler``
+- ``OTelParentBasedSampler``
 
 ### Context
 

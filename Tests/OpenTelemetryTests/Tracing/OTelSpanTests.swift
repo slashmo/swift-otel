@@ -168,7 +168,7 @@ final class OTelSpanTests: XCTestCase {
         
         let event = SpanEvent(
             name: "test",
-            at: MockInstant(nanosecondsSinceEpoch: 42),
+            at: .constant(42),
             attributes: ["test": 42]
         )
         span.addEvent(event)
@@ -201,13 +201,13 @@ final class OTelSpanTests: XCTestCase {
         span.recordError(
             TestError.test(value: 42),
             attributes: ["adhoc": 42],
-            at: MockInstant(nanosecondsSinceEpoch: 42)
+            at: .constant(42)
         )
         
         XCTAssertEqual(span.events, [
             SpanEvent(
                 name: "exception",
-                at: MockInstant(nanosecondsSinceEpoch: 42),
+                at: .constant(42),
                 attributes: [
                     "adhoc": 42,
                     "exception.type": "TestError",
@@ -342,37 +342,37 @@ final class OTelSpanTests: XCTestCase {
     
     func test_endTimeNanosecondsSinceEpoch_whenNoOp_defaultsToNil() {
         let span = OTelSpan.noOpStub()
-        
+
         XCTAssertNil(span.endTimeNanosecondsSinceEpoch)
     }
     
     func test_endTimeNanosecondsSinceEpoch_whenSampled_defaultsToNil() {
         let span = OTelSpan.noOpStub()
-        
+
         XCTAssertNil(span.endTimeNanosecondsSinceEpoch)
     }
     
     func test_end_whenNoOp_doesNotSetEndTimeNanosecondsSinceEpoch() {
         let span = OTelSpan.sampledStub()
-        
-        span.end(at: MockInstant(nanosecondsSinceEpoch: 42))
-        
+
+        span.end(at: .constant(42))
+
         XCTAssertEqual(span.endTimeNanosecondsSinceEpoch, 42)
     }
     
     func test_end_whenSampled_whenNotEnded_setsEndTimeNanosecondsSinceEpoch() {
         let span = OTelSpan.sampledStub()
-        
-        span.end(at: MockInstant(nanosecondsSinceEpoch: 42))
-        
+
+        span.end(at: .constant(42))
+
         XCTAssertEqual(span.endTimeNanosecondsSinceEpoch, 42)
     }
     
     func test_end_whenSampled_whenAlreadyEnded_doesNotSetEndTimeNanosecondsSinceEpoch() {
         let span = OTelSpan.sampledStub()
-        span.end(at: MockInstant(nanosecondsSinceEpoch: 42))
+        span.end(at: .constant(42))
 
-        span.end(at: MockInstant(nanosecondsSinceEpoch: 84))
+        span.end(at: .constant(84))
 
         XCTAssertEqual(span.endTimeNanosecondsSinceEpoch, 42)
     }

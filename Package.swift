@@ -37,6 +37,15 @@ let package = Package(
             name: "OpenTelemetryTests",
             dependencies: [
                 .target(name: "OpenTelemetry"),
+                .target(name: "OTelTesting"),
+            ]
+        ),
+
+        .target(
+            name: "OTelTesting",
+            dependencies: [
+                .product(name: "Tracing", package: "swift-distributed-tracing"),
+                .target(name: "OpenTelemetry"),
             ]
         ),
 
@@ -53,6 +62,7 @@ let package = Package(
             name: "OTLPTests",
             dependencies: [
                 .target(name: "OTLP"),
+                .target(name: "OTelTesting"),
             ]
         ),
 
@@ -67,6 +77,7 @@ let package = Package(
             name: "OTLPCoreTests",
             dependencies: [
                 .target(name: "OTLPCore"),
+                .target(name: "OTelTesting"),
             ]
         ),
 
@@ -86,6 +97,7 @@ let package = Package(
             name: "OTLPGRPCTests",
             dependencies: [
                 .target(name: "OTLPGRPC"),
+                .target(name: "OTelTesting"),
             ]
         ),
     ]

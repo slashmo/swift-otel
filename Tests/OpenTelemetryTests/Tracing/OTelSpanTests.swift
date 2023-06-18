@@ -30,7 +30,7 @@ final class OTelSpanTests: XCTestCase {
     func test_context_whenSampled_returnsContext() {
         let context = ServiceContext.withStubValue(42)
         
-        let span = OTelSpan.sampledStub(context: context)
+        let span = OTelSpan.recordingStub(context: context)
         
         XCTAssertEqual(span.context.stubValue, 42)
     }
@@ -51,13 +51,13 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_isRecording_whenSampled_whenNotEnded_returnsTrue() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         XCTAssertTrue(span.isRecording)
     }
     
     func test_isRecording_whenSampled_whenEnded_returnsFalse() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end()
         
         XCTAssertFalse(span.isRecording)
@@ -72,7 +72,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_operationName_get_whenSampled_returnsPlaceholder() {
-        let span = OTelSpan.sampledStub(operationName: "test")
+        let span = OTelSpan.recordingStub(operationName: "test")
         
         XCTAssertEqual(span.operationName, "test")
     }
@@ -86,7 +86,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_operationName_set_whenSampled_whenNotEnded_updatesOperationName() {
-        let span = OTelSpan.sampledStub(operationName: "original")
+        let span = OTelSpan.recordingStub(operationName: "original")
         
         span.operationName = "updated"
         
@@ -94,7 +94,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_operationName_set_whenSampled_whenEnded_doesNotUpdateOperationName() {
-        let span = OTelSpan.sampledStub(operationName: "original")
+        let span = OTelSpan.recordingStub(operationName: "original")
         
         span.end()
         span.operationName = "updated"
@@ -111,7 +111,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_attributes_get_whenSampled_defaultsToInitialAttributes() {
-        let span = OTelSpan.sampledStub(attributes: ["initial": 42])
+        let span = OTelSpan.recordingStub(attributes: ["initial": 42])
         
         XCTAssertEqual(span.attributes, ["initial": 42])
     }
@@ -125,7 +125,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_attributes_set_whenSampled_whenNotEnded_updatesAttributes() {
-        let span = OTelSpan.sampledStub(attributes: ["initial": 42])
+        let span = OTelSpan.recordingStub(attributes: ["initial": 42])
         
         span.attributes["test"] = 42
         
@@ -133,7 +133,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_attributes_set_whenSampled_whenEnded_doesNotUpdateAttributes() {
-        let span = OTelSpan.sampledStub(attributes: ["initial": 42])
+        let span = OTelSpan.recordingStub(attributes: ["initial": 42])
         span.end()
         
         span.attributes["test"] = 42
@@ -150,7 +150,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_events_get_whenSampled_defaultsToEmptyArray() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         XCTAssertTrue(span.events.isEmpty)
     }
@@ -164,7 +164,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_addEvent_whenSampled_whenNotEnded_addsEvent() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         let event = SpanEvent(
             name: "test",
@@ -177,7 +177,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_addEvent_whenSampled_whenEnded_doesNotAddEvent() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end()
         
         span.addEvent("test")
@@ -196,7 +196,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_recordError_whenSampled_whenNotEnded_addsEvent() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         span.recordError(
             TestError.test(value: 42),
@@ -218,7 +218,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_recordError_whenSampled_whenEnded_doesNotAddEvent() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end()
         
         span.recordError(TestError.test(value: 42))
@@ -235,7 +235,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_links_get_whenSampled_defaultsToEmptyArray() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         XCTAssertTrue(span.links.isEmpty)
     }
@@ -249,7 +249,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_addLink_whenSampled_whenNotEnded_addsLink() throws {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         let linkedContext = ServiceContext.withStubValue(42)
         span.addLink(SpanLink(context: linkedContext, attributes: ["test": 42]))
@@ -262,7 +262,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_addLink_whenSampled_whenEnded_doesNotAddLink() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end()
         
         span.addLink(SpanLink(context: .topLevel, attributes: [:]))
@@ -293,7 +293,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_setStatus_whenSampled_whenNotEnded_setsStatus() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         let status = SpanStatus(code: .error, message: "test")
         span.setStatus(status)
@@ -302,7 +302,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_setStatus_whenSampled_whenNotEnded_whenStatusOK_setsStatusWithoutMessage() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         
         let status = SpanStatus(code: .ok, message: "test")
         span.setStatus(status)
@@ -311,7 +311,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_setStatus_whenSampled_whenNotEnded_whenAlreadySetToOK_doesNotUpdateStatus() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.setStatus(.init(code: .ok))
         
         let status = SpanStatus(code: .error, message: "test")
@@ -321,7 +321,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_setStatus_whenSampled_whenNotEnded_whenSetToError_updatesStatus() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.setStatus(.init(code: .error, message: "test"))
         
         span.setStatus(SpanStatus(code: .ok))
@@ -330,7 +330,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_setStatus_whenSampled_whenEnded_doesNotSetStatus() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end()
         
         span.setStatus(.init(code: .ok))
@@ -353,7 +353,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_end_whenNoOp_doesNotSetEndTimeNanosecondsSinceEpoch() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
 
         span.end(at: .constant(42))
 
@@ -361,7 +361,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_end_whenSampled_whenNotEnded_setsEndTimeNanosecondsSinceEpoch() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
 
         span.end(at: .constant(42))
 
@@ -369,7 +369,7 @@ final class OTelSpanTests: XCTestCase {
     }
     
     func test_end_whenSampled_whenAlreadyEnded_doesNotSetEndTimeNanosecondsSinceEpoch() {
-        let span = OTelSpan.sampledStub()
+        let span = OTelSpan.recordingStub()
         span.end(at: .constant(42))
 
         span.end(at: .constant(84))
@@ -393,14 +393,14 @@ extension OTelSpan {
         .noOp(.init(context: context))
     }
 
-    fileprivate static func sampledStub(
+    fileprivate static func recordingStub(
         operationName: String = "test",
         kind: SpanKind = .internal,
         context: ServiceContext = .topLevel,
         attributes: SpanAttributes = [:],
         startTimeNanosecondsSinceEpoch: UInt64 = 0
     ) -> OTelSpan {
-        .sampled(
+        .recording(
             operationName: operationName,
             kind: kind,
             context: context,

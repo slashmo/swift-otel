@@ -21,7 +21,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp(let span):
             return span.context
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.context
         }
     }
@@ -30,7 +30,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             return false
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.isRecording
         }
     }
@@ -40,7 +40,7 @@ public final class OTelSpan: Span {
             switch underlying {
             case .noOp(let span):
                 return span.operationName
-            case .sampled(let span, _):
+            case .recording(let span, _):
                 return span.operationName
             }
         }
@@ -48,7 +48,7 @@ public final class OTelSpan: Span {
             switch underlying {
             case .noOp:
                 break
-            case .sampled(let span, _):
+            case .recording(let span, _):
                 guard span.isRecording else { return }
                 span.operationName = newValue
             }
@@ -60,7 +60,7 @@ public final class OTelSpan: Span {
             switch underlying {
             case .noOp:
                 return [:]
-            case .sampled(let span, _):
+            case .recording(let span, _):
                 return span.attributes
             }
         }
@@ -68,7 +68,7 @@ public final class OTelSpan: Span {
             switch underlying {
             case .noOp:
                 break
-            case .sampled(let span, _):
+            case .recording(let span, _):
                 guard span.isRecording else { return }
                 span.attributes = newValue
             }
@@ -79,7 +79,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             return []
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.events
         }
     }
@@ -88,7 +88,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             return []
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.links
         }
     }
@@ -97,7 +97,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             return nil
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.status
         }
     }
@@ -106,7 +106,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             return nil
-        case .sampled(let span, _):
+        case .recording(let span, _):
             return span.endTimeNanosecondsSinceEpoch
         }
     }
@@ -115,7 +115,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             break
-        case .sampled(let span, _):
+        case .recording(let span, _):
             guard span.isRecording else { return }
             span.setStatus(status)
         }
@@ -125,7 +125,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             break
-        case .sampled(let span, _):
+        case .recording(let span, _):
             guard span.isRecording else { return }
             span.addEvent(event)
         }
@@ -139,7 +139,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             break
-        case .sampled(let span, _):
+        case .recording(let span, _):
             guard span.isRecording else { return }
             span.recordError(error, attributes: attributes, at: instant())
         }
@@ -149,7 +149,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             break
-        case .sampled(let span, _):
+        case .recording(let span, _):
             guard span.isRecording else { return }
             span.addLink(link)
         }
@@ -159,7 +159,7 @@ public final class OTelSpan: Span {
         switch underlying {
         case .noOp:
             break
-        case .sampled(let span, _):
+        case .recording(let span, _):
             guard span.isRecording else { return }
             span.end(at: instant())
         }
@@ -173,19 +173,22 @@ public final class OTelSpan: Span {
         OTelSpan(underlying: .noOp(span))
     }
 
-    static func sampled(
+    static func recording(
         operationName: String,
         kind: SpanKind,
         context: ServiceContext,
+        spanContext: OTelSpanContext,
         attributes: SpanAttributes,
-        startTimeNanosecondsSinceEpoch: UInt64
+        startTimeNanosecondsSinceEpoch: UInt64,
+        onEnd: @escaping (OTelFinishedSpan) -> Void
     ) -> OTelSpan {
-        OTelSpan(underlying: .sampled(
-            OTelSampledSpan(
+        OTelSpan(underlying: .recording(
+            OTelRecordingSpan(
                 operationName: operationName,
                 context: context,
                 attributes: attributes,
-                startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch
+                startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
+                onEnd: onEnd
             ),
             kind: kind
         ))
@@ -193,11 +196,11 @@ public final class OTelSpan: Span {
 
     private enum Underlying {
         case noOp(NoOpTracer.NoOpSpan)
-        case sampled(OTelSampledSpan, kind: SpanKind)
+        case recording(OTelRecordingSpan, kind: SpanKind)
     }
 }
 
-private final class OTelSampledSpan: Span {
+private final class OTelRecordingSpan: Span {
     let context: ServiceContext
 
     var operationName: String {
@@ -240,18 +243,22 @@ private final class OTelSampledSpan: Span {
     private var _endTimeNanosecondsSinceEpoch: UInt64?
     private let endTimeLock = ReadWriteLock()
 
+    private let onEnd: (OTelFinishedSpan) -> Void
+
     var isRecording: Bool { endTimeNanosecondsSinceEpoch == nil }
 
     init(
         operationName: String,
         context: ServiceContext,
         attributes: SpanAttributes,
-        startTimeNanosecondsSinceEpoch: UInt64
+        startTimeNanosecondsSinceEpoch: UInt64,
+        onEnd: @escaping (OTelFinishedSpan) -> Void
     ) {
         self._operationName = operationName
         self.context = context
         self._attributes = attributes
         self.startTimeNanosecondsSinceEpoch = startTimeNanosecondsSinceEpoch
+        self.onEnd = onEnd
     }
 
     func setStatus(_ status: SpanStatus) {

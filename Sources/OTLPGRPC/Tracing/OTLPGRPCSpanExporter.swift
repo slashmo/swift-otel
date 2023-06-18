@@ -82,7 +82,6 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
             throw OTelSpanExporterAlreadyShutDownError()
         }
 
-        // TODO: Convert batch to OTLP request
         let request = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest.with { request in
             request.resourceSpans = [
                 .with { resourceSpans in

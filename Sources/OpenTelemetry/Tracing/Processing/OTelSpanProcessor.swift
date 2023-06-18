@@ -27,12 +27,12 @@ public protocol OTelSpanProcessor {
     /// - Parameters:
     ///   - span: The mutable span that was started.
     ///   - parentContext: The span's parent service context.
-    func onStart(_ span: OTelSpan, parentContext: ServiceContext)
+    func onStart(_ span: OTelSpan, parentContext: ServiceContext) async
 
     /// Called whenever a recording span was ended.
     ///
     /// - Parameter span: The read-only finished span.
-    func onEnd(_ span: OTelFinishedSpan)
+    func onEnd(_ span: OTelFinishedSpan) async
 
     /// Force span processors that batch spans to flush immediately.
     func forceFlush() async throws

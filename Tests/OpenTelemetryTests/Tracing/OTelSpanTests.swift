@@ -397,15 +397,19 @@ extension OTelSpan {
         operationName: String = "test",
         kind: SpanKind = .internal,
         context: ServiceContext = .topLevel,
+        spanContext: OTelSpanContext = .stub(),
         attributes: SpanAttributes = [:],
-        startTimeNanosecondsSinceEpoch: UInt64 = 0
+        startTimeNanosecondsSinceEpoch: UInt64 = 0,
+        onEnd: @escaping (OTelFinishedSpan) -> Void = { _ in }
     ) -> OTelSpan {
         .recording(
             operationName: operationName,
             kind: kind,
             context: context,
+            spanContext: spanContext,
             attributes: attributes,
-            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch
+            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
+            onEnd: onEnd
         )
     }
 }

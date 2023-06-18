@@ -13,6 +13,8 @@
 
 /// A span exporter receives batches of processed spans to export them, e.g. by sending them over the network.
 ///
+/// [OpenTelemetry specification: Span exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#span-exporter)
+///
 /// ### Implementation Notes
 ///
 /// Implementations **MUST** throw ``OTelSpanExporterAlreadyShutDownError`` if the exporter was previously shut down via ``shutdown()``.

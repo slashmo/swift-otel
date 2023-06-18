@@ -34,11 +34,20 @@ using OpenTelemetry.
     - ``OTelParentBasedSampler``
 }
 
-### Export
+### Processing
+
+@Links(visualStyle: list) {
+    - ``OTelSpanProcessor``
+    - ``OTelNoOpSpanProcessor``
+    - ``OTelSimpleSpanProcessor``
+}
+
+### Exporting
 
 @Links(visualStyle: list) {
     - ``OTelSpanExporter``
-    - ``OTelNoOpSpanExporter``    
+    - ``OTelNoOpSpanExporter``
+    - ``OTelMultiplexSpanExporter``
 }
 
 ## Context Propagation
@@ -66,14 +75,20 @@ using OpenTelemetry.
 
 - ``OTelSpan``
 - ``OTelFinishedSpan``
-- ``OTelSpanExporter``
-- ``OTelNoOpSpanExporter``
-- ``OTelMultiplexSpanExporter``
-- ``OTelSpanExporterAlreadyShutDownError``
+
 - ``OTelSampler``
 - ``OTelSamplingResult``
 - ``OTelConstantSampler``
 - ``OTelParentBasedSampler``
+
+- ``OTelSpanProcessor``
+- ``OTelNoOpSpanProcessor``
+- ``OTelSimpleSpanProcessor``
+
+- ``OTelSpanExporter``
+- ``OTelNoOpSpanExporter``
+- ``OTelMultiplexSpanExporter``
+- ``OTelSpanExporterAlreadyShutDownError``
 
 ### Context
 

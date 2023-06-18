@@ -30,25 +30,27 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
         self.exporter = exporter
     }
 
-    public func onStart(_ span: OTelSpan, parentContext: ServiceContext) async {
+    public func onStart(_ span: OTelSpan, parentContext: ServiceContext) {
         // no-op
     }
 
-    public func onEnd(_ span: OTelFinishedSpan) async {
+    public func onEnd(_ span: OTelFinishedSpan) {
         guard span.spanContext.traceFlags.contains(.sampled) else { return }
 
-        do {
-            try await exporter.export([span])
-        } catch {
-            // simple span processor does not attempt retries, so this is no-op
+        Task {
+            do {
+                try await exporter.export([span])
+            } catch {
+                // simple span processor does not attempt retries, so this is no-op
+            }
         }
+    }
+
+    public func forceFlush() async throws {
+        try await exporter.forceFlush()
     }
 
     public func shutdown() async throws {
         await exporter.shutdown()
-    }
-
-    public func forceFlush() async throws {
-        // no-op
     }
 }

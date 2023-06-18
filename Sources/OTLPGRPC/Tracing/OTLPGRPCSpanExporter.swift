@@ -106,6 +106,9 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
         _ = try await client.export(request)
     }
 
+    /// ``OTLPGRPCSpanExporter`` sends batches of spans as soon as they are received, so this method is a no-op.
+    public func forceFlush() async throws {}
+
     public func shutdown() async {
         let promise = connection.eventLoop.makePromise(of: Void.self)
 
@@ -113,7 +116,4 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
 
         try? await promise.futureResult.get()
     }
-    
-    /// ``OTLPGRPCSpanExporter`` sends batches of spans as soon as they are received, so this method is a no-op.
-    public func forceFlush() async throws {}
 }

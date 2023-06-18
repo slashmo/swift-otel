@@ -39,20 +39,6 @@ final class OTelMultiplexSpanExporterTests: XCTestCase {
         XCTAssertEqual(exporter2Batch.map(\.operationName), ["span1", "span2"])
     }
 
-    func test_shutdown_shutsDownAllExporters() async {
-        let exporter1 = OTelInMemorySpanExporter()
-        let exporter2 = OTelInMemorySpanExporter()
-        let exporter = OTelMultiplexSpanExporter(exporters: [exporter1, exporter2])
-
-        await exporter.shutdown()
-
-        let exporter1ShutdownCount = await exporter1.numberOfShutdowns
-        XCTAssertEqual(exporter1ShutdownCount, 1)
-
-        let exporter2ShutdownCount = await exporter2.numberOfShutdowns
-        XCTAssertEqual(exporter2ShutdownCount, 1)
-    }
-
     func test_forceFlush_forceFlushesAllExporters() async throws {
         let exporter1 = OTelInMemorySpanExporter()
         let exporter2 = OTelInMemorySpanExporter()
@@ -65,5 +51,19 @@ final class OTelMultiplexSpanExporterTests: XCTestCase {
 
         let exporter2ForceFlushCount = await exporter2.numberOfForceFlushes
         XCTAssertEqual(exporter2ForceFlushCount, 1)
+    }
+
+    func test_shutdown_shutsDownAllExporters() async {
+        let exporter1 = OTelInMemorySpanExporter()
+        let exporter2 = OTelInMemorySpanExporter()
+        let exporter = OTelMultiplexSpanExporter(exporters: [exporter1, exporter2])
+
+        await exporter.shutdown()
+
+        let exporter1ShutdownCount = await exporter1.numberOfShutdowns
+        XCTAssertEqual(exporter1ShutdownCount, 1)
+
+        let exporter2ShutdownCount = await exporter2.numberOfShutdowns
+        XCTAssertEqual(exporter2ShutdownCount, 1)
     }
 }

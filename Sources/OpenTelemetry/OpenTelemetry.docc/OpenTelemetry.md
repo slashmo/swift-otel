@@ -40,6 +40,7 @@ using OpenTelemetry.
     - ``OTelSpanProcessor``
     - ``OTelNoOpSpanProcessor``
     - ``OTelSimpleSpanProcessor``
+    - ``OTelMultiplexSpanProcessor``
 }
 
 ### Exporting
@@ -84,6 +85,7 @@ using OpenTelemetry.
 - ``OTelSpanProcessor``
 - ``OTelNoOpSpanProcessor``
 - ``OTelSimpleSpanProcessor``
+- ``OTelMultiplexSpanProcessor``
 
 - ``OTelSpanExporter``
 - ``OTelNoOpSpanExporter``

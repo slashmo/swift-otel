@@ -20,11 +20,11 @@ public struct OTelNoOpSpanExporter: OTelSpanExporter {
         // no-op
     }
 
-    public func shutdown() async {
+    public func forceFlush() async throws {
         // no-op
     }
 
-    public func forceFlush() async throws {
+    public func shutdown() async {
         // no-op
     }
 }

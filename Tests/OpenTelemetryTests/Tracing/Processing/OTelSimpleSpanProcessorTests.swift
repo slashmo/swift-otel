@@ -21,7 +21,10 @@ final class OTelSimpleSpanProcessorTests: XCTestCase {
         let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
 
         let span = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "test")
-        await processor.onEnd(span)
+        processor.onEnd(span)
+
+        // wait for exporter to be invoked asynchronously
+        try await Task.sleep(for: .milliseconds(100))
 
         let exportedBatches = await exporter.exportedBatches
         XCTAssertEqual(exportedBatches.count, 1)
@@ -35,10 +38,23 @@ final class OTelSimpleSpanProcessorTests: XCTestCase {
         let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
 
         let span = OTelFinishedSpan.stub(traceFlags: [], operationName: "test")
-        await processor.onEnd(span)
+        processor.onEnd(span)
+
+        // wait for exporter to be invoked asynchronously
+        try await Task.sleep(for: .milliseconds(100))
 
         let exportedBatches = await exporter.exportedBatches
         XCTAssertTrue(exportedBatches.isEmpty)
+    }
+
+    func test_forceFlush_forceFlushesExporter() async throws {
+        let exporter = OTelInMemorySpanExporter()
+        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+
+        try await processor.forceFlush()
+
+        let numberOfForceFlushes = await exporter.numberOfForceFlushes
+        XCTAssertEqual(numberOfForceFlushes, 1)
     }
 
     func test_shutdown_shutsDownExporter() async throws {

@@ -26,11 +26,11 @@ public protocol OTelSpanExporter {
     /// or an implementation-specific error if exporting failed.
     func export(_ batch: some Collection<OTelFinishedSpan>) async throws
     
-    /// Shut down the span exporter.
-    func shutdown() async
-    
     /// Force the span exporter to export any previously received spans as soon as possible.
     func forceFlush() async throws
+
+    /// Shut down the span exporter.
+    func shutdown() async
 }
 
 /// An error indicating that a given exporter has already been shut down while receiving an additional batch of spans to export.

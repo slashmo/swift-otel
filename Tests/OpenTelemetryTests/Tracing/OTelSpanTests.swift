@@ -387,29 +387,3 @@ fileprivate enum TestError: Error {
 extension NoOpTracer.NoOpSpan {
     fileprivate static let topLevel = NoOpTracer.NoOpSpan(context: .topLevel)
 }
-
-extension OTelSpan {
-    fileprivate static func noOpStub(context: ServiceContext = .topLevel) -> OTelSpan {
-        .noOp(.init(context: context))
-    }
-
-    fileprivate static func recordingStub(
-        operationName: String = "test",
-        kind: SpanKind = .internal,
-        context: ServiceContext = .topLevel,
-        spanContext: OTelSpanContext = .stub(),
-        attributes: SpanAttributes = [:],
-        startTimeNanosecondsSinceEpoch: UInt64 = 0,
-        onEnd: @escaping (OTelFinishedSpan) -> Void = { _ in }
-    ) -> OTelSpan {
-        .recording(
-            operationName: operationName,
-            kind: kind,
-            context: context,
-            spanContext: spanContext,
-            attributes: attributes,
-            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
-            onEnd: onEnd
-        )
-    }
-}

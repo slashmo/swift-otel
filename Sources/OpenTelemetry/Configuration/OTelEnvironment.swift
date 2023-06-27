@@ -31,28 +31,58 @@ public struct OTelEnvironment {
         self.values = values
     }
 
-    /// Retrieve a configuration value by transforming an appropriate senvironment value into the given type.
+    /// Retrieve a configuration value by transforming an environment value into the given type.
+    ///
+    /// ## Configuration Precedence
+    ///
+    /// When retrieving a configuration value, the following precedence applies:
+    /// 1. `programmaticOverride`, unless it's `nil`
+    /// 2. `key`, if an environment value is present
+    ///
+    /// - Parameters:
+    ///   - programmaticOverride: A value overriding the environment value.
+    ///   - key: The environment key for the configuration value.
+    ///   - transformValue: A closure transforming an environment value into the given type.
+    /// - Returns: The configuration value with the highest specificity, or `nil` if the value was not configured.
+    /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
+    public func value<T>(
+        programmaticOverride: T?,
+        key: String,
+        transformValue: (_ value: String) -> T?
+    ) throws -> T? {
+        if let programmaticOverride {
+            return programmaticOverride
+        }
+
+        if let value = values[key] {
+            return try transformedValue(value, forKey: key, using: transformValue)
+        }
+
+        return nil
+    }
+
+    /// Retrieve a configuration value by transforming an appropriate environment value into the given type.
     ///
     /// ## Value Precedence
     ///
     /// When retrieving a configuration value the following precedence applies:
     /// 1. `programmaticOverride`, unless it's `nil`
-    /// 2. `signalSpecificKey`, if a value is present
-    /// 3. `sharedKey`, if a value is present
+    /// 2. `signalSpecificKey`, if an environment value is present
+    /// 3. `sharedKey`, if an environment value is present
     ///
     /// - Parameters:
-    ///   - programmaticOverride: A value override directly from code, taking precendence over all other values.
+    ///   - programmaticOverride: A value overriding any environment value.
     ///   - signalSpecificKey: The environment key for the signal-specific configuration value.
     ///   - sharedKey: The environment key for the configuration value shared amongst all signals.
-    ///   - transformValue: A closure transforming environment values into the given type.
+    ///   - transformValue: A closure transforming an environment value into the given type.
     ///
-    /// - Returns: The configuration value with the highest specificity, or `nil` if no configuration value was found.
+    /// - Returns: The configuration value with the highest specificity, or `nil` if the value was not configured.
     /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
     public func value<T>(
         programmaticOverride: T?,
         signalSpecificKey: String,
         sharedKey: String,
-        transformValue: @escaping (_ value: String) -> T?
+        transformValue: (_ value: String) -> T?
     ) throws -> T? {
         if let programmaticOverride {
             return programmaticOverride
@@ -70,11 +100,11 @@ public struct OTelEnvironment {
     /// Retrieve a boolean by transforming an appropriate environment value.
     ///
     /// - Parameters:
-    ///   - programmaticOverride: A value override directly from code, taking precendence over all other values.
+    ///   - programmaticOverride: A value overriding any environment value.
     ///   - signalSpecificKey: The environment key for the signal-specific configuration value.
     ///   - sharedKey: The environment key for the configuration value shared amongst all signals.
     ///
-    /// - Returns: The configuration value with the highest specificity, or `nil` if no configuration value was found.
+    /// - Returns: The configuration value with the highest specificity, or `nil` if the value was not configured.
     /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
     public func value(
         programmaticOverride: Bool?,

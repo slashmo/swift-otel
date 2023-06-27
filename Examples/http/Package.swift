@@ -13,9 +13,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.0"),
         .package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "1.0.0-alpha.11"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.1"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird.git", branch: "feature/request-baggage"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird.git", branch: "main"),
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
-        .package(url: "https://github.com/slashmo/swift-distributed-tracing.git", branch: "feature/span-event-nanoseconds"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
 
         .package(path: "../../"),
     ],

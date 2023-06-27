@@ -152,7 +152,7 @@ extension HTTPClient {
             span.attributes["net.peer.port"] = request.port
 
             InstrumentationSystem.instrument.inject(
-                span.baggage,
+                span.context,
                 into: &request.headers,
                 using: HTTPHeadersInjector()
             )

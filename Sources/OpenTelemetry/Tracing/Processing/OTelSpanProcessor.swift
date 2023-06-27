@@ -40,3 +40,7 @@ public protocol OTelSpanProcessor {
     /// Asynchronously shut down the span processor.
     func shutdown() async throws
 }
+
+extension OTelSpanProcessor {
+    public func onStart(_ span: OTelSpan, parentContext: ServiceContext) async {}
+}

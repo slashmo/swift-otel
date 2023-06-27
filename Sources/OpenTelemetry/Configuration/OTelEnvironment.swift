@@ -42,6 +42,39 @@ public struct OTelEnvironment {
     /// - Parameters:
     ///   - programmaticOverride: A value overriding the environment value.
     ///   - key: The environment key for the configuration value.
+    ///   - defaultValue: A fallback value used if the value is not configured.
+    ///   - transformValue: A closure transforming an environment value into the given type.
+    /// - Warning: This method crashes if transforming the environment value fails.
+    /// - Returns: The configuration value with the highest specificity.
+    public func requiredValue<T>(
+        programmaticOverride: T?,
+        key: String,
+        defaultValue: T,
+        transformValue: (_ value: String) -> T?
+    ) -> T {
+        do {
+            let value = try value(
+                programmaticOverride: programmaticOverride,
+                key: key,
+                transformValue: transformValue
+            )
+            return value ?? defaultValue
+        } catch {
+            fatalError("\(error)")
+        }
+    }
+
+    /// Retrieve a configuration value by transforming an environment value into the given type.
+    ///
+    /// ## Configuration Precedence
+    ///
+    /// When retrieving a configuration value, the following precedence applies:
+    /// 1. `programmaticOverride`, unless it's `nil`
+    /// 2. `key`, if an environment value is present
+    ///
+    /// - Parameters:
+    ///   - programmaticOverride: A value overriding the environment value.
+    ///   - key: The environment key for the configuration value.
     ///   - transformValue: A closure transforming an environment value into the given type.
     /// - Returns: The configuration value with the highest specificity, or `nil` if the value was not configured.
     /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
@@ -178,7 +211,7 @@ public struct OTelEnvironment {
         using transform: (String) -> T?
     ) throws -> T {
         guard let value = transform(value) else {
-            throw OTelEnvironmentValueError(key: key, value: value)
+            throw OTelEnvironmentValueError(key: key, value: value, valueType: T.self)
         }
         return value
     }

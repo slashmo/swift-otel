@@ -29,7 +29,11 @@ final class OTLPGRPCSpanExporterConfigurationTests: XCTestCase {
         } catch let error as OTelEnvironmentValueError {
             XCTAssertEqual(
                 error,
-                OTelEnvironmentValueError(key: "OTEL_EXPORTER_OTLP_TRACES_INSECURE", value: "not-a-bool")
+                OTelEnvironmentValueError(
+                    key: "OTEL_EXPORTER_OTLP_TRACES_INSECURE",
+                    value: "not-a-bool",
+                    valueType: Bool.self
+                )
             )
         }
     }
@@ -44,7 +48,11 @@ final class OTLPGRPCSpanExporterConfigurationTests: XCTestCase {
         } catch let error as OTelEnvironmentValueError {
             XCTAssertEqual(
                 error,
-                OTelEnvironmentValueError(key: "OTEL_EXPORTER_OTLP_INSECURE", value: "not-a-bool")
+                OTelEnvironmentValueError(
+                    key: "OTEL_EXPORTER_OTLP_INSECURE",
+                    value: "not-a-bool",
+                    valueType: Bool.self
+                )
             )
         }
     }
@@ -120,7 +128,11 @@ final class OTLPGRPCSpanExporterConfigurationTests: XCTestCase {
             XCTAssertEqual(error.value, "host-without-port")
             XCTAssertEqual(
                 error,
-                OTelEnvironmentValueError(key: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", value: "host-without-port")
+                OTelEnvironmentValueError(
+                    key: "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+                    value: "host-without-port",
+                    valueType: OTLPGRPCEndpoint.self
+                )
             )
         }
     }
@@ -142,7 +154,11 @@ final class OTLPGRPCSpanExporterConfigurationTests: XCTestCase {
         } catch let error as OTelEnvironmentValueError {
             XCTAssertEqual(
                 error,
-                OTelEnvironmentValueError(key: "OTEL_EXPORTER_OTLP_ENDPOINT", value: "host-without-port")
+                OTelEnvironmentValueError(
+                    key: "OTEL_EXPORTER_OTLP_ENDPOINT",
+                    value: "host-without-port",
+                    valueType: OTLPGRPCEndpoint.self
+                )
             )
         }
     }

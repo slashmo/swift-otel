@@ -97,6 +97,49 @@ final class OTelEnvironmentTests: XCTestCase {
     // MARK: - value
 
     func test_value_withProgrammaticOverride_returnsProgrammaticOverride() throws {
+        let environment = OTelEnvironment(values: ["key": "42"])
+
+        let value = try environment.value(programmaticOverride: 84, key: "key", transformValue: { _ in nil })
+
+        XCTAssertEqual(value, 84)
+    }
+
+    func test_value_withValidEnvironmentValue_returnsEnvironmentValue() throws {
+        let environment = OTelEnvironment(values: ["key": "42"])
+
+        let value = try environment.value(programmaticOverride: nil, key: "key", transformValue: Int.init)
+
+        XCTAssertEqual(value, 42)
+    }
+
+    func test_value_withoutEnvironmentValue_returnsNil() throws {
+        let environment = OTelEnvironment(values: [:])
+
+        let value = try environment.value(programmaticOverride: nil, key: "key", transformValue: Int.init)
+
+        XCTAssertNil(value)
+    }
+
+    func test_value_withMalformedEnvironmentValue_throwsEnvironmentValueError() throws {
+        let environment = OTelEnvironment(values: ["key": "not-an-int"])
+
+        do {
+            let value = try environment.value(
+                programmaticOverride: nil,
+                key: "key",
+                transformValue: Int.init
+            )
+            if let value {
+                XCTFail("Expected transforming value to fail, got value: \(value).")
+            } else {
+                XCTFail("Expected transforming value to fail, got nil.")
+            }
+        } catch let error as OTelEnvironmentValueError {
+            XCTAssertEqual(error, OTelEnvironmentValueError(key: "key", value: "not-an-int"))
+        }
+    }
+
+    func test_valueSignalSpecific_withProgrammaticOverride_returnsProgrammaticOverride() throws {
         let environment = OTelEnvironment(values: [
             "specific": "1",
             "shared": "2",
@@ -112,7 +155,7 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(value, 42)
     }
 
-    func test_value_withValidSpecificEnvironmentValue_returnsSpecificEnvironmentValue() throws {
+    func test_valueSignalSpecific_withValidSpecificEnvironmentValue_returnsSpecificEnvironmentValue() throws {
         let environment = OTelEnvironment(values: [
             "specific": "1.1",
             "shared": "2.2",
@@ -128,7 +171,7 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(value, 1.1)
     }
 
-    func test_value_withValidSharedEnvironmentValue_returnsSharedEnvironmentValue() throws {
+    func test_valueSignalSpecific_withValidSharedEnvironmentValue_returnsSharedEnvironmentValue() throws {
         let environment = OTelEnvironment(values: ["shared": "2"])
 
         let value = try environment.value(
@@ -141,7 +184,7 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertEqual(value, 2)
     }
 
-    func test_value_withoutEnvironmentValues_returnsNil() throws {
+    func test_valueSignalSpecific_withoutEnvironmentValues_returnsNil() throws {
         let environment = OTelEnvironment(values: [:])
 
         let value = try environment.value(
@@ -154,7 +197,7 @@ final class OTelEnvironmentTests: XCTestCase {
         XCTAssertNil(value)
     }
 
-    func test_value_withMalformedEnvironmentValue_throwsEnvironmentValueError() throws {
+    func test_valueSignalSpecific_withMalformedEnvironmentValue_throwsEnvironmentValueError() throws {
         let environment = OTelEnvironment(values: ["specific": "not-an-int"])
 
         do {

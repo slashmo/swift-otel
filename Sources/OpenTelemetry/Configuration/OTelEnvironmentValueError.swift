@@ -19,13 +19,24 @@ public struct OTelEnvironmentValueError: Error, Equatable {
     /// The malformed environment value.
     public let value: String
 
+    /// The name of the type ``value`` should have been transformed into.
+    public let valueTypeName: String
+
     /// Create an ``OTelEnvironmentValueError`` with the given key and malformed value.
     ///
     /// - Parameters:
     ///   - key: The environment key.
     ///   - value: The malformed environment value.
-    public init(key: String, value: String) {
+    ///   - valueType: The type the given should have been transformed into.
+    public init(key: String, value: String, valueType: Any.Type) {
         self.key = key
         self.value = value
+        valueTypeName = "\(valueType)"
+    }
+}
+
+extension OTelEnvironmentValueError: CustomStringConvertible {
+    public var description: String {
+        #"Failed converting string value "\#(value)" into "\#(valueTypeName)"."#
     }
 }

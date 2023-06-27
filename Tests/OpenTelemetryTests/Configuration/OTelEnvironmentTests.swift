@@ -135,7 +135,7 @@ final class OTelEnvironmentTests: XCTestCase {
                 XCTFail("Expected transforming value to fail, got nil.")
             }
         } catch let error as OTelEnvironmentValueError {
-            XCTAssertEqual(error, OTelEnvironmentValueError(key: "key", value: "not-an-int"))
+            XCTAssertEqual(error, OTelEnvironmentValueError(key: "key", value: "not-an-int", valueType: Int.self))
         }
     }
 
@@ -213,7 +213,7 @@ final class OTelEnvironmentTests: XCTestCase {
                 XCTFail("Expected transforming value to fail, got nil.")
             }
         } catch let error as OTelEnvironmentValueError {
-            XCTAssertEqual(error, OTelEnvironmentValueError(key: "specific", value: "not-an-int"))
+            XCTAssertEqual(error, OTelEnvironmentValueError(key: "specific", value: "not-an-int", valueType: Int.self))
         }
     }
 
@@ -292,7 +292,7 @@ final class OTelEnvironmentTests: XCTestCase {
                 XCTFail("Expected transforming value to fail, got nil.")
             }
         } catch let error as OTelEnvironmentValueError {
-            XCTAssertEqual(error, OTelEnvironmentValueError(key: "a", value: "not-a-bool"))
+            XCTAssertEqual(error, OTelEnvironmentValueError(key: "a", value: "not-a-bool", valueType: Bool.self))
         }
     }
 }

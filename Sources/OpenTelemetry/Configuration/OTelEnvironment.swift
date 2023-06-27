@@ -12,9 +12,9 @@
 //===----------------------------------------------------------------------===//
 
 #if os(Linux)
-import Glibc
+    import Glibc
 #else
-import Darwin.C
+    import Darwin.C
 #endif
 
 import Foundation
@@ -27,7 +27,7 @@ public struct OTelEnvironment {
     /// Create an environment wrapping the given key-value pairs.
     ///
     /// - Parameter values: The key-value pairs to wrap.
-    public init(values: [String : String]) {
+    public init(values: [String: String]) {
         self.values = values
     }
 
@@ -66,7 +66,7 @@ public struct OTelEnvironment {
 
         return nil
     }
-    
+
     /// Retrieve a boolean by transforming an appropriate environment value.
     ///
     /// - Parameters:
@@ -156,6 +156,6 @@ public struct OTelEnvironment {
 
 extension OTelEnvironment: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, String)...) {
-        self.values = [String: String](uniqueKeysWithValues: elements)
+        values = [String: String](uniqueKeysWithValues: elements)
     }
 }

@@ -18,7 +18,7 @@ public struct OTelEnvironmentValueError: Error, Equatable {
 
     /// The malformed environment value.
     public let value: String
-    
+
     /// Create an ``OTelEnvironmentValueError`` with the given key and malformed value.
     ///
     /// - Parameters:

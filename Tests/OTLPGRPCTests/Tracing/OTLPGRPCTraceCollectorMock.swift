@@ -23,11 +23,12 @@ final class OTLPGRPCTraceCollectorMock {
     var requests: [Request] {
         requestsQueue.sync { _requests }
     }
+
     private var _requests = [Request]()
     private let requestsQueue = DispatchQueue(label: "requests")
 
-    fileprivate let group: any EventLoopGroup
-    fileprivate let logger: Logger
+    private let group: any EventLoopGroup
+    private let logger: Logger
 
     init(
         group: any EventLoopGroup,
@@ -55,7 +56,6 @@ final class OTLPGRPCTraceCollectorMock {
             throw error
         }
     }
-
 
     typealias ExportRequest = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest
     typealias ExportResponse = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceResponse

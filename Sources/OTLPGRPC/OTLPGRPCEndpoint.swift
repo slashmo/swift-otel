@@ -33,7 +33,8 @@ struct OTLPGRPCEndpoint: Equatable {
 
         if let host = url.host,
            let port = url.port,
-           let scheme = url.scheme {
+           let scheme = url.scheme
+        {
             self.host = host
             self.port = port
             self.isInsecure = scheme != "https"
@@ -41,7 +42,8 @@ struct OTLPGRPCEndpoint: Equatable {
             // Foundation.URL without scheme doesn't expose host/port so we split it manually
             let urlStringComponents = urlString.split(separator: ":")
             guard urlStringComponents.count == 2,
-                  let port = Int(urlStringComponents[1]) else {
+                  let port = Int(urlStringComponents[1])
+            else {
                 // TODO: Log
                 throw OTLPGRPCEndpointConfigurationError(value: urlString)
             }

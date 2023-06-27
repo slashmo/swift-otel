@@ -32,7 +32,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
     func test_samplingResult_withoutParent_invokesRootSampler() {
         rootSampler = RecordingSampler(sampler: OTelConstantSampler(isOn: true))
-        let sampler = self.sampler()
+        let sampler = sampler()
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -49,7 +49,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
     func test_samplingResult_withSampledRemoteParent_invokesRemoteParentSampledSampler() {
         remoteParentSampledSampler = RecordingSampler(sampler: OTelConstantSampler(isOn: true))
-        let sampler = self.sampler()
+        let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
         parentContext.spanContext = .stub(traceFlags: .sampled, isRemote: true)
@@ -69,7 +69,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
     func test_samplingResult_withNonSampledRemoteParent_invokesRemoteParentNotSampledSampler() {
         remoteParentNotSampledSampler = RecordingSampler(sampler: OTelConstantSampler(isOn: true))
-        let sampler = self.sampler()
+        let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
         parentContext.spanContext = .stub(traceFlags: [], isRemote: true)
@@ -89,7 +89,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
     func test_samplingResult_withSampledLocalParent_invokesLocalParentSampledSampler() {
         localParentSampledSampler = RecordingSampler(sampler: OTelConstantSampler(isOn: true))
-        let sampler = self.sampler()
+        let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
         parentContext.spanContext = .stub(traceFlags: .sampled, isRemote: false)
@@ -109,7 +109,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
     func test_samplingResult_withNonSampledLocalParent_invokesLocalParentNotSampledSampler() {
         localParentNotSampledSampler = RecordingSampler(sampler: OTelConstantSampler(isOn: true))
-        let sampler = self.sampler()
+        let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
         parentContext.spanContext = .stub(traceFlags: [], isRemote: false)
@@ -140,7 +140,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
 // MARK: - Helpers
 
-fileprivate final class RecordingSampler: OTelSampler {
+private final class RecordingSampler: OTelSampler {
     private let sampler: any OTelSampler
     private(set) var results = [OTelSamplingResult]()
 

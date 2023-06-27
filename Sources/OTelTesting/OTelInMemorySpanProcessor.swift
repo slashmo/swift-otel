@@ -17,10 +17,10 @@ import ServiceContextModule
 /// An in-memory span processor, collecting started spans into ``OTelInMemorySpanProcessor/startedSpans``
 /// and finished spans into ``OTelInMemorySpanProcessor/finishedSpans``.
 public final actor OTelInMemorySpanProcessor: OTelSpanProcessor {
-    private(set) public var startedSpans = [(span: OTelSpan, parentContext: ServiceContext)]()
-    private(set) public var finishedSpans = [OTelFinishedSpan]()
-    private(set) public var numberOfForceFlushes = 0
-    private(set) public var numberOfShutdowns = 0
+    public private(set) var startedSpans = [(span: OTelSpan, parentContext: ServiceContext)]()
+    public private(set) var finishedSpans = [OTelFinishedSpan]()
+    public private(set) var numberOfForceFlushes = 0
+    public private(set) var numberOfShutdowns = 0
 
     public init() {}
 

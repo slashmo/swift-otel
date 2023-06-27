@@ -23,16 +23,16 @@ public struct OTelSpanContext {
 
     /// The unique ID of the spans parent or `nil` if it's the root span.
     public let parentSpanID: OTelSpanID?
-    
+
     /// An 8-bit field controlling tracing flags such as sampling.
     public let traceFlags: OTelTraceFlags
-    
+
     /// Additional vendor-specific trace identification information.
     public let traceState: OTelTraceState?
-    
+
     /// Whether this span context belongs to a span that originated on a different service.
     public let isRemote: Bool
-    
+
     /// Create a span context.
     ///
     /// - Parameters:

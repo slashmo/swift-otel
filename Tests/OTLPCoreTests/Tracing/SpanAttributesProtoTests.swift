@@ -121,7 +121,7 @@ final class SpanAttributesProtoTests: XCTestCase {
             }
         )
     }
-    
+
     func test_initAnyValue_withBool_setsBoolValue() {
         let anyValue = Opentelemetry_Proto_Common_V1_AnyValue(.bool(true))
 

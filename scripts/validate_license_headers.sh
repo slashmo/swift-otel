@@ -38,7 +38,7 @@ printf "=> Checking license headers\n"
 tmp=$(mktemp /tmp/.swift-otel-soundness_XXXXXX)
 
 for language in swift-or-c bash dtrace; do
-  printf "   * $language... "
+  printf "  * $language... "
   declare -a matching_files
   declare -a exceptions
   expections=( )

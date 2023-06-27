@@ -20,7 +20,7 @@ public struct OTelFinishedSpan {
 
     /// The spans operation name.
     public let operationName: String
-    
+
     /// The spans kind.
     public let kind: SpanKind
 
@@ -35,10 +35,10 @@ public struct OTelFinishedSpan {
 
     /// The attributes added to the span.
     public let attributes: SpanAttributes
-    
+
     /// The events added to the span.
     public let events: [SpanEvent]
-    
+
     /// The links from this span to other spans.
     public let links: [SpanLink]
 }

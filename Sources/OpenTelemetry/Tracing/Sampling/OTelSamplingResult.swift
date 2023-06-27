@@ -17,7 +17,7 @@ import Tracing
 public struct OTelSamplingResult: Equatable {
     /// The decision on whether a span should be recorded/sampled.
     public let decision: Decision
-    
+
     /// Additional attributes describing the sampling decision to be included in the span's attributes.
     public let attributes: SpanAttributes
 

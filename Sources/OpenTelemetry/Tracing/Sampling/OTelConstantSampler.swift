@@ -33,7 +33,7 @@ public struct OTelConstantSampler: OTelSampler {
     /// ``OTelSamplingResult/Decision-swift.enum/recordAndSample`` or
     /// ``OTelSamplingResult/Decision-swift.enum/drop``.
     public init(isOn: Bool) {
-        self.decision = isOn ? .recordAndSample : .drop
+        decision = isOn ? .recordAndSample : .drop
     }
 
     public func samplingResult(

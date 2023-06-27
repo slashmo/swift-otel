@@ -17,8 +17,8 @@ import Logging
 import NIO
 import NIOHPACK
 import NIOSSL
-import OTLPCore
 import OpenTelemetry
+import OTLPCore
 import Tracing
 
 /// A span exporter emitting span batches to an OTel collector via gRPC.
@@ -62,7 +62,7 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
         var headers = configuration.headers
         if !headers.isEmpty {
             logger.trace("Configured custom request headers.", metadata: [
-                "keys": .array(headers.map({ "\($0.name)" })),
+                "keys": .array(headers.map { "\($0.name)" }),
             ])
         }
         headers.replaceOrAdd(name: "user-agent", value: "OTel-OTLP-Exporter-Swift/\(OTelLibrary.version)")
@@ -97,9 +97,9 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
                                 scope.version = OTelLibrary.version
                             }
                             scopeSpans.spans = batch.map(Opentelemetry_Proto_Trace_V1_Span.init)
-                        }
+                        },
                     ]
-                }
+                },
             ]
         }
 

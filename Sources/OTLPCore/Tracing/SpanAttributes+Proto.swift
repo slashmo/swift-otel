@@ -13,7 +13,7 @@
 
 import Tracing
 
-extension Array where Element == Opentelemetry_Proto_Common_V1_KeyValue {
+extension [Opentelemetry_Proto_Common_V1_KeyValue] {
     /// Create an array of key-value pairs from span attributes.
     ///
     /// - Parameter attributes: The span attributes to cast.

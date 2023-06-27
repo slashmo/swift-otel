@@ -21,13 +21,13 @@ extension ServiceContext {
     /// A stub integer value used for testing.
     public var stubValue: Int? {
         get {
-            return self[StubContextKey.self]
+            self[StubContextKey.self]
         }
         set {
             self[StubContextKey.self] = newValue
         }
     }
-    
+
     /// A top-level service context with `stubValue` set to the given value.
     ///
     /// - Parameter value: The value to use for ``stubValue``.

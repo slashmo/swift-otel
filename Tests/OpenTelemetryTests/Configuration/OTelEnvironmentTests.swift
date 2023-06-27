@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+import class Foundation.ProcessInfo
 import OpenTelemetry
 import XCTest
-import class Foundation.ProcessInfo
 
 final class OTelEnvironmentTests: XCTestCase {
     // MARK: - detected

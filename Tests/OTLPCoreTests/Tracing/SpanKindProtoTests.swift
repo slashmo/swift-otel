@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Tracing
 import OTLPCore
+import Tracing
 import XCTest
 
 final class SpanKindProtoTests: XCTestCase {

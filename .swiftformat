@@ -1,0 +1,14 @@
+# file options
+
+--swiftversion 5.9
+--exclude .build
+--exclude **/*.pb.swift
+--exclude **/*.grpc.swift
+
+# format options
+
+--extensionacl on-declarations
+--indent 4
+--patternlet inline
+--stripunusedargs closure-only
+--wraparguments before-first

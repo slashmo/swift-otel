@@ -16,7 +16,7 @@ import OpenTelemetry
 extension OTelTraceID {
     /// A trace ID stub with bytes from one to sixteen.
     public static let oneToSixteen = OTelTraceID(bytes: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
-    
+
     /// A trace ID stub with all bytes being zero.
     public static let allZeroes = OTelTraceID(bytes: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 }

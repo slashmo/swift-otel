@@ -15,14 +15,14 @@
 public struct OTelTraceFlags: OptionSet {
     /// The bit value representing the given flags.
     public let rawValue: UInt8
-    
+
     /// Create an ``OTelTraceFlags`` from the given bit value representation.
     ///
     /// - Parameter rawValue: The bit value representing zero or more trace flags.
     public init(rawValue: UInt8) {
         self.rawValue = rawValue
     }
-    
+
     /// Indicates whether a span is sampled.
     ///
     /// [W3C TraceContext: Sampled flag](https://www.w3.org/TR/trace-context-1/#sampled-flag)

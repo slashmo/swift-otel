@@ -15,9 +15,9 @@ import OpenTelemetry
 
 /// An in-memory span exporter, collecting exported batches into ``OTelInMemorySpanExporter/exportedBatches``.
 public final actor OTelInMemorySpanExporter: OTelSpanExporter {
-    private(set) public var exportedBatches = [[OTelFinishedSpan]]()
-    private(set) public var numberOfShutdowns = 0
-    private(set) public var numberOfForceFlushes = 0
+    public private(set) var exportedBatches = [[OTelFinishedSpan]]()
+    public private(set) var numberOfShutdowns = 0
+    public private(set) var numberOfForceFlushes = 0
 
     public init() {}
 

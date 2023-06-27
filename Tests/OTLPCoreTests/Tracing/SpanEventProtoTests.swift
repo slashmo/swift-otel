@@ -27,7 +27,7 @@ final class SpanEventProtoTests: XCTestCase {
                 .with {
                     $0.key = "test"
                     $0.value = .with { $0.intValue = 42 }
-                }
+                },
             ]
         })
     }

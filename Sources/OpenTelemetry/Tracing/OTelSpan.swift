@@ -131,11 +131,11 @@ public final class OTelSpan: Span {
         }
     }
 
-    public func recordError<Instant>(
+    public func recordError(
         _ error: Error,
         attributes: SpanAttributes,
-        at instant: @autoclosure () -> Instant
-    ) where Instant: TracerInstant {
+        at instant: @autoclosure () -> some TracerInstant
+    ) {
         switch underlying {
         case .noOp:
             break
@@ -155,7 +155,7 @@ public final class OTelSpan: Span {
         }
     }
 
-    public func end<Instant>(at instant: @autoclosure () -> Instant) where Instant: TracerInstant {
+    public func end(at instant: @autoclosure () -> some TracerInstant) {
         switch underlying {
         case .noOp:
             break
@@ -211,6 +211,7 @@ private final class OTelRecordingSpan: Span {
             operationNameLock.withWriterLock { _operationName = newValue }
         }
     }
+
     private var _operationName: String
     private let operationNameLock = ReadWriteLock()
 
@@ -222,6 +223,7 @@ private final class OTelRecordingSpan: Span {
             attributesLock.withWriterLock { _attributes = newValue }
         }
     }
+
     private var _attributes = SpanAttributes()
     private let attributesLock = ReadWriteLock()
 
@@ -254,9 +256,9 @@ private final class OTelRecordingSpan: Span {
         startTimeNanosecondsSinceEpoch: UInt64,
         onEnd: @escaping (OTelFinishedSpan) -> Void
     ) {
-        self._operationName = operationName
+        _operationName = operationName
         self.context = context
-        self._attributes = attributes
+        _attributes = attributes
         self.startTimeNanosecondsSinceEpoch = startTimeNanosecondsSinceEpoch
         self.onEnd = onEnd
     }

@@ -41,7 +41,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
         var generator = OTelRandomIDGenerator()
         var traceIDs = Set<OTelTraceID>()
 
-        for _ in 0 ..< 1_000 {
+        for _ in 0 ..< 1000 {
             let (inserted, traceID) = traceIDs.insert(generator.traceID())
 
             XCTAssertTrue(inserted, "Expected unique trace IDs, got duplicate: \(traceID)")
@@ -71,7 +71,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
         var generator = OTelRandomIDGenerator()
         var spanIDs = Set<OTelSpanID>()
 
-        for _ in 0 ..< 1_000 {
+        for _ in 0 ..< 1000 {
             let (inserted, spanID) = spanIDs.insert(generator.spanID())
 
             XCTAssertTrue(inserted, "Expected unique span IDs, got duplicate: \(spanID)")

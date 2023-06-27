@@ -30,7 +30,7 @@ public struct OTelParentBasedSampler: OTelSampler {
 
     /// The sampler invoked if a given span has a remote parent span that's sampled.
     public let remoteParentSampledSampler: any OTelSampler
-    
+
     /// The sampler invoked if a given span has a remote parent span that's not sampled.
     public let remoteParentNotSampledSampler: any OTelSampler
 

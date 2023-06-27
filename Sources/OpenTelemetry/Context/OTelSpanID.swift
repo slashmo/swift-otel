@@ -21,7 +21,7 @@ public struct OTelSpanID {
     ///
     /// - Parameter bytes: An 8-byte array representing the span ID.
     public init(bytes: Bytes) {
-        self._bytes = bytes
+        _bytes = bytes
     }
 
     /// 8-byte array representation of the span ID.
@@ -69,13 +69,13 @@ extension OTelSpanID: CustomStringConvertible {
 extension OTelSpanID: Equatable {
     public static func == (lhs: OTelSpanID, rhs: OTelSpanID) -> Bool {
         lhs._bytes.0 == rhs._bytes.0
-        && lhs._bytes.1 == rhs._bytes.1
-        && lhs._bytes.2 == rhs._bytes.2
-        && lhs._bytes.3 == rhs._bytes.3
-        && lhs._bytes.4 == rhs._bytes.4
-        && lhs._bytes.5 == rhs._bytes.5
-        && lhs._bytes.6 == rhs._bytes.6
-        && lhs._bytes.7 == rhs._bytes.7
+            && lhs._bytes.1 == rhs._bytes.1
+            && lhs._bytes.2 == rhs._bytes.2
+            && lhs._bytes.3 == rhs._bytes.3
+            && lhs._bytes.4 == rhs._bytes.4
+            && lhs._bytes.5 == rhs._bytes.5
+            && lhs._bytes.6 == rhs._bytes.6
+            && lhs._bytes.7 == rhs._bytes.7
     }
 }
 

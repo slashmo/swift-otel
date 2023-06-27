@@ -19,12 +19,12 @@ public struct OTelTraceState {
     public typealias Storage = [(vendor: String, value: String)]
 
     private var storage: Storage
-    
+
     /// Create a trace state with the given vendor-value pairs.
     ///
     /// - Parameter items: The vendor-value pairs stored in the trace state.
     public init(items: Storage) {
-        self.storage = items
+        storage = items
     }
 }
 

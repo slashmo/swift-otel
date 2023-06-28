@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "swift-otel",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v13),
     ],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
@@ -14,6 +14,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
 
         // MARK: - OTLP
 
@@ -31,6 +32,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
+                .product(name: "DequeModule", package: "swift-collections"),
             ]
         ),
         .testTarget(

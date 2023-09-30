@@ -15,7 +15,7 @@ jobs:
     container: ${{ matrix.images }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.0
       - name: Cache Swift PM
         uses: actions/cache@v3.3.1
         with:
@@ -34,7 +34,7 @@ jobs:
         working-directory: ./Examples/Basic
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.1.0
       - name: Install Swift
         uses: slashmo/install-swift@v0.4.0
         with:

@@ -117,3 +117,5 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
         try? await promise.futureResult.get()
     }
 }
+
+extension OTLPGRPCSpanExporterConfiguration: @unchecked Sendable {}

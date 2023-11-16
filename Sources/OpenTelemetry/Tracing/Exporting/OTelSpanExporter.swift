@@ -18,13 +18,13 @@
 /// ### Implementation Notes
 ///
 /// Implementations **MUST** throw ``OTelSpanExporterAlreadyShutDownError`` if the exporter was previously shut down via ``shutdown()``.
-public protocol OTelSpanExporter {
+public protocol OTelSpanExporter: Sendable {
     /// Export the given batch of spans.
     ///
     /// - Parameter batch: A batch of spans to export.
     /// - Throws: ``OTelSpanExporterAlreadyShutDownError`` if the exporter was previously shut down,
     /// or an implementation-specific error if exporting failed.
-    func export(_ batch: some Collection<OTelFinishedSpan>) async throws
+    func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async throws
 
     /// Force the span exporter to export any previously received spans as soon as possible.
     func forceFlush() async throws

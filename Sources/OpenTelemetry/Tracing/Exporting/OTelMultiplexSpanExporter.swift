@@ -22,7 +22,7 @@ public struct OTelMultiplexSpanExporter: OTelSpanExporter {
         self.exporters = exporters
     }
 
-    public func export(_ batch: some Collection<OTelFinishedSpan>) async throws {
+    public func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async throws {
         try await withThrowingTaskGroup(of: Void.self) { group in
             for exporter in exporters {
                 group.addTask { try await exporter.export(batch) }

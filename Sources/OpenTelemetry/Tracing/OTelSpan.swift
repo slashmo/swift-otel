@@ -200,7 +200,7 @@ public final class OTelSpan: Span {
     }
 }
 
-private final class OTelRecordingSpan: Span {
+private final class OTelRecordingSpan: Span, @unchecked Sendable {
     let context: ServiceContext
 
     var operationName: String {

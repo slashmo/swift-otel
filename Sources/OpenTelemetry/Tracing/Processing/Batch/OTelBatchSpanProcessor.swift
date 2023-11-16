@@ -107,7 +107,7 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProcess
         }
     }
 
-    private func export(_ spans: some Collection<OTelFinishedSpan>) async throws {
+    private func export(_ spans: some Collection<OTelFinishedSpan> & Sendable) async throws {
         try await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {
                 do {

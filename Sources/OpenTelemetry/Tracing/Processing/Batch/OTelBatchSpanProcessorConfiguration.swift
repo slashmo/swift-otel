@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 /// The configuration options for an ``OTelBatchSpanProcessor``.
-public struct OTelBatchSpanProcessorConfiguration {
+public struct OTelBatchSpanProcessorConfiguration: Sendable {
     /// The maximum queue size.
     ///
     /// - Warning: After this size is reached spans will be dropped.

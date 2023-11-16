@@ -21,7 +21,7 @@ import ServiceContextModule
 /// ### Implementation Notes
 ///
 /// On shutdown, processors forwarding spans to an ``OTelSpanExporter`` MUST shutdown that exporter.
-public protocol OTelSpanProcessor {
+public protocol OTelSpanProcessor: Sendable {
     /// Called whenever a new recording span was started.
     ///
     /// - Parameters:

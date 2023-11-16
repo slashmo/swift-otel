@@ -14,7 +14,7 @@
 import Tracing
 
 /// A read-only representation of an ended ``OTelSpan``.
-public struct OTelFinishedSpan {
+public struct OTelFinishedSpan: Sendable {
     /// The context of this span.
     public let spanContext: OTelSpanContext
 

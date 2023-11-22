@@ -17,6 +17,12 @@ using OpenTelemetry.
     An illustration showing a single trace comprised of 5 spans.
 }
 
+### Tracer
+
+@Links(visualStyle: list) {
+    - ``OTelTracer``
+}
+
 ### Span
 
 @Links(visualStyle: list) {
@@ -78,6 +84,8 @@ using OpenTelemetry.
 
 ### Tracing
 
+- ``OTelTracer``
+
 - ``OTelSpan``
 - ``OTelFinishedSpan``
 
@@ -107,6 +115,9 @@ using OpenTelemetry.
 - ``OTelRandomIDGenerator``
 - ``OTelTraceFlags``
 - ``OTelTraceState``
+- ``OTelPropagator``
+- ``OTelW3CPropagator``
+- ``OTelMultiplexPropagator``
 
 ### Configuration
 

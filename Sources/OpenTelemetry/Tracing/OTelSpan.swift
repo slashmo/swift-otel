@@ -185,6 +185,7 @@ public final class OTelSpan: Span {
         OTelSpan(underlying: .recording(
             OTelRecordingSpan(
                 operationName: operationName,
+                kind: kind,
                 context: context,
                 attributes: attributes,
                 startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
@@ -201,6 +202,7 @@ public final class OTelSpan: Span {
 }
 
 private final class OTelRecordingSpan: Span, @unchecked Sendable {
+    let kind: SpanKind
     let context: ServiceContext
 
     var operationName: String {
@@ -251,12 +253,14 @@ private final class OTelRecordingSpan: Span, @unchecked Sendable {
 
     init(
         operationName: String,
+        kind: SpanKind,
         context: ServiceContext,
         attributes: SpanAttributes,
         startTimeNanosecondsSinceEpoch: UInt64,
         onEnd: @escaping (OTelFinishedSpan) -> Void
     ) {
         _operationName = operationName
+        self.kind = kind
         self.context = context
         _attributes = attributes
         self.startTimeNanosecondsSinceEpoch = startTimeNanosecondsSinceEpoch
@@ -317,6 +321,22 @@ private final class OTelRecordingSpan: Span, @unchecked Sendable {
     }
 
     func end(at instant: @autoclosure () -> some TracerInstant) {
-        endTimeLock.withWriterLock { _endTimeNanosecondsSinceEpoch = instant().nanosecondsSinceEpoch }
+        let endTimeNanosecondsSinceEpoch = instant().nanosecondsSinceEpoch
+        endTimeLock.withWriterLock {
+            _endTimeNanosecondsSinceEpoch = endTimeNanosecondsSinceEpoch
+        }
+        guard let spanContext = context.spanContext else { return }
+        let finishedSpan = OTelFinishedSpan(
+            spanContext: spanContext,
+            operationName: operationName,
+            kind: kind,
+            status: status,
+            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
+            endTimeNanosecondsSinceEpoch: endTimeNanosecondsSinceEpoch,
+            attributes: attributes,
+            events: events,
+            links: links
+        )
+        onEnd(finishedSpan)
     }
 }

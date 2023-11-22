@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 import ServiceContextModule
 
 /// A span processor that simply forwards finished spans to a configured exporter, one at a time as soon as their ended.
@@ -23,6 +24,7 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
     private let exporter: Exporter
     private let stream: AsyncStream<OTelFinishedSpan>
     private let continuation: AsyncStream<OTelFinishedSpan>.Continuation
+    private let logger = Logger(label: "OTelSimpleSpanProcessor")
 
     /// Create a span processor immediately forwarding spans to the given exporter.
     ///
@@ -36,6 +38,7 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
     public func run() async throws {
         for try await span in stream.cancelOnGracefulShutdown() {
             do {
+                logger.trace("Received ended span.", metadata: ["span_id": "\(span.spanContext.spanID)"])
                 try await exporter.export([span])
             } catch {
                 // simple span processor does not attempt retries, so this is no-op

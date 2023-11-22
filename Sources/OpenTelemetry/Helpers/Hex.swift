@@ -20,4 +20,46 @@ enum Hex {
         UInt8(ascii: "8"), UInt8(ascii: "9"), UInt8(ascii: "a"), UInt8(ascii: "b"),
         UInt8(ascii: "c"), UInt8(ascii: "d"), UInt8(ascii: "e"), UInt8(ascii: "f"),
     ]
+
+    /// Convert the given ASCII bytes into bytes stored in the given target.
+    ///
+    /// - Warning: The target must be exactly half the size of the ASCII bytes.
+    ///
+    /// - Parameters:
+    ///   - ascii: The ASCII bytes to convert.
+    ///   - target: The pointer to store the converted bytes into.
+    public static func convert<T>(
+        _ ascii: T,
+        toBytes target: UnsafeMutableRawBufferPointer
+    ) where T: RandomAccessCollection, T.Element == UInt8 {
+        assert(ascii.count / 2 == target.count, "Target needs half as much space as ascii")
+
+        var source = ascii.makeIterator()
+        var targetIndex = 0
+
+        while let major = source.next(), let minor = source.next() {
+            var byte: UInt8 = 0
+
+            switch major {
+            case UInt8(ascii: "0") ... UInt8(ascii: "9"):
+                byte = (major - UInt8(ascii: "0")) << 4
+            case UInt8(ascii: "a") ... UInt8(ascii: "f"):
+                byte = (major - UInt8(ascii: "a") + 10) << 4
+            default:
+                preconditionFailure()
+            }
+
+            switch minor {
+            case UInt8(ascii: "0") ... UInt8(ascii: "9"):
+                byte |= (minor - UInt8(ascii: "0"))
+            case UInt8(ascii: "a") ... UInt8(ascii: "f"):
+                byte |= (minor - UInt8(ascii: "a") + 10)
+            default:
+                preconditionFailure()
+            }
+
+            target[targetIndex] = byte
+            targetIndex += 1
+        }
+    }
 }

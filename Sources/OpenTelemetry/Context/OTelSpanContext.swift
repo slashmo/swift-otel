@@ -28,7 +28,7 @@ public struct OTelSpanContext {
     public let traceFlags: OTelTraceFlags
 
     /// Additional vendor-specific trace identification information.
-    public let traceState: OTelTraceState?
+    public var traceState: OTelTraceState?
 
     /// Whether this span context belongs to a span that originated on a different service.
     public let isRemote: Bool

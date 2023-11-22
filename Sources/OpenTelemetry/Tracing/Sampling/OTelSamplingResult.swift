@@ -21,6 +21,11 @@ public struct OTelSamplingResult: Equatable {
     /// Additional attributes describing the sampling decision to be included in the span's attributes.
     public let attributes: SpanAttributes
 
+    init(decision: OTelSamplingResult.Decision, attributes: SpanAttributes = [:]) {
+        self.decision = decision
+        self.attributes = attributes
+    }
+
     /// A decision on whether a span should be recorded/sampled.
     ///
     /// | Decision | Received by processor(s) | Received by exporter(s) |

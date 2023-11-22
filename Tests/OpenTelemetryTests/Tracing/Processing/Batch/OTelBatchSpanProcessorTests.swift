@@ -26,7 +26,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         var sleeps = clock.sleepCalls.makeAsyncIterator()
         let processor = OTelBatchSpanProcessor(
             exporter: exporter,
-            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            configuration: .init(environment: [:], scheduleDelay: .seconds(2)),
             clock: clock
         )
 
@@ -60,7 +60,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         var sleeps = clock.sleepCalls.makeAsyncIterator()
         let processor = OTelBatchSpanProcessor(
             exporter: exporter,
-            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            configuration: .init(environment: [:], scheduleDelay: .seconds(2)),
             clock: clock
         )
 
@@ -93,7 +93,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         var sleeps = clock.sleepCalls.makeAsyncIterator()
         let processor = OTelBatchSpanProcessor(
             exporter: exporter,
-            configuration: .init(environment: [:], maximumQueueSize: 3, scheduleDelayInMilliseconds: 2000),
+            configuration: .init(environment: [:], maximumQueueSize: 3, scheduleDelay: .seconds(2)),
             clock: clock
         )
 
@@ -131,7 +131,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         var sleeps = clock.sleepCalls.makeAsyncIterator()
         let processor = OTelBatchSpanProcessor(
             exporter: exporter,
-            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            configuration: .init(environment: [:], scheduleDelay: .seconds(2)),
             clock: clock
         )
 
@@ -219,7 +219,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         var sleeps = clock.sleepCalls.makeAsyncIterator()
         let processor = OTelBatchSpanProcessor(
             exporter: exporter,
-            configuration: .init(environment: [:], exportTimeoutInMilliseconds: 1000),
+            configuration: .init(environment: [:], exportTimeout: .seconds(1)),
             clock: clock
         )
 

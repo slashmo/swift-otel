@@ -19,30 +19,30 @@ public struct OTelBatchSpanProcessorConfiguration: Sendable {
     public var maximumQueueSize: UInt
 
     /// The maximum delay between two consecutive span exports.
-    public var scheduleDelayInMilliseconds: UInt
+    public var scheduleDelay: Duration
 
     /// The maximum batch size of each export.
     ///
-    /// - Note: If the queue reaches this size, a batch will be exported even if ``scheduleDelayInMilliseconds`` have not elapsed.
+    /// - Note: If the queue reaches this size, a batch will be exported even if ``scheduleDelay`` has not elapsed.
     public var maximumExportBatchSize: UInt
 
-    /// The number of milliseconds a single export can run until it is cancelled.
-    public var exportTimeoutInMilliseconds: UInt
+    /// The duration a single export can run until it is cancelled.
+    public var exportTimeout: Duration
 
     /// Create a batch span processor configuration.
     ///
     /// - Parameters:
     ///   - environment: The environment variables.
     ///   - maximumQueueSize: A maximum queue size used even if `OTEL_BSP_MAX_QUEUE_SIZE` is set. Defaults to `2048` if both are `nil`.
-    ///   - scheduleDelayInMilliseconds: A schedule delay used even if `OTEL_BSP_SCHEDULE_DELAY` is set. Defaults to `5000` if both are `nil`.
+    ///   - scheduleDelay: A schedule delay used even if `OTEL_BSP_SCHEDULE_DELAY` is set. Defaults to `5` seconds if both are `nil`.
     ///   - maximumExportBatchSize: - maximumExportBatchSize: A maximum export batch size used even if `OTEL_BSP_MAX_EXPORT_BATCH_SIZE` is set. Defaults `512` if both are `nil`.
-    ///   - exportTimeoutInMilliseconds: An export timeout used even if `OTEL_BSP_EXPORT_TIMEOUT` is set. Defaults to `30000` if both are `nil`.
+    ///   - exportTimeout: An export timeout used even if `OTEL_BSP_EXPORT_TIMEOUT` is set. Defaults to `30` seconds if both are `nil`.
     public init(
         environment: OTelEnvironment,
         maximumQueueSize: UInt? = nil,
-        scheduleDelayInMilliseconds: UInt? = nil,
+        scheduleDelay: Duration? = nil,
         maximumExportBatchSize: UInt? = nil,
-        exportTimeoutInMilliseconds: UInt? = nil
+        exportTimeout: Duration? = nil
     ) {
         self.maximumQueueSize = environment.requiredValue(
             programmaticOverride: maximumQueueSize,
@@ -51,11 +51,14 @@ public struct OTelBatchSpanProcessorConfiguration: Sendable {
             transformValue: UInt.init
         )
 
-        self.scheduleDelayInMilliseconds = environment.requiredValue(
-            programmaticOverride: scheduleDelayInMilliseconds,
+        self.scheduleDelay = environment.requiredValue(
+            programmaticOverride: scheduleDelay,
             key: "OTEL_BSP_SCHEDULE_DELAY",
-            defaultValue: 5000,
-            transformValue: UInt.init
+            defaultValue: .seconds(5),
+            transformValue: {
+                guard let milliseconds = UInt($0) else { return nil }
+                return Duration.milliseconds(milliseconds)
+            }
         )
 
         self.maximumExportBatchSize = environment.requiredValue(
@@ -65,11 +68,14 @@ public struct OTelBatchSpanProcessorConfiguration: Sendable {
             transformValue: UInt.init
         )
 
-        self.exportTimeoutInMilliseconds = environment.requiredValue(
-            programmaticOverride: exportTimeoutInMilliseconds,
+        self.exportTimeout = environment.requiredValue(
+            programmaticOverride: exportTimeout,
             key: "OTEL_BSP_EXPORT_TIMEOUT",
-            defaultValue: 30000,
-            transformValue: UInt.init
+            defaultValue: .seconds(30),
+            transformValue: {
+                guard let milliseconds = UInt($0) else { return nil }
+                return Duration.milliseconds(milliseconds)
+            }
         )
     }
 }

@@ -55,6 +55,8 @@ using OpenTelemetry.
 ## Context Propagation
 
 @Links(visualStyle: list) {
+    - ``OTelPropagator``
+    - ``OTelW3CPropagator``
     - ``OTelSpanContext``
     - ``OTelTraceID``
     - ``OTelSpanID``

@@ -54,8 +54,7 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
     }
 
     public func run() async throws {
-        let interval = Duration.milliseconds(configuration.scheduleDelayInMilliseconds)
-        let timerSequence = AsyncTimerSequence(interval: interval, clock: clock).map { _ in }
+        let timerSequence = AsyncTimerSequence(interval: configuration.scheduleDelay, clock: clock).map { _ in }
         let mergedSequence = merge(timerSequence, explicitTickStream).cancelOnGracefulShutdown()
 
         for try await _ in mergedSequence where !buffer.isEmpty {
@@ -85,10 +84,7 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
                 }
 
                 group.addTask {
-                    try await Task.sleep(
-                        for: .milliseconds(self.configuration.exportTimeoutInMilliseconds),
-                        clock: self.clock
-                    )
+                    try await Task.sleep(for: self.configuration.exportTimeout, clock: self.clock)
                     self.logger.debug("Force flush timed out.")
                     throw CancellationError()
                 }
@@ -108,10 +104,7 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask { await self.export(batch) }
             group.addTask {
-                try await Task.sleep(
-                    for: .milliseconds(self.configuration.exportTimeoutInMilliseconds),
-                    clock: self.clock
-                )
+                try await Task.sleep(for: self.configuration.exportTimeout, clock: self.clock)
                 throw CancellationError()
             }
 

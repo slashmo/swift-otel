@@ -58,47 +58,47 @@ final class OTelBatchSpanProcessorConfigurationTests: XCTestCase {
         XCTAssertEqual(configuration.maximumQueueSize, 2048)
     }
 
-    // MARK: - scheduleDelayInMilliseconds
+    // MARK: - scheduleDelay
 
-    func test_scheduleDelayInMilliseconds_withProgrammaticOverride_usesProgrammaticOverride() {
+    func test_scheduleDelay_withProgrammaticOverride_usesProgrammaticOverride() {
         let environment = OTelEnvironment(values: [:])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            scheduleDelayInMilliseconds: 42
+            scheduleDelay: .milliseconds(42)
         )
 
-        XCTAssertEqual(configuration.scheduleDelayInMilliseconds, 42)
+        XCTAssertEqual(configuration.scheduleDelay, .milliseconds(42))
     }
 
-    func test_scheduleDelayInMilliseconds_withEnvironmentValue_usesEnvironmentValue() {
+    func test_scheduleDelay_withEnvironmentValue_usesEnvironmentValue() {
         let environment = OTelEnvironment(values: ["OTEL_BSP_SCHEDULE_DELAY": "42"])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            scheduleDelayInMilliseconds: nil
+            scheduleDelay: nil
         )
 
-        XCTAssertEqual(configuration.scheduleDelayInMilliseconds, 42)
+        XCTAssertEqual(configuration.scheduleDelay, .milliseconds(42))
     }
 
-    func test_scheduleDelayInMilliseconds_withProgrammaticOverrideAndEnvironmentValue_usesProgrammaticOverride() {
+    func test_scheduleDelay_withProgrammaticOverrideAndEnvironmentValue_usesProgrammaticOverride() {
         let environment = OTelEnvironment(values: ["OTEL_BSP_SCHEDULE_DELAY": "42"])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            scheduleDelayInMilliseconds: 84
+            scheduleDelay: .milliseconds(84)
         )
 
-        XCTAssertEqual(configuration.scheduleDelayInMilliseconds, 84)
+        XCTAssertEqual(configuration.scheduleDelay, .milliseconds(84))
     }
 
-    func test_scheduleDelayInMilliseconds_withoutConfiguration_usesDefaultValue() {
+    func test_scheduleDelay_withoutConfiguration_usesDefaultValue() {
         let environment = OTelEnvironment(values: [:])
 
         let configuration = OTelBatchSpanProcessorConfiguration(environment: environment)
 
-        XCTAssertEqual(configuration.scheduleDelayInMilliseconds, 5000)
+        XCTAssertEqual(configuration.scheduleDelay, .seconds(5))
     }
 
     // MARK: - maximumExportBatchSize
@@ -144,46 +144,46 @@ final class OTelBatchSpanProcessorConfigurationTests: XCTestCase {
         XCTAssertEqual(configuration.maximumExportBatchSize, 512)
     }
 
-    // MARK: - exportTimeoutInMilliseconds
+    // MARK: - exportTimeout
 
-    func test_exportTimeoutInMilliseconds_withProgrammaticOverride_usesProgrammaticOverride() {
+    func test_exportTimeout_withProgrammaticOverride_usesProgrammaticOverride() {
         let environment = OTelEnvironment(values: [:])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            exportTimeoutInMilliseconds: 42
+            exportTimeout: .milliseconds(42)
         )
 
-        XCTAssertEqual(configuration.exportTimeoutInMilliseconds, 42)
+        XCTAssertEqual(configuration.exportTimeout, .milliseconds(42))
     }
 
-    func test_exportTimeoutInMilliseconds_withEnvironmentValue_usesEnvironmentValue() {
+    func test_exportTimeout_withEnvironmentValue_usesEnvironmentValue() {
         let environment = OTelEnvironment(values: ["OTEL_BSP_EXPORT_TIMEOUT": "42"])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            exportTimeoutInMilliseconds: nil
+            exportTimeout: nil
         )
 
-        XCTAssertEqual(configuration.exportTimeoutInMilliseconds, 42)
+        XCTAssertEqual(configuration.exportTimeout, .milliseconds(42))
     }
 
-    func test_exportTimeoutInMilliseconds_withProgrammaticOverrideAndEnvironmentValue_usesProgrammaticOverride() {
+    func test_exportTimeout_withProgrammaticOverrideAndEnvironmentValue_usesProgrammaticOverride() {
         let environment = OTelEnvironment(values: ["OTEL_BSP_EXPORT_TIMEOUT": "42"])
 
         let configuration = OTelBatchSpanProcessorConfiguration(
             environment: environment,
-            exportTimeoutInMilliseconds: 84
+            exportTimeout: .milliseconds(84)
         )
 
-        XCTAssertEqual(configuration.exportTimeoutInMilliseconds, 84)
+        XCTAssertEqual(configuration.exportTimeout, .milliseconds(84))
     }
 
-    func test_exportTimeoutInMilliseconds_withoutConfiguration_usesDefaultValue() {
+    func test_exportTimeout_withoutConfiguration_usesDefaultValue() {
         let environment = OTelEnvironment(values: [:])
 
         let configuration = OTelBatchSpanProcessorConfiguration(environment: environment)
 
-        XCTAssertEqual(configuration.exportTimeoutInMilliseconds, 30000)
+        XCTAssertEqual(configuration.exportTimeout, .seconds(30))
     }
 }

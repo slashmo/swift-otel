@@ -24,6 +24,11 @@ public final actor OTelInMemorySpanProcessor: OTelSpanProcessor {
 
     public init() {}
 
+    public func run() async throws {
+        while !Task.isCancelled {}
+        numberOfShutdowns += 1
+    }
+
     public func onStart(_ span: OTelSpan, parentContext: ServiceContext) async {
         startedSpans.append((span, parentContext))
     }
@@ -34,9 +39,5 @@ public final actor OTelInMemorySpanProcessor: OTelSpanProcessor {
 
     public func forceFlush() async throws {
         numberOfForceFlushes += 1
-    }
-
-    public func shutdown() async throws {
-        numberOfShutdowns += 1
     }
 }

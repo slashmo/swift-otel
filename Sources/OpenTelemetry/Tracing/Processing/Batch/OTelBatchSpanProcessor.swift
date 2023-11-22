@@ -11,139 +11,139 @@
 //
 //===----------------------------------------------------------------------===//
 
+import AsyncAlgorithms
 import DequeModule
 import Logging
+import ServiceLifecycle
 
-/// A span processor that batches finished spans and forwards them to a configured exporter.
-///
-/// [OpenTelemetry Specification: Batching processor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#batching-processor)
-public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProcessor {
-    private let configuration: OTelBatchSpanProcessorConfiguration
-    private let exporter: Exporter
+public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurrency.Clock>:
+    OTelSpanProcessor,
+    Service,
+    CustomStringConvertible
+    where Clock.Duration == Duration
+{
+    public nonisolated let description = "OTelBatchSpanProcessor"
+
+    internal /* for testing */ private(set) var buffer: Deque<OTelFinishedSpan>
+
     private let logger = Logger(label: "OTelBatchSpanProcessor")
-    private var exportLoop: Task<Void, Never>?
+    private let exporter: Exporter
+    private let configuration: OTelBatchSpanProcessorConfiguration
+    private let clock: Clock
+    private let explicitTickStream: AsyncStream<Void>
+    private let explicitTick: AsyncStream<Void>.Continuation
+    private var batchID: UInt = 0
 
-    internal /* for testing */ private(set) var queue = Deque<OTelFinishedSpan>()
-
-    /// Create a batch span processor.
-    ///
-    /// - Parameters:
-    ///   - configuration: The configuration applied to this batch span processor instance.
-    ///   - exporter: The exporter to forward batches of ended spans to.
-    public init(configuration: OTelBatchSpanProcessorConfiguration, exportingTo exporter: Exporter) {
-        precondition(
-            configuration.maximumExportBatchSize <= configuration.maximumQueueSize,
-            """
-            The maximum export batch size (\(configuration.maximumExportBatchSize)) must be smaller than or equal to \
-            the maximum queue size (\(configuration.maximumQueueSize)).
-            """
-        )
-
-        self.configuration = configuration
+    @_spi(Testing)
+    public init(exporter: Exporter, configuration: OTelBatchSpanProcessorConfiguration, clock: Clock) {
         self.exporter = exporter
+        self.configuration = configuration
+        self.clock = clock
 
-        Task {
-            await startExportLoop()
+        buffer = Deque(minimumCapacity: Int(configuration.maximumQueueSize))
+        (explicitTickStream, explicitTick) = AsyncStream.makeStream()
+    }
+
+    public func onEnd(_ span: OTelFinishedSpan) {
+        guard span.spanContext.traceFlags.contains(.sampled) else { return }
+        buffer.append(span)
+
+        if buffer.count == configuration.maximumQueueSize {
+            explicitTick.yield()
         }
     }
 
-    public func onEnd(_ span: OTelFinishedSpan) async {
-        let queueSizeAfterInsertion = queue.count + 1
+    public func run() async throws {
+        let interval = Duration.milliseconds(configuration.scheduleDelayInMilliseconds)
+        let timerSequence = AsyncTimerSequence(interval: interval, clock: clock).map { _ in }
+        let mergedSequence = merge(timerSequence, explicitTickStream).cancelOnGracefulShutdown()
 
-        if queueSizeAfterInsertion < configuration.maximumQueueSize {
-            queue.append(span)
-        } else if queueSizeAfterInsertion == configuration.maximumQueueSize {
-            logger.trace("Exporting batch ahead of schedule because enough spans were accumulated.")
-            queue.append(span)
-            await exportBatch()
-            exportLoop?.cancel()
-            exportLoop = nil
-            startExportLoop()
-        } else {
-            logger.warning("Dropping span because the maximum queue size was reached.", metadata: [
-                "trace_id": "\(span.spanContext.traceID)",
-                "span_id": "\(span.spanContext.spanID)",
-                "operation_name": "\(span.operationName)",
-            ])
+        for try await _ in mergedSequence where !buffer.isEmpty {
+            await tick()
         }
+
+        logger.debug("Shutting down.")
+        try? await forceFlush()
+        await exporter.shutdown()
+        logger.debug("Shut down.")
     }
 
     public func forceFlush() async throws {
         let chunkSize = Int(configuration.maximumExportBatchSize)
-        let batches = stride(from: 0, to: queue.count, by: chunkSize).map {
-            queue[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), queue.count)]
+        let batches = stride(from: 0, to: buffer.count, by: chunkSize).map {
+            buffer[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), buffer.count)]
         }
-        logger.debug("Force flushing spans.")
 
-        queue.removeAll()
+        if !buffer.isEmpty {
+            logger.debug("Force flushing spans.", metadata: ["buffer_size": "\(buffer.count)"])
 
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            for batch in batches {
-                group.addTask { try await self.export(batch) }
-            }
+            buffer.removeAll()
 
-            try await group.waitForAll()
-        }
-    }
-
-    public func shutdown() async throws {
-        try await forceFlush()
-        await exporter.shutdown()
-    }
-
-    private func exportBatch() async {
-        guard !queue.isEmpty else { return }
-        let spans = queue.prefix(Int(configuration.maximumExportBatchSize))
-
-        /*
-         Spans are removed from the queue even if exporting them fails
-         because it's up to the individual span exporting to implement
-         retrying.
-         */
-        queue.removeFirst(spans.count)
-
-        Task {
-            try await export(spans)
-        }
-    }
-
-    private func export(_ spans: some Collection<OTelFinishedSpan> & Sendable) async throws {
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            group.addTask {
-                do {
-                    try await self.exporter.export(spans)
-                    self.logger.trace("Exported batch of spans.")
-                } catch {
-                    self.logger.error("Export failed.", metadata: [
-                        "error": "\(String(describing: type(of: error)))",
-                        "error_description": "\(error))",
-                    ])
+            await withThrowingTaskGroup(of: Void.self) { group in
+                for batch in batches {
+                    group.addTask { await self.export(batch) }
                 }
-            }
 
+                group.addTask {
+                    try await Task.sleep(
+                        for: .milliseconds(self.configuration.exportTimeoutInMilliseconds),
+                        clock: self.clock
+                    )
+                    self.logger.debug("Force flush timed out.")
+                    throw CancellationError()
+                }
+
+                try? await group.next()
+                group.cancelAll()
+            }
+        }
+
+        try await exporter.forceFlush()
+    }
+
+    private func tick() async {
+        let batch = buffer.prefix(Int(configuration.maximumExportBatchSize))
+        buffer.removeFirst(batch.count)
+
+        await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { await self.export(batch) }
             group.addTask {
-                try await Task.sleep(for: .milliseconds(self.configuration.exportTimeoutInMilliseconds))
-                self.logger.error("Exporter timed out.")
+                try await Task.sleep(
+                    for: .milliseconds(self.configuration.exportTimeoutInMilliseconds),
+                    clock: self.clock
+                )
                 throw CancellationError()
             }
 
-            guard try await group.next() != nil else {
-                throw CancellationError()
-            }
+            try? await group.next()
             group.cancelAll()
         }
     }
 
-    private func startExportLoop() {
-        exportLoop = Task {
-            while !Task.isCancelled {
-                do {
-                    try await Task.sleep(for: .milliseconds(configuration.scheduleDelayInMilliseconds))
-                    await exportBatch()
-                } catch {
-                    break
-                }
-            }
+    private func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async {
+        let batchID = batchID
+        self.batchID += 1
+
+        var exportLogger = logger
+        exportLogger[metadataKey: "batch_id"] = "\(batchID)"
+        exportLogger.trace("Export batch.", metadata: ["batch_size": "\(batch.count)"])
+
+        do {
+            try await exporter.export(batch)
+            exportLogger.trace("Exported batch.")
+        } catch is CancellationError {
+            exportLogger.debug("Export timed out.")
+        } catch {
+            exportLogger.debug("Failed to export batch.", metadata: [
+                "error": "\(String(describing: type(of: error)))",
+                "error_description": "\(error)",
+            ])
         }
+    }
+}
+
+extension OTelBatchSpanProcessor where Clock == ContinuousClock {
+    public init(exportingTo exporter: Exporter, configuration: OTelBatchSpanProcessorConfiguration) {
+        self.init(exporter: exporter, configuration: configuration, clock: .continuous)
     }
 }

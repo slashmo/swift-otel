@@ -18,6 +18,10 @@ public struct OTelNoOpSpanProcessor: OTelSpanProcessor {
     /// Initialize a no-op span processor.
     public init() {}
 
+    public func run() async throws {
+        while !Task.isCancelled {}
+    }
+
     public func onStart(_ span: OTelSpan, parentContext: ServiceContext) {
         // no-op
     }
@@ -27,10 +31,6 @@ public struct OTelNoOpSpanProcessor: OTelSpanProcessor {
     }
 
     public func forceFlush() async throws {
-        // no-op
-    }
-
-    public func shutdown() async throws {
         // no-op
     }
 }

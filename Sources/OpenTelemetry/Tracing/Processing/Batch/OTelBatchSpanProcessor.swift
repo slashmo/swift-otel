@@ -16,6 +16,9 @@ import DequeModule
 import Logging
 import ServiceLifecycle
 
+/// A span processor that batches finished spans and forwards them to a configured exporter.
+///
+/// [OpenTelemetry Specification: Batching processor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#batching-processor)
 public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurrency.Clock>:
     OTelSpanProcessor,
     Service,
@@ -136,6 +139,11 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
 }
 
 extension OTelBatchSpanProcessor where Clock == ContinuousClock {
+    /// Create a batch span processor exporting span batches via the given span exporter.
+    ///
+    /// - Parameters:
+    ///   - exporter: The span exporter to receive batched spans to export.
+    ///   - configuration: Further configuration parameters to tweak the batching behavior.
     public init(exportingTo exporter: Exporter, configuration: OTelBatchSpanProcessorConfiguration) {
         self.init(exporter: exporter, configuration: configuration, clock: .continuous)
     }

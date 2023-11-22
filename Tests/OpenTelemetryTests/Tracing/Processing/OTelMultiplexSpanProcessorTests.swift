@@ -11,8 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 import OpenTelemetry
 import OTelTesting
+import ServiceLifecycle
 import XCTest
 
 final class OTelMultiplexSpanProcessorTests: XCTestCase {
@@ -63,11 +65,22 @@ final class OTelMultiplexSpanProcessorTests: XCTestCase {
     }
 
     func test_shutdown_shutsDownAllProcessors() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
         let processor1 = OTelInMemorySpanProcessor()
         let processor2 = OTelInMemorySpanProcessor()
         let processor = OTelMultiplexSpanProcessor(processors: [processor1, processor2])
 
-        try await processor.shutdown()
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+
+        let finishExpectation = expectation(description: "Expected processor to finish shutting down.")
+        Task {
+            try await serviceGroup.run()
+            finishExpectation.fulfill()
+        }
+
+        try await Task.sleep(for: .milliseconds(100))
+        await serviceGroup.triggerGracefulShutdown()
+        await fulfillment(of: [finishExpectation])
 
         let processor1ShutdownCount = await processor1.numberOfShutdowns
         XCTAssertEqual(processor1ShutdownCount, 1)

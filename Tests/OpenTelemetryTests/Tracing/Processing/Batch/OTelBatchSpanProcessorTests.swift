@@ -11,242 +11,248 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
-@testable import OpenTelemetry
+@testable import Logging
+@_spi(Testing) import OpenTelemetry
 import OTelTesting
+import ServiceLifecycle
 import XCTest
 
 final class OTelBatchSpanProcessorTests: XCTestCase {
-    override func setUp() {
+    func test_onEnd_whenTicking_exportsNextBatch() async throws {
         LoggingSystem.bootstrapInternal(logLevel: .trace)
-    }
 
-    // MARK: - onEnd
-
-    func test_onEnd_withEmptyQueue_addsSpanToQueue() async throws {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 2,
-            scheduleDelayInMilliseconds: 10,
-            maximumExportBatchSize: 2
-        )
         let exporter = OTelStreamingSpanExporter()
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
-
-        let span = OTelFinishedSpan.stub(operationName: "test")
-        await processor.onEnd(span)
-
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["test"])
-        }
-
-        var batchesIterator = await exporter.batches.makeAsyncIterator()
-        guard let batch = await batchesIterator.next() else {
-            XCTFail()
-            return
-        }
-        XCTAssertEqual(batch.map(\.operationName), ["test"])
-
-        do {
-            let queue = await processor.queue
-            XCTAssertTrue(queue.isEmpty)
-        }
-    }
-
-    func test_onEnd_withNonEmptyQueue_appendsSpanToQueue() async {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 3,
-            scheduleDelayInMilliseconds: 10,
-            maximumExportBatchSize: 3
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            clock: clock
         )
-        let exporter = OTelStreamingSpanExporter()
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
-        let span1 = OTelFinishedSpan.stub(operationName: "span1")
+
+        let span1 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "1")
+        let span2 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "2")
+        let span3 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "3")
+
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
+        }
+
         await processor.onEnd(span1)
+        await processor.onEnd(span2)
+        await processor.onEnd(span3)
 
-        let span2 = OTelFinishedSpan.stub(operationName: "span2")
+        // await first sleep for "tick"
+        await sleeps.next()
+        clock.advance(by: .seconds(2))
+
+        var batches = await exporter.batches.makeAsyncIterator()
+        let batch = await batches.next()
+        XCTAssertEqual(try XCTUnwrap(batch).map(\.operationName), ["1", "2", "3"])
+    }
+
+    func test_onEnd_withUnsampledSpan_whenTicking_doesNotExportSpan() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
+
+        let exporter = OTelStreamingSpanExporter()
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            clock: clock
+        )
+
+        let span1 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "1")
+        let span2 = OTelFinishedSpan.stub(traceFlags: [], operationName: "2")
+
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
+        }
+
+        // add less than maximum queue size
+        await processor.onEnd(span1)
         await processor.onEnd(span2)
 
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["span1", "span2"])
-        }
+        // await first sleep for "tick"
+        await sleeps.next()
+        clock.advance(by: .seconds(2))
 
-        var batchesIterator = await exporter.batches.makeAsyncIterator()
-        guard let batch = await batchesIterator.next() else {
-            XCTFail()
-            return
-        }
-        XCTAssertEqual(batch.map(\.operationName), ["span1", "span2"])
-
-        do {
-            let queue = await processor.queue
-            XCTAssertTrue(queue.isEmpty)
-        }
+        var batches = await exporter.batches.makeAsyncIterator()
+        let batch = await batches.next()
+        XCTAssertEqual(try XCTUnwrap(batch).map(\.operationName), ["1"])
     }
 
-    func test_onEnd_completelyFillingQueue_exportsBatchAheadOfTime() async throws {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 2,
-            maximumExportBatchSize: 2
-        )
-        let exporter = OTelStreamingSpanExporter()
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
-        let span1 = OTelFinishedSpan.stub(operationName: "span1")
-        await processor.onEnd(span1)
+    func test_onEnd_whenReachingMaximumQueueSize_triggersExplicitExportOfNextBatch() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
 
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["span1"])
+        let exporter = OTelStreamingSpanExporter()
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], maximumQueueSize: 3, scheduleDelayInMilliseconds: 2000),
+            clock: clock
+        )
+
+        let span1 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "1")
+        let span2 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "2")
+        let span3 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "3")
+
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
         }
 
-        let span2 = OTelFinishedSpan.stub(operationName: "span2")
+        // add less than maximum queue size
+        await processor.onEnd(span1)
         await processor.onEnd(span2)
 
-        var batchesIterator = await exporter.batches.makeAsyncIterator()
-        guard let batch = await batchesIterator.next() else {
-            XCTFail()
-            return
-        }
-        XCTAssertEqual(batch.map(\.operationName), ["span1", "span2"])
+        // await first sleep for "tick" but don't advance clock
+        await sleeps.next()
 
-        do {
-            let queue = await processor.queue
-            XCTAssertTrue(queue.isEmpty)
-        }
+        // add final span to reach maximum queue size
+        await processor.onEnd(span3)
+
+        var batches = await exporter.batches.makeAsyncIterator()
+        let batch = await batches.next()
+        XCTAssertEqual(try XCTUnwrap(batch).map(\.operationName), ["1", "2", "3"])
     }
 
-    func test_onEnd_whenGoingPastExportTimeout_cancelsExport() async {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 2,
-            maximumExportBatchSize: 2,
-            exportTimeoutInMilliseconds: 1
+    func test_onEnd_whenExportFails_keepsExportingFutureSpans() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
+
+        struct TestError: Error {}
+        let exporter = OTelStreamingSpanExporter()
+
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], scheduleDelayInMilliseconds: 2000),
+            clock: clock
         )
-        let exporter = OTelStreamingSpanExporter(exportDelayInNanoseconds: 1_000_000_000)
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
-        let span1 = OTelFinishedSpan.stub(operationName: "span1")
+
+        let span1 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "1")
+        let span2 = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "2")
+
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
+        }
+
+        await exporter.setErrorDuringNextExport(TestError())
         await processor.onEnd(span1)
 
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["span1"])
-        }
+        // await sleep for first "tick"
+        await sleeps.next()
+        clock.advance(by: .seconds(2))
+        // await sleep for export timeout
+        await sleeps.next()
 
-        let span2 = OTelFinishedSpan.stub(operationName: "span2")
+        var batches = await exporter.batches.makeAsyncIterator()
+        let failedBatch = await batches.next()
+        XCTAssertEqual(try XCTUnwrap(failedBatch).map { $0.map(\.operationName) }, ["1"])
+
         await processor.onEnd(span2)
 
-        var errorsIterator = await exporter.errors.makeAsyncIterator()
-        guard let error = await errorsIterator.next() else {
-            XCTFail()
-            return
-        }
-        XCTAssertTrue(error is CancellationError)
+        // await sleep for second "tick"
+        await sleeps.next()
+        clock.advance(by: .seconds(2))
+        // await sleep for export timeout
+        await sleeps.next()
 
-        do {
-            let queue = await processor.queue
-            XCTAssertTrue(queue.isEmpty)
-        }
+        let successfulBatch = await batches.next()
+        XCTAssertEqual(try XCTUnwrap(successfulBatch).map { $0.map(\.operationName) }, ["2"])
     }
 
-    // MARK: - forceFlush
+    func test_run_onGracefulShutdown_forceFlushesRemainingSpans_shutsDownExporter() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
 
-    func test_forceFlush_withNonEmptyQueue_exportsBatchAheadOfTime() async throws {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 10 /* high enough to not cause immediate export */,
-            scheduleDelayInMilliseconds: 1000 /* high enough to not cause scheduled export */,
-            maximumExportBatchSize: 2
+        let exporter = OTelInMemorySpanExporter()
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], maximumExportBatchSize: 2),
+            clock: clock
         )
-        let exporter = OTelStreamingSpanExporter()
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
 
-        let span1 = OTelFinishedSpan.stub(operationName: "span1")
-        let span2 = OTelFinishedSpan.stub(operationName: "span2")
-        let span3 = OTelFinishedSpan.stub(operationName: "span3")
-        let span4 = OTelFinishedSpan.stub(operationName: "span4")
-        let span5 = OTelFinishedSpan.stub(operationName: "span5")
-
-        for span in [span1, span2, span3, span4, span5] {
+        for i in 1 ... 3 {
+            let span = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "\(i)")
             await processor.onEnd(span)
         }
 
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["span1", "span2", "span3", "span4", "span5"])
+        let finishExpectation = expectation(description: "Expected processor to finish shutting down.")
+
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
+            finishExpectation.fulfill()
         }
 
-        try await processor.forceFlush()
+        // await first sleep for "tick" before triggering graceful shutdown
+        await sleeps.next()
+        await serviceGroup.triggerGracefulShutdown()
 
-        var batchesIterator = await exporter.batches.makeAsyncIterator()
-        guard let batch1 = await batchesIterator.next(),
-              let batch2 = await batchesIterator.next(),
-              let batch3 = await batchesIterator.next()
-        else {
-            XCTFail()
-            return
-        }
+        await fulfillment(of: [finishExpectation])
 
-        let batches = [batch1, batch2, batch3]
+        let exportedBatches = await exporter.exportedBatches
+        XCTAssertEqual(
+            exportedBatches.map { $0.map(\.operationName) }.sorted(by: { $0.count > $1.count }),
+            [["1", "2"], ["3"]]
+        )
 
-        XCTAssertTrue(batches.contains(where: { $0.map(\.operationName) == ["span1", "span2"] }))
-        XCTAssertTrue(batches.contains(where: { $0.map(\.operationName) == ["span3", "span4"] }))
-        XCTAssertTrue(batches.contains(where: { $0.map(\.operationName) == ["span5"] }))
-
-        do {
-            let queue = await processor.queue
-            print(queue.count)
-            XCTAssertTrue(queue.isEmpty)
-        }
+        let numberOfExporterForceFlushes = await exporter.numberOfForceFlushes
+        XCTAssertEqual(numberOfExporterForceFlushes, 1)
+        let numberOfExporterShutdowns = await exporter.numberOfShutdowns
+        XCTAssertEqual(numberOfExporterShutdowns, 1)
     }
 
-    // MARK: - shutDown
+    func test_run_onGracefulShutdown_whenForceFlushTimesOut_shutsDownExporter() async throws {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
 
-    func test_shutDown_withNonEmptyQueue_forceFlushesAndShutsDownExporter() async throws {
-        let configuration = OTelBatchSpanProcessorConfiguration(
-            environment: [:],
-            maximumQueueSize: 10 /* high enough to not cause immediate export */,
-            scheduleDelayInMilliseconds: 1000 /* high enough to not cause scheduled export */,
-            maximumExportBatchSize: 1
+        let exporter = OTelInMemorySpanExporter(exportDelay: .seconds(5))
+        let clock = TestClock()
+        var sleeps = clock.sleepCalls.makeAsyncIterator()
+        let processor = OTelBatchSpanProcessor(
+            exporter: exporter,
+            configuration: .init(environment: [:], exportTimeoutInMilliseconds: 1000),
+            clock: clock
         )
-        let exporter = OTelStreamingSpanExporter()
-        let processor = OTelBatchSpanProcessor(configuration: configuration, exportingTo: exporter)
 
-        let span1 = OTelFinishedSpan.stub(operationName: "span1")
-        let span2 = OTelFinishedSpan.stub(operationName: "span2")
-        await processor.onEnd(span1)
-        await processor.onEnd(span2)
-
-        do {
-            let queue = await processor.queue
-            XCTAssertEqual(queue.map(\.operationName), ["span1", "span2"])
+        for _ in 1 ... 100 {
+            let span = OTelFinishedSpan.stub(traceFlags: .sampled)
+            await processor.onEnd(span)
         }
 
-        try await processor.shutdown()
+        let finishExpectation = expectation(description: "Expected processor to finish shutting down.")
 
-        let numberOfShutdowns = await exporter.numberOfShutdowns
-        XCTAssertEqual(numberOfShutdowns, 1)
-
-        var batchesIterator = await exporter.batches.makeAsyncIterator()
-        guard let batch1 = await batchesIterator.next(),
-              let batch2 = await batchesIterator.next()
-        else {
-            XCTFail()
-            return
+        let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
+        Task {
+            try await serviceGroup.run()
+            finishExpectation.fulfill()
         }
 
-        let batches = [batch1, batch2]
+        // await first sleep for "tick" before triggering graceful shutdown
+        await sleeps.next()
+        await serviceGroup.triggerGracefulShutdown()
 
-        XCTAssertTrue(batches.contains(where: { $0.map(\.operationName) == ["span1"] }))
-        XCTAssertTrue(batches.contains(where: { $0.map(\.operationName) == ["span2"] }))
+        // await flush timeout sleep
+        await sleeps.next()
+        // advance past flush timeout
+        clock.advance(by: .seconds(2))
 
-        do {
-            let queue = await processor.queue
-            print(queue.count)
-            XCTAssertTrue(queue.isEmpty)
-        }
+        await fulfillment(of: [finishExpectation])
+
+        let exportedBatches = await exporter.exportedBatches
+        XCTAssertTrue(exportedBatches.isEmpty)
+
+        let numberOfExporterForceFlushes = await exporter.numberOfForceFlushes
+        XCTAssertEqual(numberOfExporterForceFlushes, 1)
+        let numberOfExporterShutdowns = await exporter.numberOfShutdowns
+        XCTAssertEqual(numberOfExporterShutdowns, 1)
     }
 }

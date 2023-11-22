@@ -21,6 +21,8 @@ import ServiceContextModule
 /// to the exporter at once.
 public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProcessor {
     private let exporter: Exporter
+    private let stream: AsyncStream<OTelFinishedSpan>
+    private let continuation: AsyncStream<OTelFinishedSpan>.Continuation
 
     /// Create a span processor immediately forwarding spans to the given exporter.
     ///
@@ -28,6 +30,17 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
     /// On processor shutdown this exporter will also automatically be shut down.
     public init(exportingTo exporter: Exporter) {
         self.exporter = exporter
+        (stream, continuation) = AsyncStream.makeStream()
+    }
+
+    public func run() async throws {
+        for try await span in stream.cancelOnGracefulShutdown() {
+            do {
+                try await exporter.export([span])
+            } catch {
+                // simple span processor does not attempt retries, so this is no-op
+            }
+        }
     }
 
     public func onStart(_ span: OTelSpan, parentContext: ServiceContext) {
@@ -36,14 +49,7 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
 
     public func onEnd(_ span: OTelFinishedSpan) {
         guard span.spanContext.traceFlags.contains(.sampled) else { return }
-
-        Task {
-            do {
-                try await exporter.export([span])
-            } catch {
-                // simple span processor does not attempt retries, so this is no-op
-            }
-        }
+        continuation.yield(span)
     }
 
     public func forceFlush() async throws {

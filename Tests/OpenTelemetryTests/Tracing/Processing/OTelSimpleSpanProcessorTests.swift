@@ -17,20 +17,21 @@ import XCTest
 
 final class OTelSimpleSpanProcessorTests: XCTestCase {
     func test_onEnd_withSampledSpan_forwardsSampledSpanToExporter() async throws {
-        let exporter = OTelInMemorySpanExporter()
+        let exporter = OTelStreamingSpanExporter()
         let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+
+        Task {
+            try await processor.run()
+        }
 
         let span = OTelFinishedSpan.stub(traceFlags: .sampled, operationName: "test")
         processor.onEnd(span)
 
-        // wait for exporter to be invoked asynchronously
-        try await Task.sleep(for: .milliseconds(100))
+        // wait for batch to be exported
+        var exportedBatchess = await exporter.batches.makeAsyncIterator()
+        let batch = await exportedBatchess.next()
 
-        let exportedBatches = await exporter.exportedBatches
-        XCTAssertEqual(exportedBatches.count, 1)
-
-        let batch = try XCTUnwrap(exportedBatches.first)
-        XCTAssertEqual(batch.map(\.operationName), ["test"])
+        XCTAssertEqual(try XCTUnwrap(batch).map(\.operationName), ["test"])
     }
 
     func test_onEnd_withNonSampledSpan_doesNotForwardSpanToExporter() async throws {

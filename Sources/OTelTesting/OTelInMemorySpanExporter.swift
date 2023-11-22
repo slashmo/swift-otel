@@ -19,9 +19,16 @@ public final actor OTelInMemorySpanExporter: OTelSpanExporter {
     public private(set) var numberOfShutdowns = 0
     public private(set) var numberOfForceFlushes = 0
 
-    public init() {}
+    private let exportDelay: Duration
+
+    public init(exportDelay: Duration = .zero) {
+        self.exportDelay = exportDelay
+    }
 
     public func export(_ batch: some Collection<OTelFinishedSpan>) async throws {
+        if exportDelay != .zero {
+            try await Task.sleep(for: exportDelay)
+        }
         exportedBatches.append(Array(batch))
     }
 

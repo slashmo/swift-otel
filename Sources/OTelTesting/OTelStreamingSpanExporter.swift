@@ -17,27 +17,24 @@ import OpenTelemetry
 public final actor OTelStreamingSpanExporter: OTelSpanExporter {
     public let batches: AsyncStream<[OTelFinishedSpan]>
     private let batchContinuation: AsyncStream<[OTelFinishedSpan]>.Continuation
-
-    public let errors: AsyncStream<any Error>
-    private let errorContinuation: AsyncStream<any Error>.Continuation
-
-    private let exportDelayInNanoseconds: UInt64
+    private var errorDuringNextExport: (any Error)?
 
     public private(set) var numberOfShutdowns = 0
     public private(set) var numberOfForceFlushes = 0
 
-    public init(exportDelayInNanoseconds: UInt64 = 0) {
-        self.exportDelayInNanoseconds = exportDelayInNanoseconds
+    public init() {
         (batches, batchContinuation) = AsyncStream<[OTelFinishedSpan]>.makeStream()
-        (errors, errorContinuation) = AsyncStream<any Error>.makeStream()
+    }
+
+    public func setErrorDuringNextExport(_ error: some Error) {
+        errorDuringNextExport = error
     }
 
     public func export(_ batch: some Collection<OTelFinishedSpan>) async throws {
-        do {
-            try await Task.sleep(nanoseconds: exportDelayInNanoseconds)
-            batchContinuation.yield(Array(batch))
-        } catch {
-            errorContinuation.yield(error)
+        batchContinuation.yield(Array(batch))
+        if let errorDuringNextExport {
+            self.errorDuringNextExport = nil
+            throw errorDuringNextExport
         }
     }
 

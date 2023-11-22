@@ -15,7 +15,7 @@
 import OTelTesting
 import XCTest
 
-final class W3CPropagatorTests: XCTestCase {
+final class OTelW3CPropagatorTests: XCTestCase {
     private let propagator = OTelW3CPropagator()
     private let injector = DictionaryInjector()
     private let extractor = DictionaryExtractor()

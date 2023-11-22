@@ -57,6 +57,7 @@ using OpenTelemetry.
 @Links(visualStyle: list) {
     - ``OTelPropagator``
     - ``OTelW3CPropagator``
+    - ``OTelMultiplexPropagator``
     - ``OTelSpanContext``
     - ``OTelTraceID``
     - ``OTelSpanID``

@@ -7,6 +7,7 @@ let package = Package(
     name: "swift-otel",
     platforms: [
         .macOS(.v13),
+        .iOS(.v16),
     ],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),

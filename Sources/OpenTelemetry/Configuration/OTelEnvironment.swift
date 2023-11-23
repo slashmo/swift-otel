@@ -20,7 +20,7 @@
 import Foundation
 
 /// A wrapper for reading environment values.
-public struct OTelEnvironment {
+public struct OTelEnvironment: Sendable {
     /// The key-value pairs in the environment.
     public let values: [String: String]
 
@@ -77,7 +77,7 @@ public struct OTelEnvironment {
     ///   - key: The environment key for the configuration value.
     ///   - transformValue: A closure transforming an environment value into the given type.
     /// - Returns: The configuration value with the highest specificity, or `nil` if the value was not configured.
-    /// - Throws: ``OTelEnvironmentValueError`` is an environment value could not be transformed into the given type.
+    /// - Throws: ``OTelEnvironmentValueError`` if an environment value could not be transformed into the given type.
     public func value<T>(
         programmaticOverride: T?,
         key: String,

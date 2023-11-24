@@ -154,13 +154,19 @@ extension OTelTracer: Service {
 
                 group.addTask {
                     for await event in self.eventStream {
-                        switch event {
-                        case .spanStarted(let span, let parentContext):
-                            await self.processor.onStart(span, parentContext: parentContext)
-                        case .spanEnded(let span):
-                            await self.processor.onEnd(span)
-                        case .forceFlushed:
-                            try? await self.processor.forceFlush()
+                        /*
+                         We don't want to propagate the current span's service context into
+                         processing or exporting since it's not part of the span's scope.
+                         */
+                        await ServiceContext.$current.withValue(nil) {
+                            switch event {
+                            case .spanStarted(let span, let parentContext):
+                                await self.processor.onStart(span, parentContext: parentContext)
+                            case .spanEnded(let span):
+                                await self.processor.onEnd(span)
+                            case .forceFlushed:
+                                try? await self.processor.forceFlush()
+                            }
                         }
                     }
 

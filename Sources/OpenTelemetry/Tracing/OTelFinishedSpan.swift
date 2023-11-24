@@ -36,6 +36,9 @@ public struct OTelFinishedSpan: Sendable {
     /// The attributes added to the span.
     public let attributes: SpanAttributes
 
+    /// The resource this span instrumented.
+    public let resource: OTelResource
+
     /// The events added to the span.
     public let events: [SpanEvent]
 

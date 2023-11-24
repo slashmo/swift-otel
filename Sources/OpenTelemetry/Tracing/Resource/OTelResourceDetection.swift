@@ -16,7 +16,7 @@ import Logging
 import Tracing
 
 /// Configures how to detect attributes describing the resource being instrumented.
-public enum OTelResourceDetection {
+public enum OTelResourceDetection: Sendable {
     /// Automatically detect resource attributes based on the process, the `OTEL_RESOURCE_ATTRIBUTES` environment variable,
     /// and any given additional detectors.
     ///
@@ -31,7 +31,7 @@ public enum OTelResourceDetection {
 
     @_spi(Testing)
     public func resource(
-        processDetector: OTelProcessResourceDetector,
+        processDetector: OTelProcessResourceDetector = OTelProcessResourceDetector(),
         environmentDetector: OTelEnvironmentResourceDetector,
         logger: Logger
     ) async -> OTelResource {

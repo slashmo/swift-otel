@@ -81,13 +81,13 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
             logger.error("Attempted to export batch while already being shut down.")
             throw OTelSpanExporterAlreadyShutDownError()
         }
+        guard let firstSpanResource = batch.first?.resource else { return }
 
         let request = Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest.with { request in
             request.resourceSpans = [
                 .with { resourceSpans in
-                    // TODO: Add resource
                     resourceSpans.resource = .with { resource in
-                        resource.attributes = .init(["service.name": "test"])
+                        resource.attributes = .init(firstSpanResource.attributes)
                     }
 
                     resourceSpans.scopeSpans = [

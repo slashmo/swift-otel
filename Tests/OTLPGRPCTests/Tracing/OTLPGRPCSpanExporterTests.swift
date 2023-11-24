@@ -56,7 +56,7 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
 
     func test_export_withCustomHeaders_includesCustomHeadersInExportRequest() async throws {
         let collector = OTLPGRPCTraceCollectorMock(group: group)
-        let span = OTelFinishedSpan.stub()
+        let span = OTelFinishedSpan.stub(resource: OTelResource(attributes: ["service.name": "test"]))
 
         try await collector.withServer { endpoint in
             let configuration = try OTLPGRPCSpanExporterConfiguration(

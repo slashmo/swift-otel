@@ -30,6 +30,7 @@ extension OTelFinishedSpan {
     ///   - startTimeNanosecondsSinceEpoch: Defaults to `0`.
     ///   - endTimeNanosecondsSinceEpoch: Defaults to `0`,
     ///   - attributes: Defaults to no attributes.
+    ///   - resource: Defaults to an empty resource.
     ///   - events: Defaults to no events.
     ///   - links: Defaults to no links.
     ///
@@ -47,6 +48,7 @@ extension OTelFinishedSpan {
         startTimeNanosecondsSinceEpoch: UInt64 = 0,
         endTimeNanosecondsSinceEpoch: UInt64 = 0,
         attributes: SpanAttributes = [:],
+        resource: OTelResource = OTelResource(),
         events: [SpanEvent] = [],
         links: [SpanLink] = []
     ) -> OTelFinishedSpan {
@@ -66,6 +68,7 @@ extension OTelFinishedSpan {
             startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
             endTimeNanosecondsSinceEpoch: endTimeNanosecondsSinceEpoch,
             attributes: attributes,
+            resource: resource,
             events: events,
             links: links
         )

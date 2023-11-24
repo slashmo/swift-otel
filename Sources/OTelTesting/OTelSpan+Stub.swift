@@ -44,7 +44,7 @@ extension OTelSpan {
         spanContext: OTelSpanContext = .stub(),
         attributes: SpanAttributes = [:],
         startTimeNanosecondsSinceEpoch: UInt64 = 0,
-        onEnd: @escaping (OTelFinishedSpan) -> Void = { _ in }
+        onEnd: @escaping (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void = { _, _ in }
     ) -> OTelSpan {
         .recording(
             operationName: operationName,

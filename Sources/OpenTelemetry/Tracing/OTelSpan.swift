@@ -180,7 +180,7 @@ public final class OTelSpan: Span {
         spanContext: OTelSpanContext,
         attributes: SpanAttributes,
         startTimeNanosecondsSinceEpoch: UInt64,
-        onEnd: @escaping (OTelFinishedSpan) -> Void
+        onEnd: @escaping (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
     ) -> OTelSpan {
         OTelSpan(underlying: .recording(
             OTelRecordingSpan(
@@ -201,7 +201,7 @@ public final class OTelSpan: Span {
     }
 }
 
-private final class OTelRecordingSpan: Span, @unchecked Sendable {
+final class OTelRecordingSpan: Span, @unchecked Sendable {
     let kind: SpanKind
     let context: ServiceContext
 
@@ -247,7 +247,7 @@ private final class OTelRecordingSpan: Span, @unchecked Sendable {
     private var _endTimeNanosecondsSinceEpoch: UInt64?
     private let endTimeLock = ReadWriteLock()
 
-    private let onEnd: (OTelFinishedSpan) -> Void
+    private let onEnd: (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
 
     var isRecording: Bool { endTimeNanosecondsSinceEpoch == nil }
 
@@ -257,7 +257,7 @@ private final class OTelRecordingSpan: Span, @unchecked Sendable {
         context: ServiceContext,
         attributes: SpanAttributes,
         startTimeNanosecondsSinceEpoch: UInt64,
-        onEnd: @escaping (OTelFinishedSpan) -> Void
+        onEnd: @escaping (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
     ) {
         _operationName = operationName
         self.kind = kind
@@ -325,18 +325,6 @@ private final class OTelRecordingSpan: Span, @unchecked Sendable {
         endTimeLock.withWriterLock {
             _endTimeNanosecondsSinceEpoch = endTimeNanosecondsSinceEpoch
         }
-        guard let spanContext = context.spanContext else { return }
-        let finishedSpan = OTelFinishedSpan(
-            spanContext: spanContext,
-            operationName: operationName,
-            kind: kind,
-            status: status,
-            startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
-            endTimeNanosecondsSinceEpoch: endTimeNanosecondsSinceEpoch,
-            attributes: attributes,
-            events: events,
-            links: links
-        )
-        onEnd(finishedSpan)
+        onEnd(self, endTimeNanosecondsSinceEpoch)
     }
 }

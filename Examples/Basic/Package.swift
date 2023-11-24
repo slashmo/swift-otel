@@ -3,10 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-otel-basic",
-    platforms: [
-        .macOS(.v13),
-        .iOS(.v16),
-    ],
+    platforms: [.macOS(.v13)],
     products: [
         .executable(name: "example", targets: ["Example"]),
     ],

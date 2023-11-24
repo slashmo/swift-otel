@@ -5,10 +5,7 @@ let sharedSwiftSettings: [SwiftSetting] = [.enableExperimentalFeature("StrictCon
 
 let package = Package(
     name: "swift-otel",
-    platforms: [
-        .macOS(.v13),
-        .iOS(.v16),
-    ],
+    platforms: [.macOS(.v13)],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
         .library(name: "OTLP", targets: ["OTLP"]),

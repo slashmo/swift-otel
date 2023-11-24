@@ -1,0 +1,67 @@
+name: "CI"
+on: [push, pull_request]
+jobs:
+  soundness:
+    name: Soundness Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+
+      - name: Bootstrap Mint
+        uses: irgaly/setup-mint@v1
+
+      - name: Run soundness
+        run: |
+          scripts/soundness.sh
+          exit $(git status --porcelain | wc -l)
+
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: [5.9, latest]
+
+    steps:
+      - name: Install Swift
+        uses: vapor/swiftly-action@v0.1
+        with:
+          toolchain: ${{ matrix.swift }}
+
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+
+      - name: Cache Swift PM
+        uses: actions/cache@v3.3.2
+        with:
+          path: .build
+          key: ${{ runner.os }}-${{ matrix.swift }}-spm-${{ hashFiles('Package.swift') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.swift }}-spm-
+
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+
+      - name: Run Unit Tests
+        run: swift test --parallel
+
+  compile-basic-example:
+    name: Compile Basic Example
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Examples/Basic
+    steps:
+      - name: Install Swift
+        uses: vapor/swiftly-action@v0.1
+        with:
+          toolchain: latest
+      - name: Checkout
+        uses: actions/checkout@v4.1.0
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+      - name: Build
+        run: swift build

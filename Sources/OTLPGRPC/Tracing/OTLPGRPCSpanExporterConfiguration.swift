@@ -15,7 +15,7 @@ import NIOHPACK
 import OpenTelemetry
 
 /// Configuration of an ``OTLPGRPCSpanExporter``.
-public struct OTLPGRPCSpanExporterConfiguration {
+public struct OTLPGRPCSpanExporterConfiguration: Sendable {
     let endpoint: OTLPGRPCEndpoint
     let headers: HPACKHeaders
 

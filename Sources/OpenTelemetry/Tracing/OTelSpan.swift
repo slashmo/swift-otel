@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import NIOConcurrencyHelpers
 import Tracing
 
 /// A distributed tracing span, conforming to the [OpenTelemetry specification](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/api.md#span).
@@ -180,7 +181,7 @@ public final class OTelSpan: Span {
         spanContext: OTelSpanContext,
         attributes: SpanAttributes,
         startTimeNanosecondsSinceEpoch: UInt64,
-        onEnd: @escaping (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
+        onEnd: @escaping @Sendable (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
     ) -> OTelSpan {
         OTelSpan(underlying: .recording(
             OTelRecordingSpan(
@@ -201,53 +202,47 @@ public final class OTelSpan: Span {
     }
 }
 
-final class OTelRecordingSpan: Span, @unchecked Sendable {
+final class OTelRecordingSpan: Span, Sendable {
     let kind: SpanKind
     let context: ServiceContext
 
     var operationName: String {
         get {
-            operationNameLock.withReaderLock { _operationName }
+            _operationName.withLockedValue { $0 }
         }
         set {
-            operationNameLock.withWriterLock { _operationName = newValue }
+            _operationName.withLockedValue { $0 = newValue }
         }
     }
 
-    private var _operationName: String
-    private let operationNameLock = ReadWriteLock()
+    private let _operationName: NIOLockedValueBox<String>
 
     var attributes: SpanAttributes {
         get {
-            attributesLock.withReaderLock { _attributes }
+            _attributes.withLockedValue { $0 }
         }
         set {
-            attributesLock.withWriterLock { _attributes = newValue }
+            _attributes.withLockedValue { $0 = newValue }
         }
     }
 
-    private var _attributes = SpanAttributes()
-    private let attributesLock = ReadWriteLock()
+    private let _attributes: NIOLockedValueBox<SpanAttributes>
 
-    var status: SpanStatus? { statusLock.withReaderLock { _status } }
-    private var _status: SpanStatus?
-    private let statusLock = ReadWriteLock()
+    var status: SpanStatus? { _status.withLockedValue { $0 } }
+    private let _status = NIOLockedValueBox<SpanStatus?>(nil)
 
-    var events: [SpanEvent] { eventsLock.withReaderLock { _events } }
-    private var _events = [SpanEvent]()
-    private let eventsLock = ReadWriteLock()
+    var events: [SpanEvent] { _events.withLockedValue { $0 } }
+    private let _events = NIOLockedValueBox([SpanEvent]())
 
-    var links: [SpanLink] { linksLock.withReaderLock { _links } }
-    private var _links = [SpanLink]()
-    private let linksLock = ReadWriteLock()
+    var links: [SpanLink] { _links.withLockedValue { $0 } }
+    private let _links = NIOLockedValueBox([SpanLink]())
 
     let startTimeNanosecondsSinceEpoch: UInt64
 
-    var endTimeNanosecondsSinceEpoch: UInt64? { endTimeLock.withReaderLock { _endTimeNanosecondsSinceEpoch } }
-    private var _endTimeNanosecondsSinceEpoch: UInt64?
-    private let endTimeLock = ReadWriteLock()
+    var endTimeNanosecondsSinceEpoch: UInt64? { _endTimeNanosecondsSinceEpoch.withLockedValue { $0 } }
+    private let _endTimeNanosecondsSinceEpoch = NIOLockedValueBox<UInt64?>(nil)
 
-    private let onEnd: (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
+    private let onEnd: @Sendable (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
 
     var isRecording: Bool { endTimeNanosecondsSinceEpoch == nil }
 
@@ -257,12 +252,12 @@ final class OTelRecordingSpan: Span, @unchecked Sendable {
         context: ServiceContext,
         attributes: SpanAttributes,
         startTimeNanosecondsSinceEpoch: UInt64,
-        onEnd: @escaping (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
+        onEnd: @escaping @Sendable (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void
     ) {
-        _operationName = operationName
+        _operationName = NIOLockedValueBox(operationName)
         self.kind = kind
         self.context = context
-        _attributes = attributes
+        _attributes = NIOLockedValueBox(attributes)
         self.startTimeNanosecondsSinceEpoch = startTimeNanosecondsSinceEpoch
         self.onEnd = onEnd
     }
@@ -290,11 +285,11 @@ final class OTelRecordingSpan: Span, @unchecked Sendable {
             }
         }()
 
-        statusLock.withWriterLock { _status = status }
+        _status.withLockedValue { $0 = status }
     }
 
     func addEvent(_ event: SpanEvent) {
-        eventsLock.withWriterLock { _events.append(event) }
+        _events.withLockedValue { $0.append(event) }
     }
 
     func recordError(
@@ -317,14 +312,12 @@ final class OTelRecordingSpan: Span, @unchecked Sendable {
     }
 
     func addLink(_ link: SpanLink) {
-        linksLock.withWriterLock { _links.append(link) }
+        _links.withLockedValue { $0.append(link) }
     }
 
     func end(at instant: @autoclosure () -> some TracerInstant) {
         let endTimeNanosecondsSinceEpoch = instant().nanosecondsSinceEpoch
-        endTimeLock.withWriterLock {
-            _endTimeNanosecondsSinceEpoch = endTimeNanosecondsSinceEpoch
-        }
+        _endTimeNanosecondsSinceEpoch.withLockedValue { $0 = endTimeNanosecondsSinceEpoch }
         onEnd(self, endTimeNanosecondsSinceEpoch)
     }
 }

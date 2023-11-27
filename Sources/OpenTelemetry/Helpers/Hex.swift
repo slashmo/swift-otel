@@ -28,7 +28,7 @@ enum Hex {
     /// - Parameters:
     ///   - ascii: The ASCII bytes to convert.
     ///   - target: The pointer to store the converted bytes into.
-    public static func convert<T>(
+    static func convert<T>(
         _ ascii: T,
         toBytes target: UnsafeMutableRawBufferPointer
     ) where T: RandomAccessCollection, T.Element == UInt8 {

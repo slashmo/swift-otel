@@ -56,7 +56,7 @@ final class OTelTracerTests: XCTestCase {
 
     func test_startSpan_withParentSpanContext_reusesTraceID() async throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
-        var randomIDGenerator = OTelRandomIDGenerator()
+        let randomIDGenerator = OTelRandomIDGenerator()
         let sampler = OTelConstantSampler(isOn: true)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
@@ -69,8 +69,8 @@ final class OTelTracerTests: XCTestCase {
             environment: [:]
         )
 
-        let traceID = randomIDGenerator.traceID()
-        let parentSpanID = randomIDGenerator.spanID()
+        let traceID = randomIDGenerator.nextTraceID()
+        let parentSpanID = randomIDGenerator.nextSpanID()
         let traceState = OTelTraceState(items: [("foo", "bar")])
 
         var parentContext = ServiceContext.topLevel
@@ -490,7 +490,7 @@ final class OTelTracerTests: XCTestCase {
     // MARK: - Instrument
 
     func test_inject_withSpanContext_callsPropagator() async {
-        var idGenerator = OTelRandomIDGenerator()
+        let idGenerator = OTelRandomIDGenerator()
         let propagator = OTelInMemoryPropagator()
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -502,9 +502,9 @@ final class OTelTracerTests: XCTestCase {
 
         var context = ServiceContext.topLevel
         let spanContext = OTelSpanContext(
-            traceID: idGenerator.traceID(),
-            spanID: idGenerator.spanID(),
-            parentSpanID: idGenerator.spanID(),
+            traceID: idGenerator.nextTraceID(),
+            spanID: idGenerator.nextSpanID(),
+            parentSpanID: idGenerator.nextSpanID(),
             traceFlags: .sampled,
             traceState: nil,
             isRemote: false
@@ -532,11 +532,11 @@ final class OTelTracerTests: XCTestCase {
     }
 
     func test_extract_callsPropagator() async throws {
-        var idGenerator = OTelRandomIDGenerator()
+        let idGenerator = OTelRandomIDGenerator()
         let spanContext = OTelSpanContext(
-            traceID: idGenerator.traceID(),
-            spanID: idGenerator.spanID(),
-            parentSpanID: idGenerator.spanID(),
+            traceID: idGenerator.nextTraceID(),
+            spanID: idGenerator.nextSpanID(),
+            parentSpanID: idGenerator.nextSpanID(),
             traceFlags: .sampled,
             traceState: nil,
             isRemote: false

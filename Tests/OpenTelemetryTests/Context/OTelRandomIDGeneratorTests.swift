@@ -16,10 +16,10 @@ import XCTest
 
 final class OTelRandomIDGeneratorTests: XCTestCase {
     func test_traceID_witConstantNumberGenerator_returnsConstantTraceID() {
-        var generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: .max))
+        let generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: .max))
 
         XCTAssertEqual(
-            generator.traceID(),
+            generator.nextTraceID(),
             OTelTraceID(bytes: (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255))
         )
     }
@@ -27,8 +27,8 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
     func test_traceID_withConstantNumberGenerator_withRandomNumber_returnsRandomTraceID() {
         let randomValue = UInt64.random(in: .min ..< .max)
 
-        var generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
-        let traceID = generator.traceID()
+        let generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
+        let traceID = generator.nextTraceID()
 
         let randomHexString = String(randomValue, radix: 16, uppercase: false)
         let pad = String(repeating: "0", count: 16 - randomHexString.count)
@@ -38,27 +38,27 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
     }
 
     func test_traceID_withSystemRandomNumberGenerator_returnsRandomTraceIDs() {
-        var generator = OTelRandomIDGenerator()
+        let generator = OTelRandomIDGenerator()
         var traceIDs = Set<OTelTraceID>()
 
         for _ in 0 ..< 1000 {
-            let (inserted, traceID) = traceIDs.insert(generator.traceID())
+            let (inserted, traceID) = traceIDs.insert(generator.nextTraceID())
 
             XCTAssertTrue(inserted, "Expected unique trace IDs, got duplicate: \(traceID)")
         }
     }
 
     func test_spanID_witConstantNumberGenerator_returnsConstantSpanID() {
-        var generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: .max))
+        let generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: .max))
 
-        XCTAssertEqual(generator.spanID(), OTelSpanID(bytes: (255, 255, 255, 255, 255, 255, 255, 255)))
+        XCTAssertEqual(generator.nextSpanID(), OTelSpanID(bytes: (255, 255, 255, 255, 255, 255, 255, 255)))
     }
 
     func test_spanID_withConstantNumberGenerator_withRandomNumber_returnsRandomSpanID() {
         let randomValue = UInt64.random(in: .min ..< .max)
 
-        var generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
-        let spanID = generator.spanID()
+        let generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: randomValue))
+        let spanID = generator.nextSpanID()
 
         let randomHexString = String(randomValue, radix: 16, uppercase: false)
         let pad = String(repeating: "0", count: 16 - randomHexString.count)
@@ -68,11 +68,11 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
     }
 
     func test_spanID_withSystemRandomNumberGenerator_returnsRandomSpanIDs() {
-        var generator = OTelRandomIDGenerator()
+        let generator = OTelRandomIDGenerator()
         var spanIDs = Set<OTelSpanID>()
 
         for _ in 0 ..< 1000 {
-            let (inserted, spanID) = spanIDs.insert(generator.spanID())
+            let (inserted, spanID) = spanIDs.insert(generator.nextSpanID())
 
             XCTAssertTrue(inserted, "Expected unique span IDs, got duplicate: \(spanID)")
         }

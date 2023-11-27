@@ -15,7 +15,7 @@ import OpenTelemetry
 import Tracing
 
 public struct OTelInlineSampler: OTelSampler {
-    private let onSamplingResult: (
+    private let onSamplingResult: @Sendable (
         _ operationName: String,
         _ kind: SpanKind,
         _ traceID: OTelTraceID,
@@ -25,7 +25,7 @@ public struct OTelInlineSampler: OTelSampler {
     ) -> OTelSamplingResult
 
     public init(
-        onSamplingResult: @escaping (
+        onSamplingResult: @escaping @Sendable (
             _ operationName: String,
             _ spanKind: SpanKind,
             _ traceID: OTelTraceID,

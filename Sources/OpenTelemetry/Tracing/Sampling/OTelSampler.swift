@@ -14,7 +14,7 @@
 import Tracing
 
 /// Decides whether a given span should be sampled.
-public protocol OTelSampler {
+public protocol OTelSampler: Sendable {
     /// Request a sampling result for the given span values.
     ///
     /// - Note: The received values are all captured at the time of span creation.

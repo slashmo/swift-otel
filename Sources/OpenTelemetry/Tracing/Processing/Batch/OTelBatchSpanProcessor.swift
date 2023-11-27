@@ -144,7 +144,7 @@ extension OTelBatchSpanProcessor where Clock == ContinuousClock {
     /// - Parameters:
     ///   - exporter: The span exporter to receive batched spans to export.
     ///   - configuration: Further configuration parameters to tweak the batching behavior.
-    public init(exportingTo exporter: Exporter, configuration: OTelBatchSpanProcessorConfiguration) {
+    public init(exporter: Exporter, configuration: OTelBatchSpanProcessorConfiguration) {
         self.init(exporter: exporter, configuration: configuration, clock: .continuous)
     }
 }

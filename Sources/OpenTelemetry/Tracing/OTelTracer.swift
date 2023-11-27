@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import Logging
+import NIOConcurrencyHelpers
 import ServiceLifecycle
 import Tracing
 
@@ -24,10 +25,8 @@ public final class OTelTracer<
     Propagator: OTelPropagator,
     Processor: OTelSpanProcessor,
     Clock: _Concurrency.Clock
->: @unchecked Sendable where Clock.Duration == Duration {
-    private var _idGenerator: IDGenerator
-    private let idGeneratorLock = ReadWriteLock()
-
+>: Sendable where Clock.Duration == Duration {
+    private let idGenerator: IDGenerator
     private let sampler: Sampler
     private let propagator: Propagator
     private let processor: Processor
@@ -48,7 +47,7 @@ public final class OTelTracer<
         resourceDetectionTimeout: Duration = .seconds(3),
         clock: Clock
     ) async {
-        _idGenerator = idGenerator
+        self.idGenerator = idGenerator
         self.sampler = sampler
         self.propagator = propagator
         self.processor = processor
@@ -196,13 +195,13 @@ extension OTelTracer: Tracer {
 
         let traceID: OTelTraceID
         let traceState: OTelTraceState?
-        let spanID = idGeneratorLock.withWriterLock { _idGenerator.spanID() }
+        let spanID = idGenerator.nextSpanID()
 
         if let parentSpanContext = parentContext.spanContext {
             traceID = parentSpanContext.traceID
             traceState = parentSpanContext.traceState
         } else {
-            traceID = idGeneratorLock.withWriterLock { _idGenerator.traceID() }
+            traceID = idGenerator.nextTraceID()
             traceState = nil
         }
 

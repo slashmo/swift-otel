@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import NIOConcurrencyHelpers
 @testable import OpenTelemetry
 import Tracing
 import XCTest
@@ -142,7 +143,8 @@ final class OTelParentBasedSamplerTests: XCTestCase {
 
 private final class RecordingSampler: OTelSampler {
     private let sampler: any OTelSampler
-    private(set) var results = [OTelSamplingResult]()
+    private let _results = NIOLockedValueBox([OTelSamplingResult]())
+    var results: [OTelSamplingResult] { _results.withLockedValue { $0 } }
 
     init(sampler: any OTelSampler) {
         self.sampler = sampler
@@ -164,7 +166,7 @@ private final class RecordingSampler: OTelSampler {
             links: links,
             parentContext: parentContext
         )
-        results.append(result)
+        _results.withLockedValue { $0.append(result) }
         return result
     }
 }

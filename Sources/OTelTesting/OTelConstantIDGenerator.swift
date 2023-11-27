@@ -22,11 +22,11 @@ public struct OTelConstantIDGenerator: OTelIDGenerator {
         _spanID = spanID
     }
 
-    public func traceID() -> OTelTraceID {
+    public func nextTraceID() -> OTelTraceID {
         _traceID
     }
 
-    public func spanID() -> OTelSpanID {
+    public func nextSpanID() -> OTelSpanID {
         _spanID
     }
 }

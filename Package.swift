@@ -34,10 +34,11 @@ let package = Package(
             name: "OpenTelemetry",
             dependencies: [
                 .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
+                .product(name: "DequeModule", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
-                .product(name: "DequeModule", package: "swift-collections"),
             ],
             swiftSettings: sharedSwiftSettings
         ),

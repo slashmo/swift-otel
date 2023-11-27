@@ -12,11 +12,19 @@
 //===----------------------------------------------------------------------===//
 
 import Instrumentation
+import NIOConcurrencyHelpers
 import OpenTelemetry
 
-public final class OTelInMemoryPropagator: OTelPropagator {
-    public private(set) var injectedSpanContexts = [OTelSpanContext]()
-    public private(set) var extractedCarriers = [Any]()
+public final class OTelInMemoryPropagator: OTelPropagator, Sendable {
+    private let _injectedSpanContexts = NIOLockedValueBox([OTelSpanContext]())
+    public var injectedSpanContexts: [OTelSpanContext] { _injectedSpanContexts.withLockedValue { $0 } }
+
+    /*
+     Sendable warning fixed in https://github.com/apple/swift-distributed-tracing/pull/136,
+     since it enables us to use `NIOLockedValueBox([any Sendable])` instead.
+     */
+    private let _extractedCarriers = NIOLockedValueBox([Any]())
+    public var extractedCarriers: [Any] { _extractedCarriers.withLockedValue { $0 } }
     private let extractionResult: Result<OTelSpanContext, Error>?
 
     public init(extractionResult: Result<OTelSpanContext, Error>? = nil) {
@@ -28,14 +36,14 @@ public final class OTelInMemoryPropagator: OTelPropagator {
         into carrier: inout Carrier,
         using injector: Inject
     ) where Carrier == Inject.Carrier, Inject: Injector {
-        injectedSpanContexts.append(spanContext)
+        _injectedSpanContexts.withLockedValue { $0.append(spanContext) }
     }
 
     public func extractSpanContext<Carrier, Extract>(
         from carrier: Carrier,
         using extractor: Extract
     ) throws -> OTelSpanContext? where Carrier == Extract.Carrier, Extract: Extractor {
-        extractedCarriers.append(carrier)
+        _extractedCarriers.withLockedValue { $0.append(carrier) }
         switch extractionResult {
         case .success(let spanContext): return spanContext
         case .failure(let error): throw error

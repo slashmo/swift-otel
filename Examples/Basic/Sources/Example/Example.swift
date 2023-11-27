@@ -47,7 +47,7 @@ enum Example {
          This exported is passed to a batch span processor.
          The processor receives ended spans from the tracer, batches them up, and finally forwards them to the exporter.
          */
-        let processor = OTelBatchSpanProcessor(exportingTo: exporter, configuration: .init(environment: environment))
+        let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: environment))
 
         /*
          We need to await tracer initialization since the tracer needs

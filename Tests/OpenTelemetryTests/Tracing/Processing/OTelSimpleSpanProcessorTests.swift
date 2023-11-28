@@ -18,7 +18,7 @@ import XCTest
 final class OTelSimpleSpanProcessorTests: XCTestCase {
     func test_onEnd_withSampledSpan_forwardsSampledSpanToExporter() async throws {
         let exporter = OTelStreamingSpanExporter()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         Task {
             try await processor.run()
@@ -36,7 +36,7 @@ final class OTelSimpleSpanProcessorTests: XCTestCase {
 
     func test_onEnd_withNonSampledSpan_doesNotForwardSpanToExporter() async throws {
         let exporter = OTelInMemorySpanExporter()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let span = OTelFinishedSpan.stub(traceFlags: [], operationName: "test")
         processor.onEnd(span)
@@ -50,7 +50,7 @@ final class OTelSimpleSpanProcessorTests: XCTestCase {
 
     func test_forceFlush_forceFlushesExporter() async throws {
         let exporter = OTelInMemorySpanExporter()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         try await processor.forceFlush()
 
@@ -60,7 +60,7 @@ final class OTelSimpleSpanProcessorTests: XCTestCase {
 
     func test_shutdown_shutsDownExporter() async throws {
         let exporter = OTelInMemorySpanExporter()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         try await processor.shutdown()
 

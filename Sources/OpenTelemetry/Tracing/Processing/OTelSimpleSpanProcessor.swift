@@ -30,7 +30,7 @@ public struct OTelSimpleSpanProcessor<Exporter: OTelSpanExporter>: OTelSpanProce
     ///
     /// - Parameter exporter: The exporter to receive finished spans.
     /// On processor shutdown this exporter will also automatically be shut down.
-    public init(exportingTo exporter: Exporter) {
+    public init(exporter: Exporter) {
         self.exporter = exporter
         (stream, continuation) = AsyncStream.makeStream()
     }

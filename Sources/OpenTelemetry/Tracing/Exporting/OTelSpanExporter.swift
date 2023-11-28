@@ -14,22 +14,20 @@
 /// A span exporter receives batches of processed spans to export them, e.g. by sending them over the network.
 ///
 /// [OpenTelemetry specification: Span exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#span-exporter)
-///
-/// ### Implementation Notes
-///
-/// Implementations **MUST** throw ``OTelSpanExporterAlreadyShutDownError`` if the exporter was previously shut down via ``shutdown()``.
 public protocol OTelSpanExporter: Sendable {
     /// Export the given batch of spans.
     ///
     /// - Parameter batch: A batch of spans to export.
-    /// - Throws: ``OTelSpanExporterAlreadyShutDownError`` if the exporter was previously shut down,
-    /// or an implementation-specific error if exporting failed.
     func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async throws
 
     /// Force the span exporter to export any previously received spans as soon as possible.
     func forceFlush() async throws
 
     /// Shut down the span exporter.
+    ///
+    /// This method gives exporters a chance to wrap up existing work such as finishing in-flight exports while not allowing new ones anymore.
+    /// Once this method returns, the exporter is to be considered shut down and further invocations of ``export(_:)``
+    /// are expected to fail.
     func shutdown() async
 }
 

@@ -8,7 +8,6 @@ let package = Package(
     platforms: [.macOS(.v13)],
     products: [
         .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
-        .library(name: "OTLP", targets: ["OTLP"]),
         .library(name: "OTLPGRPC", targets: ["OTLPGRPC"]),
     ],
     dependencies: [
@@ -62,23 +61,6 @@ let package = Package(
         ),
 
         // MARK: - OTLP
-
-        .target(
-            name: "OTLP",
-            dependencies: [
-                .target(name: "OpenTelemetry"),
-                .target(name: "OTLPGRPC"),
-            ],
-            swiftSettings: sharedSwiftSettings
-        ),
-        .testTarget(
-            name: "OTLPTests",
-            dependencies: [
-                .target(name: "OTLP"),
-                .target(name: "OTelTesting"),
-            ],
-            swiftSettings: sharedSwiftSettings
-        ),
 
         .target(
             name: "OTLPCore",

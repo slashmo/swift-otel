@@ -1,4 +1,4 @@
 version: 1
 builder:
   configs:
-    - documentation_targets: [OpenTelemetry, OTLP, OTLPGRPC]
+    - documentation_targets: [OpenTelemetry, OTLPGRPC]

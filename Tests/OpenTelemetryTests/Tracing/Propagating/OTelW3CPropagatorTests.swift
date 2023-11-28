@@ -62,7 +62,7 @@ final class OTelW3CPropagatorTests: XCTestCase {
             traceFlags: .sampled,
             traceState: OTelTraceState(items: [
                 OTelTraceState.Item(vendor: "test1", value: "123"),
-                OTelTraceState.Item(vendor: "test2", value: "abc")
+                OTelTraceState.Item(vendor: "test2", value: "abc"),
             ]),
             isRemote: false
         )

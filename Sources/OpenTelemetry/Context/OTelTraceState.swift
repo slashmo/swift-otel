@@ -30,7 +30,7 @@ public struct OTelTraceState {
         public let vendor: String
         /// The entry's value.
         public let value: String
-        
+
         /// Create a new vendor-value pair.
         ///
         /// - Parameters:
@@ -43,21 +43,11 @@ public struct OTelTraceState {
     }
 }
 
-extension OTelTraceState: Equatable {
-    public static func == (lhs: OTelTraceState, rhs: OTelTraceState) -> Bool {
-        guard lhs.items.count == rhs.items.count else { return false }
-
-        return lhs.items.enumerated().allSatisfy { offset, lhsItem in
-            let rhsItem = rhs.items[offset]
-            return rhsItem.vendor == lhsItem.vendor && rhsItem.value == lhsItem.value
-        }
-    }
-}
-
 extension OTelTraceState: CustomStringConvertible {
     public var description: String {
         items.map { "\($0.vendor)=\($0.value)" }.joined(separator: ",")
     }
 }
 
+extension OTelTraceState: Hashable {}
 extension OTelTraceState: Sendable {}

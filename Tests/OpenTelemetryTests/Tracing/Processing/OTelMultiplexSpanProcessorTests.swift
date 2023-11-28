@@ -72,13 +72,15 @@ final class OTelMultiplexSpanProcessorTests: XCTestCase {
 
         let serviceGroup = ServiceGroup(services: [processor], logger: Logger(label: #function))
 
+        let startExpectation = expectation(description: "Expected task to start executing.")
         let finishExpectation = expectation(description: "Expected processor to finish shutting down.")
         Task {
+            startExpectation.fulfill()
             try await serviceGroup.run()
             finishExpectation.fulfill()
         }
 
-        try await Task.sleep(for: .milliseconds(100))
+        await fulfillment(of: [startExpectation])
         await serviceGroup.triggerGracefulShutdown()
         await fulfillment(of: [finishExpectation])
 

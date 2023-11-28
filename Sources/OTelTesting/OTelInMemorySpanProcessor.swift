@@ -22,10 +22,15 @@ public final actor OTelInMemorySpanProcessor: OTelSpanProcessor {
     public private(set) var numberOfForceFlushes = 0
     public private(set) var numberOfShutdowns = 0
 
-    public init() {}
+    private let stream: AsyncStream<Void>
+    private let continuation: AsyncStream<Void>.Continuation
+
+    public init() {
+        (stream, continuation) = AsyncStream.makeStream()
+    }
 
     public func run() async throws {
-        while !Task.isCancelled {}
+        for await _ in stream.cancelOnGracefulShutdown() {}
         numberOfShutdowns += 1
     }
 

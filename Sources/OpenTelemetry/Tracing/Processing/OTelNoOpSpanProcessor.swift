@@ -14,12 +14,19 @@
 import ServiceContextModule
 
 /// A span processor that ignores all operations, used when no spans should be processed.
-public struct OTelNoOpSpanProcessor: OTelSpanProcessor {
-    /// Initialize a no-op span processor.
-    public init() {}
+public struct OTelNoOpSpanProcessor: OTelSpanProcessor, CustomStringConvertible {
+    public let description = "OTelNoOpSpanProcessor"
 
-    public func run() async throws {
-        while !Task.isCancelled {}
+    private let stream: AsyncStream<Void>
+    private let continuation: AsyncStream<Void>.Continuation
+
+    /// Initialize a no-op span processor.
+    public init() {
+        (stream, continuation) = AsyncStream.makeStream()
+    }
+
+    public func run() async {
+        for await _ in stream.cancelOnGracefulShutdown() {}
     }
 
     public func onStart(_ span: OTelSpan, parentContext: ServiceContext) {

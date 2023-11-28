@@ -36,8 +36,8 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
 
     func test_initProtoSpan_withFinishedSpan_withTraceState_castsTraceState() {
         let traceState = OTelTraceState(items: [
-            (vendor: "test1", value: "42"),
-            (vendor: "test2", value: "84"),
+            OTelTraceState.Item(vendor: "test1", value: "42"),
+            OTelTraceState.Item(vendor: "test2", value: "84"),
         ])
         let span = OTelFinishedSpan.stub(traceState: traceState)
 
@@ -176,7 +176,7 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
         context.spanContext = .stub(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
-            traceState: OTelTraceState(items: [(vendor: "test", value: "42")])
+            traceState: OTelTraceState(items: [OTelTraceState.Item(vendor: "test", value: "42")])
         )
         let span = OTelFinishedSpan.stub(links: [
             SpanLink(context: context, attributes: ["test": 42]),

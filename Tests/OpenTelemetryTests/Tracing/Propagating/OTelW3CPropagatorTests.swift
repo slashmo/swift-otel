@@ -60,7 +60,10 @@ final class OTelW3CPropagatorTests: XCTestCase {
             spanID: .oneToEight,
             parentSpanID: .oneToEight,
             traceFlags: .sampled,
-            traceState: OTelTraceState(items: [(vendor: "test1", value: "123"), (vendor: "test2", value: "abc")]),
+            traceState: OTelTraceState(items: [
+                OTelTraceState.Item(vendor: "test1", value: "123"),
+                OTelTraceState.Item(vendor: "test2", value: "abc")
+            ]),
             isRemote: false
         )
         var headers = [String: String]()
@@ -120,7 +123,10 @@ final class OTelW3CPropagatorTests: XCTestCase {
         XCTAssertEqual(spanContext.traceFlags, .sampled)
         XCTAssertEqual(
             spanContext.traceState,
-            OTelTraceState(items: [(vendor: "test1", value: "123"), (vendor: "test2", value: "abc")])
+            OTelTraceState(items: [
+                OTelTraceState.Item(vendor: "test1", value: "123"),
+                OTelTraceState.Item(vendor: "test2", value: "abc"),
+            ])
         )
     }
 
@@ -134,7 +140,10 @@ final class OTelW3CPropagatorTests: XCTestCase {
 
         XCTAssertEqual(
             spanContext.traceState,
-            OTelTraceState(items: [(vendor: "customer1@test", value: "123"), (vendor: "customer2@test", value: "abc")])
+            OTelTraceState(items: [
+                OTelTraceState.Item(vendor: "customer1@test", value: "123"),
+                OTelTraceState.Item(vendor: "customer2@test", value: "abc"),
+            ])
         )
     }
 

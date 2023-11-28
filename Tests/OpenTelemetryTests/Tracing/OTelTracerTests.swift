@@ -71,7 +71,7 @@ final class OTelTracerTests: XCTestCase {
 
         let traceID = randomIDGenerator.nextTraceID()
         let parentSpanID = randomIDGenerator.nextSpanID()
-        let traceState = OTelTraceState(items: [("foo", "bar")])
+        let traceState = OTelTraceState(items: [OTelTraceState.Item(vendor: "foo", value: "bar")])
 
         var parentContext = ServiceContext.topLevel
         let parentSpanContext = OTelSpanContext(
@@ -182,7 +182,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -219,7 +219,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -254,7 +254,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         struct ManualDetector: OTelResourceDetector {
             let description = "manual"
@@ -297,7 +297,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -331,7 +331,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -365,7 +365,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
         let tracer = await OTelTracer(
             idGenerator: idGenerator,
@@ -399,7 +399,7 @@ final class OTelTracerTests: XCTestCase {
         let propagator = OTelW3CPropagator()
         let exporter = OTelStreamingSpanExporter()
         var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exportingTo: exporter)
+        let processor = OTelSimpleSpanProcessor(exporter: exporter)
         let clock = TestClock()
 
         struct TimeoutResourceDetector: OTelResourceDetector {

@@ -100,7 +100,7 @@ public struct OTelW3CPropagator: OTelPropagator {
         guard !header.isEmpty else { return nil }
 
         let keyValuePairs = header.split(separator: ",")
-        var storage = OTelTraceState.Storage()
+        var items = [OTelTraceState.Item]()
 
         for var rest in keyValuePairs {
             var vendor = ""
@@ -132,10 +132,10 @@ public struct OTelW3CPropagator: OTelPropagator {
                 value.append(next)
             }
 
-            storage.append((vendor: vendor, value: String(value)))
+            items.append(OTelTraceState.Item(vendor: vendor, value: String(value)))
         }
 
-        return OTelTraceState(items: storage)
+        return OTelTraceState(items: items)
     }
 }
 

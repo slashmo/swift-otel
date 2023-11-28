@@ -15,33 +15,48 @@
 ///
 /// [W3C TraceContext: trace-state](https://www.w3.org/TR/trace-context-1/#tracestate-header)
 public struct OTelTraceState {
-    /// The underlying storage for vendor-value trace state pairs.
-    public typealias Storage = [(vendor: String, value: String)]
-
-    private var storage: Storage
+    private var items: [Item]
 
     /// Create a trace state with the given vendor-value pairs.
     ///
     /// - Parameter items: The vendor-value pairs stored in the trace state.
-    public init(items: Storage) {
-        storage = items
+    public init(items: [Item]) {
+        self.items = items
+    }
+
+    /// A single vendor-value pair stored in the trace state.
+    public struct Item: Sendable, Hashable {
+        /// The entry's vendor.
+        public let vendor: String
+        /// The entry's value.
+        public let value: String
+        
+        /// Create a new vendor-value pair.
+        ///
+        /// - Parameters:
+        ///   - vendor: The vendor.
+        ///   - value: The value.
+        public init(vendor: String, value: String) {
+            self.vendor = vendor
+            self.value = value
+        }
     }
 }
 
 extension OTelTraceState: Equatable {
     public static func == (lhs: OTelTraceState, rhs: OTelTraceState) -> Bool {
-        guard lhs.storage.count == rhs.storage.count else { return false }
+        guard lhs.items.count == rhs.items.count else { return false }
 
-        return lhs.storage.enumerated().allSatisfy { offset, lhsElement in
-            let rhsElement = rhs.storage[offset]
-            return rhsElement.vendor == lhsElement.vendor && rhsElement.value == lhsElement.value
+        return lhs.items.enumerated().allSatisfy { offset, lhsItem in
+            let rhsItem = rhs.items[offset]
+            return rhsItem.vendor == lhsItem.vendor && rhsItem.value == lhsItem.value
         }
     }
 }
 
 extension OTelTraceState: CustomStringConvertible {
     public var description: String {
-        storage.map { "\($0)=\($1)" }.joined(separator: ",")
+        items.map { "\($0.vendor)=\($0.value)" }.joined(separator: ",")
     }
 }
 

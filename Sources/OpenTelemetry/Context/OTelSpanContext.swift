@@ -59,5 +59,5 @@ public struct OTelSpanContext {
     }
 }
 
-extension OTelSpanContext: Equatable {}
+extension OTelSpanContext: Hashable {}
 extension OTelSpanContext: Sendable {}

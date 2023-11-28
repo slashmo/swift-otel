@@ -23,7 +23,7 @@ final class OTelTraceStateTests: XCTestCase {
             ]),
             OTelTraceState(items: [
                 OTelTraceState.Item(vendor: "1", value: "1"),
-                OTelTraceState.Item(vendor: "2", value: "2")
+                OTelTraceState.Item(vendor: "2", value: "2"),
             ])
         )
     }
@@ -32,7 +32,7 @@ final class OTelTraceStateTests: XCTestCase {
         XCTAssertNotEqual(
             OTelTraceState(items: [
                 OTelTraceState.Item(vendor: "1", value: "1"),
-                OTelTraceState.Item(vendor: "2", value: "2")
+                OTelTraceState.Item(vendor: "2", value: "2"),
             ]),
             OTelTraceState(items: [OTelTraceState.Item(vendor: "1", value: "1")])
         )

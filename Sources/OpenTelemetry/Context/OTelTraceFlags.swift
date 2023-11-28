@@ -29,4 +29,5 @@ public struct OTelTraceFlags: OptionSet {
     public static let sampled = OTelTraceFlags(rawValue: 1)
 }
 
+extension OTelTraceFlags: Hashable {}
 extension OTelTraceFlags: Sendable {}

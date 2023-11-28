@@ -27,7 +27,7 @@ final class MetadataProviderTests: XCTestCase {
         var logger = Logger(label: "test")
         logger.handler = StreamLogHandler(label: "test", stream: stream, metadataProvider: .otel)
 
-        let spanContext = OTelSpanContext.stub(traceID: .oneToSixteen, spanID: .oneToEight)
+        let spanContext = OTelSpanContext.stub(traceID: .oneToSixteen, spanID: .oneToEight, traceFlags: .sampled)
 
         var context = ServiceContext.topLevel
         context.spanContext = spanContext
@@ -38,8 +38,9 @@ final class MetadataProviderTests: XCTestCase {
         XCTAssertEqual(stream.strings.count, 1)
         let message = try XCTUnwrap(stream.strings.first)
 
-        XCTAssertTrue(message.contains("span-id=\(spanContext.spanID)"))
-        XCTAssertTrue(message.contains("trace-id=\(spanContext.traceID)"))
+        XCTAssertTrue(message.contains("span_id=\(spanContext.spanID)"))
+        XCTAssertTrue(message.contains("trace_id=\(spanContext.traceID)"))
+        XCTAssertTrue(message.contains("trace_flags=1"))
         XCTAssertTrue(message.contains("explicit=42"))
         XCTAssertTrue(message.contains("This is a test message"))
     }
@@ -51,10 +52,20 @@ final class MetadataProviderTests: XCTestCase {
 
         let stream = InterceptingStream()
         var logger = Logger(label: "test")
-        let metadataProvider = Logger.MetadataProvider.otel(traceIDKey: "custom_trace_id", spanIDKey: "custom_span_id")
+        let metadataProvider = Logger.MetadataProvider.otel(
+            traceIDKey: "custom_trace_id",
+            spanIDKey: "custom_span_id",
+            traceFlagsKey: "custom_trace_flags",
+            parentSpanIDKey: "custom_parent_span_id"
+        )
         logger.handler = StreamLogHandler(label: "test", stream: stream, metadataProvider: metadataProvider)
 
-        let spanContext = OTelSpanContext.stub(traceID: .oneToSixteen, spanID: .oneToEight)
+        let spanContext = OTelSpanContext.stub(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            parentSpanID: .oneToEight,
+            traceFlags: []
+        )
 
         var context = ServiceContext.topLevel
         context.spanContext = spanContext
@@ -67,6 +78,8 @@ final class MetadataProviderTests: XCTestCase {
 
         XCTAssertTrue(message.contains("custom_span_id=\(spanContext.spanID)"))
         XCTAssertTrue(message.contains("custom_trace_id=\(spanContext.traceID)"))
+        XCTAssertTrue(message.contains("custom_trace_flags=0"))
+        XCTAssertTrue(try message.contains("custom_parent_span_id=\(XCTUnwrap(spanContext.parentSpanID))"))
         XCTAssertTrue(message.contains("explicit=42"))
         XCTAssertTrue(message.contains("This is a test message"))
     }

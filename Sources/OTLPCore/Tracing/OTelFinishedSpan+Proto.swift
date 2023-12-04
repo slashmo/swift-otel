@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import struct Foundation.Data
-import OpenTelemetry
+import OTel
 import Tracing
 
 extension Opentelemetry_Proto_Trace_V1_Span {

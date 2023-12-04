@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import NIOHPACK
-import OpenTelemetry
+import OTel
 
 /// Configuration of an ``OTLPGRPCSpanExporter``.
 public struct OTLPGRPCSpanExporterConfiguration: Sendable {

@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OpenTelemetry
+import OTel
 
 extension OTelSpanID {
     /// A stub span ID for testing with bytes from one to eight.

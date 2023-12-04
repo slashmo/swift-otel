@@ -14,7 +14,7 @@
 import GRPC
 @testable import Logging
 import NIO
-@testable import OpenTelemetry
+@testable import OTel
 import OTelTesting
 import OTLPGRPC
 import Tracing

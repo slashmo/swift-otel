@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import OpenTelemetry
+@testable import OTel
 import OTelTesting
 import OTLPCore
 import Tracing

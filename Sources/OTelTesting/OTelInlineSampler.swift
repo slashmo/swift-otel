@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OpenTelemetry
+import OTel
 import Tracing
 
 public struct OTelInlineSampler: OTelSampler {

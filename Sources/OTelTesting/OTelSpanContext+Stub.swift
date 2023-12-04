@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OpenTelemetry
+import OTel
 
 extension OTelSpanContext {
     /// A span context stub.

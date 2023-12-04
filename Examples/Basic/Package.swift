@@ -14,7 +14,7 @@ let package = Package(
         .executableTarget(
             name: "Example",
             dependencies: [
-                .product(name: "OpenTelemetry", package: "swift-otel"),
+                .product(name: "OTel", package: "swift-otel"),
                 .product(name: "OTLPGRPC", package: "swift-otel"),
             ]
         ),

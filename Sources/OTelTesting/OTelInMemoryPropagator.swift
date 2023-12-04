@@ -13,7 +13,7 @@
 
 import Instrumentation
 import NIOConcurrencyHelpers
-import OpenTelemetry
+import OTel
 
 public final class OTelInMemoryPropagator: OTelPropagator, Sendable {
     private let _injectedSpanContexts = NIOLockedValueBox([OTelSpanContext]())

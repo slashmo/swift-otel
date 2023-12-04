@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OpenTelemetry
+import OTel
 
 public struct OTelConstantIDGenerator: OTelIDGenerator {
     private let _traceID: OTelTraceID

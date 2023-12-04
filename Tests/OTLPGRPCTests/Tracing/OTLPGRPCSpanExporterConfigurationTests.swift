@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import NIOHPACK
-import OpenTelemetry
+import OTel
 @testable import OTLPGRPC
 import XCTest
 

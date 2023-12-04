@@ -13,7 +13,7 @@
 
 import Logging
 import NIO
-import OpenTelemetry
+import OTel
 import OTLPGRPC
 import Tracing
 import ServiceLifecycle

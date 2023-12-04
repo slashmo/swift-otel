@@ -17,7 +17,7 @@ import Logging
 import NIO
 import NIOHPACK
 import NIOSSL
-import OpenTelemetry
+import OTel
 import OTLPCore
 import Tracing
 
@@ -76,7 +76,7 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
         )
     }
 
-    public func export(_ batch: some Collection<OpenTelemetry.OTelFinishedSpan>) async throws {
+    public func export(_ batch: some Collection<OTelFinishedSpan>) async throws {
         if case .shutdown = connection.connectivity.state {
             logger.error("Attempted to export batch while already being shut down.")
             throw OTelSpanExporterAlreadyShutDownError()

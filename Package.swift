@@ -7,7 +7,7 @@ let package = Package(
     name: "swift-otel",
     platforms: [.macOS(.v13)],
     products: [
-        .library(name: "OpenTelemetry", targets: ["OpenTelemetry"]),
+        .library(name: "OTel", targets: ["OTel"]),
         .library(name: "OTLPGRPC", targets: ["OTLPGRPC"]),
     ],
     dependencies: [
@@ -30,7 +30,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "OpenTelemetry",
+            name: "OTel",
             dependencies: [
                 .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
                 .product(name: "DequeModule", package: "swift-collections"),
@@ -42,9 +42,9 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
-            name: "OpenTelemetryTests",
+            name: "OTelTests",
             dependencies: [
-                .target(name: "OpenTelemetry"),
+                .target(name: "OTel"),
                 .target(name: "OTelTesting"),
             ],
             swiftSettings: sharedSwiftSettings
@@ -55,7 +55,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
                 .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
-                .target(name: "OpenTelemetry"),
+                .target(name: "OTel"),
             ],
             swiftSettings: sharedSwiftSettings
         ),
@@ -65,7 +65,7 @@ let package = Package(
         .target(
             name: "OTLPCore",
             dependencies: [
-                .target(name: "OpenTelemetry"),
+                .target(name: "OTel"),
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
             ],
             swiftSettings: sharedSwiftSettings
@@ -82,7 +82,7 @@ let package = Package(
         .target(
             name: "OTLPGRPC",
             dependencies: [
-                .target(name: "OpenTelemetry"),
+                .target(name: "OTel"),
                 .target(name: "OTLPCore"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Tracing", package: "swift-distributed-tracing"),

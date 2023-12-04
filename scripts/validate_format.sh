@@ -36,10 +36,12 @@ printf "=> Checking format\n"
 FIRST_OUT="$(git status --porcelain)"
 # swiftformat does not scale so we loop ourselves
 shopt -u dotglob
-find Sources/* Tests/* IntegrationTests/* -type d | while IFS= read -r d; do
+find Sources/* Tests/* Examples/* -type d -not -path "*/Generated*" | while IFS= read -r d; do
   printf "   * checking $d... "
-  out=$(mint run swiftformat $d 2>&1)
-  echo $out
+  out=$(mint run swiftformat -quiet $d 2>&1)
+  if [[ $out == *$'\n' ]]; then
+    echo $out
+  fi
   SECOND_OUT="$(git status --porcelain)"
   if [[ "$out" == *"error"*] && ["$out" != "*No eligible files" ]]; then
     printf "\033[0;31merror!\033[0m\n"

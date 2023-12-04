@@ -15,8 +15,8 @@ import Logging
 import NIO
 import OTel
 import OTLPGRPC
-import Tracing
 import ServiceLifecycle
+import Tracing
 
 @main
 enum Example {
@@ -41,7 +41,7 @@ enum Example {
          that sends spans via gRPC to an OTel collector.
          */
         let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        let exporter = OTLPGRPCSpanExporter(configuration: try .init(environment: environment), group: group)
+        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment), group: group)
 
         /*
          This exported is passed to a batch span processor.

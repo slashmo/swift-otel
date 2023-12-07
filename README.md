@@ -2,6 +2,8 @@
 
 An [OpenTelemetry](https://opentelemetry.io) client for server-side Swift.
 
+[![codecov](https://codecov.io/gh/slashmo/swift-otel/graph/badge.svg?token=CLBHHQITUY)](https://codecov.io/gh/slashmo/swift-otel)
+
 ## Examples
 
 Swift OTel comes with a couple examples to demonstrate how to get started and how to get beyond the basics:

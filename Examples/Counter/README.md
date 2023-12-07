@@ -1,48 +1,9 @@
-# Swift OTel Basic Example
+# Swift OTel Counter Example
 
-Demonstrates how to get started with [Swift OTel](https://github.com/slashmo/swift-otel).
+A service that infinitely increments a counter with randomized delays, instrumented using Swift OTel.
 
-## Overview
+![](../../Sources/OTel/OTel.docc/Sample%20Code/Counter/jaeger.png)
 
-This example contains an endless running service that keeps counting up a number after a randomized delay.
+## Documentation
 
-Each increment is instrumented by a span, as shown in the [Jaeger](https://jaegertracing.io) screenshot below.
-
-![Screenshot of Jaeger displaying recorded spans from this example](tracing-counter-example.png)
-
-In addition to the exported spans, the example also logs every time the count is incremented. These log
-statements automatically include the trace/span ID of the current span:
-
-```sh
-2023-11-24T12:00:29+0100 info Counter : count=262 span-id=41d259b120114123 trace-id=08536b458fb95482a59fa15ee185fcaf [Example] Counted up.
-```
-
-### Simulated failures
-
-Every 10th increment, the service simulates a failure that is reflected in the trace.
-The example also logs these failures, making it easy to look up the trace associated with the failure:
-
-```sh
-2023-11-24T12:00:28+0100 error Counter : span-id=ce3e5c9549dca1cf trace-id=c0270967c8f364fc7e0762f107e967a3 value=260 [Example] Failed to count up, skipping value.
-```
-
-## Running the example
-
-To run the example locally, you need two prerequisites:
-
-- [Docker](https://docker.com)
-- [Swift 5.9 (or above)](https://swift.org/download)
-
-First, spin up Jaeger via docker compose:
-
-```sh
-docker compose up -d
-```
-
-Then, run the `example` executable to start counting:
-
-```sh
-swift run example
-```
-
-To stop counting, press `CTRL + C`, gracefully shutting down the service.
+Check out the [documentation](https://swiftpackageindex.com/slashmo/swift-otel/main/documentation/otel/counter-sample) for this example.

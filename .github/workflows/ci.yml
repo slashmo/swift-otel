@@ -48,12 +48,12 @@ jobs:
       - name: Run Unit Tests
         run: swift test --parallel
 
-  compile-basic-example:
-    name: Compile Basic Example
+  compile-counter-example:
+    name: Compile Counter Example
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./Examples/Basic
+        working-directory: ./Examples/Counter
     steps:
       - name: Install Swift
         uses: vapor/swiftly-action@v0.1

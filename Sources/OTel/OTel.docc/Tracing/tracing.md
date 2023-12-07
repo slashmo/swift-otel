@@ -35,6 +35,12 @@ transparently using ``OTelTracer``, no intermediary libraries needed.
 > Tip: Prefer using the `Tracer` protocol in your application code instead of ``OTelTracer`` directly.
 This makes it easier to switch to a different tracer if needed and makes your code more portable.
 
+## Integrations
+
+@Links(visualStyle: detailedGrid) {
+    - <doc:log-correlation>
+}
+
 ## Sample Code
 
 A collection of Swift OTel examples that make use of Distributed Tracing.

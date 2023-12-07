@@ -31,7 +31,7 @@ extension OTelSpan {
     ///   - operationName: Defaults to "test".
     ///   - kind: Defaults to `SpanKind.internal`.
     ///   - context: Defaults to `ServiceContext.topLevel`.
-    ///   - spanContext: Defaults to ``OpenTelemetry/OTelSpanContext/stub(traceID:spanID:parentSpanID:traceFlags:traceState:isRemote:)``
+    ///   - spanContext: Defaults to ``OTel/OTelSpanContext/stub(traceID:spanID:parentSpanID:traceFlags:traceState:isRemote:)``
     ///   - attributes: Defaults to no attributes.
     ///   - startTimeNanosecondsSinceEpoch: Defaults to `0`.
     ///   - onEnd: Defaults to a no-op closure.

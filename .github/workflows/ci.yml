@@ -46,7 +46,24 @@ jobs:
         run: swift package resolve
 
       - name: Run Unit Tests
-        run: swift test --parallel
+        run: swift test --parallel --enable-code-coverage
+
+      - name: Merge code coverage
+        if: matrix.swift == '5.9'
+        run: |
+          llvm-cov export -format "lcov" \
+            .build/debug/swift-otelPackageTests.xctest \
+            -ignore-filename-regex="\/Tests\/" \
+            -ignore-filename-regex="\/Generated\/" \
+            -ignore-filename-regex="\/.build\/" \
+            -instr-profile=./.build/debug/codecov/default.profdata \
+          > info.lcov
+
+      - name: Upload code coverage report to Codecov
+        if: matrix.swift == '5.9'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./info.lcov
 
   compile-counter-example:
     name: Compile Counter Example

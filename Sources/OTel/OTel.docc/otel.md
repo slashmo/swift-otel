@@ -56,6 +56,15 @@ The goal of Swift OTel is to support all three in a way that feels right at home
 
 - <doc:tracing>
 
+### Resource Detection
+
+- <doc:resource-detection>
+- ``OTelResource``
+- ``OTelResourceDetection``
+- ``OTelEnvironmentResourceDetector``
+- ``OTelProcessResourceDetector``
+- ``OTelResourceDetector``
+
 ### Log Correlation
 
 - <doc:log-correlation>

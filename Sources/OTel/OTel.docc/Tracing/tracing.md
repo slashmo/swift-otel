@@ -96,9 +96,3 @@ A collection of Swift OTel examples that make use of Distributed Tracing.
 - ``OTelPropagator``
 - ``OTelW3CPropagator``
 - ``OTelMultiplexPropagator``
-
-### Detecting Resources
-
-- ``OTelResource``
-- ``OTelResourceDetector``
-- ``OTelResourceDetection``

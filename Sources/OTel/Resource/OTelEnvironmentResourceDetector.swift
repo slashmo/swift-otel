@@ -11,19 +11,22 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 import Tracing
 
-@_spi(Testing)
-public struct OTelEnvironmentResourceDetector: OTelResourceDetector {
+/// A resource detector parsing resource attributes from the `OTEL_RESOURCE_ATTRIBUTES` environment variable.
+public struct OTelEnvironmentResourceDetector: OTelResourceDetector, CustomStringConvertible {
     public let description = "environment"
-
     private let environment: OTelEnvironment
 
+    /// Create an environment resource detector.
+    ///
+    /// - Parameter environment: The environment to read `OTEL_RESOURCE_ATTRIBUTES` from.
     public init(environment: OTelEnvironment) {
         self.environment = environment
     }
 
-    public func resource() async throws -> OTelResource {
+    public func resource(logger: Logger) throws -> OTelResource {
         let environmentKey = "OTEL_RESOURCE_ATTRIBUTES"
         guard let environmentValue = environment.values[environmentKey] else { return OTelResource() }
 
@@ -34,7 +37,7 @@ public struct OTelEnvironmentResourceDetector: OTelResourceDetector {
             for keyValuePair in keyValuePairs {
                 let parts = keyValuePair.split(separator: "=", maxSplits: 1)
                 guard parts.count == 2 else {
-                    throw Error.invalidKeyValuePair(parts)
+                    throw OTelEnvironmentResourceAttributeParsingError(keyValuePair: parts)
                 }
                 attributes["\(parts[0])"] = "\(parts[1])"
             }
@@ -44,8 +47,13 @@ public struct OTelEnvironmentResourceDetector: OTelResourceDetector {
 
         return OTelResource(attributes: attributes)
     }
+}
 
-    public enum Error: Swift.Error, Equatable {
-        case invalidKeyValuePair([Substring])
+@_spi(Testing)
+public struct OTelEnvironmentResourceAttributeParsingError: Error, Equatable {
+    public let keyValuePair: [Substring]
+
+    public init(keyValuePair: [Substring]) {
+        self.keyValuePair = keyValuePair
     }
 }

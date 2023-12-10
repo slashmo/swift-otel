@@ -12,11 +12,17 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import Logging
+import OTelTesting
 @_spi(Testing) import OTel
 import XCTest
 
 final class OTelProcessResourceDetectorTests: XCTestCase {
-    func test_resource_returnsResourceWithProcessRelatedAttributes() async {
+    override func setUp() {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
+    }
+
+    func test_resource_returnsResourceWithProcessRelatedAttributes() {
         let detector = OTelProcessResourceDetector(
             processIdentifier: { 42 },
             executableName: { "test" },
@@ -26,7 +32,7 @@ final class OTelProcessResourceDetectorTests: XCTestCase {
             owner: { "test" }
         )
 
-        let resource = await detector.resource()
+        let resource = detector.resource(logger: Logger(label: #function))
 
         XCTAssertEqual(resource, OTelResource(attributes: [
             "process.pid": .int32(42),
@@ -38,10 +44,10 @@ final class OTelProcessResourceDetectorTests: XCTestCase {
         ]))
     }
 
-    func test_resource_withDefaultValueGetters_returnsResourceWithProcessRelatedAttributes() async {
+    func test_resource_withDefaultValueGetters_returnsResourceWithProcessRelatedAttributes() {
         let detector = OTelProcessResourceDetector()
 
-        let resource = await detector.resource()
+        let resource = detector.resource(logger: Logger(label: #function))
 
         XCTAssertNotNil(resource.attributes["process.pid"])
         XCTAssertNotNil(resource.attributes["process.executable.name"])

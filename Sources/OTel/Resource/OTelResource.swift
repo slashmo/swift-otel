@@ -13,7 +13,7 @@
 
 import Tracing
 
-/// A set of attributes describing the entity being traced.
+/// A set of attributes describing the entity being instrumented.
 ///
 /// Resources are immutable, but multiple resources may be merged using ``merging(_:)``.
 ///

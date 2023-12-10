@@ -1,6 +1,6 @@
 # Log Correlation
 
-Connect Distributed Tracing with Logging
+Connect Distributed Tracing with Logging.
 
 @Metadata {
     @Available("Swift OTel", introduced: "1.0")

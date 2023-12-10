@@ -12,10 +12,11 @@
 //===----------------------------------------------------------------------===//
 
 import Foundation
+import Logging
 import Tracing
 
-@_spi(Testing)
-public struct OTelProcessResourceDetector: OTelResourceDetector {
+/// A resource detector retrieving process-related attributes.
+public struct OTelProcessResourceDetector: OTelResourceDetector, CustomStringConvertible {
     public let description = "process"
 
     private let processIdentifier: @Sendable () -> Int32
@@ -25,21 +26,32 @@ public struct OTelProcessResourceDetector: OTelResourceDetector {
     private let commandLine: @Sendable () -> String
     private let owner: @Sendable () -> String?
 
+    /// Create a process resource detector.
+    public init() {
+        self.init(
+            processIdentifier: { ProcessInfo.processInfo.processIdentifier },
+            executableName: { ProcessInfo.processInfo.processName },
+            executablePath: { ProcessInfo.processInfo.arguments[0] },
+            command: { ProcessInfo.processInfo.arguments.count > 1 ? ProcessInfo.processInfo.arguments[1] : nil },
+            commandLine: { ProcessInfo.processInfo.arguments.joined(separator: " ") },
+            owner: {
+                #if os(macOS) || os(Linux)
+                    return ProcessInfo.processInfo.userName
+                #else
+                    return nil
+                #endif
+            }
+        )
+    }
+
+    @_spi(Testing)
     public init(
-        processIdentifier: @escaping @Sendable () -> Int32 = { ProcessInfo.processInfo.processIdentifier },
-        executableName: @escaping @Sendable () -> String = { ProcessInfo.processInfo.processName },
-        executablePath: @escaping @Sendable () -> String = { ProcessInfo.processInfo.arguments[0] },
-        command: @escaping @Sendable () -> String? = {
-            ProcessInfo.processInfo.arguments.count > 1 ? ProcessInfo.processInfo.arguments[1] : nil
-        },
-        commandLine: @escaping @Sendable () -> String = { ProcessInfo.processInfo.arguments.joined(separator: " ") },
-        owner: @escaping @Sendable () -> String? = {
-            #if os(macOS) || os(Linux)
-                return ProcessInfo.processInfo.userName
-            #else
-                return nil
-            #endif
-        }
+        processIdentifier: @escaping @Sendable () -> Int32,
+        executableName: @escaping @Sendable () -> String,
+        executablePath: @escaping @Sendable () -> String,
+        command: @escaping @Sendable () -> String?,
+        commandLine: @escaping @Sendable () -> String,
+        owner: @escaping @Sendable () -> String?
     ) {
         self.processIdentifier = processIdentifier
         self.executableName = executableName
@@ -49,7 +61,7 @@ public struct OTelProcessResourceDetector: OTelResourceDetector {
         self.owner = owner
     }
 
-    public func resource() async -> OTelResource {
+    public func resource(logger: Logger) -> OTelResource {
         var attributes: SpanAttributes = [:]
 
         attributes["process.pid"] = SpanAttribute.int32(processIdentifier())

@@ -11,15 +11,18 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
+
 /// A resource detector asynchronously detects attributes describing an ``OTelResource``.
 ///
 /// [OTel Specification: Resource Creation](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/resource/sdk.md#resource-creation)
-public protocol OTelResourceDetector: Sendable, CustomStringConvertible {
+public protocol OTelResourceDetector: Sendable {
     /// Detect attributes describing a resource.
     ///
     /// - Important: A successful detection of zero attributes **should not** result in an error being thrown.
     /// Instead, return an empty resource. Only throw an error if the attempt to detect the resource fails.
     ///
+    /// - Parameter logger: A logger to be used during resource detection.
     /// - Returns: An ``OTelResource`` detected by this detector.
-    func resource() async throws -> OTelResource
+    func resource(logger: Logger) async throws -> OTelResource
 }

@@ -25,18 +25,19 @@ final class OTelTracerTests: XCTestCase {
 
     // MARK: - Tracer
 
-    func test_startSpan_withoutParentSpanContext_generatesNewTraceID() async throws {
+    func test_startSpan_withoutParentSpanContext_generatesNewTraceID() throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
         let sampler = OTelConstantSampler(isOn: true)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let span = tracer.startSpan("test")
@@ -54,19 +55,20 @@ final class OTelTracerTests: XCTestCase {
         )
     }
 
-    func test_startSpan_withParentSpanContext_reusesTraceID() async throws {
+    func test_startSpan_withParentSpanContext_reusesTraceID() throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
         let randomIDGenerator = OTelRandomIDGenerator()
         let sampler = OTelConstantSampler(isOn: true)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let traceID = randomIDGenerator.nextTraceID()
@@ -99,18 +101,19 @@ final class OTelTracerTests: XCTestCase {
         )
     }
 
-    func test_startSpan_whenSamplerDrops_doesNotSetSampledFlag() async throws {
+    func test_startSpan_whenSamplerDrops_doesNotSetSampledFlag() throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
         let sampler = OTelConstantSampler(decision: .drop)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let span = tracer.startSpan("test")
@@ -128,18 +131,19 @@ final class OTelTracerTests: XCTestCase {
         )
     }
 
-    func test_startSpan_whenSamplerRecordsWithoutSampling_doesNotSetSampledFlag() async throws {
+    func test_startSpan_whenSamplerRecordsWithoutSampling_doesNotSetSampledFlag() throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
         let sampler = OTelConstantSampler(decision: .record)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let span = tracer.startSpan("test")
@@ -157,18 +161,19 @@ final class OTelTracerTests: XCTestCase {
         )
     }
 
-    func test_startSpan_whenSamplerDrops_usesNoOpSpan() async throws {
+    func test_startSpan_whenSamplerDrops_usesNoOpSpan() throws {
         let idGenerator = OTelConstantIDGenerator(traceID: .oneToSixteen, spanID: .oneToEight)
         let sampler = OTelConstantSampler(decision: .drop)
         let propagator = OTelW3CPropagator()
         let processor = OTelNoOpSpanProcessor()
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let span = tracer.startSpan("test")
@@ -184,13 +189,13 @@ final class OTelTracerTests: XCTestCase {
         var batches = await exporter.batches.makeAsyncIterator()
         let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
             environment: [:],
-            resourceDetection: .manual(OTelResource(attributes: ["service.name": "test"]))
+            resource: OTelResource(attributes: ["service.name": "test"])
         )
 
         let logger = Logger(label: #function)
@@ -221,12 +226,13 @@ final class OTelTracerTests: XCTestCase {
         var batches = await exporter.batches.makeAsyncIterator()
         let processor = OTelSimpleSpanProcessor(exporter: exporter)
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let logger = Logger(label: #function)
@@ -248,207 +254,6 @@ final class OTelTracerTests: XCTestCase {
         await serviceGroup.triggerGracefulShutdown()
     }
 
-    func test_startSpan_onSpanEnd_whenServiceNameEnvironmentVariableIsSet_usesServiceName() async throws {
-        let idGenerator = OTelRandomIDGenerator()
-        let sampler = OTelConstantSampler(isOn: true)
-        let propagator = OTelW3CPropagator()
-        let exporter = OTelStreamingSpanExporter()
-        var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exporter: exporter)
-
-        struct ManualDetector: OTelResourceDetector {
-            let description = "manual"
-
-            func resource() async throws -> OTelResource { OTelResource(attributes: ["service.name": "manual"]) }
-        }
-
-        let tracer = await OTelTracer(
-            idGenerator: idGenerator,
-            sampler: sampler,
-            propagator: propagator,
-            processor: processor,
-            environment: [
-                "OTEL_SERVICE_NAME": "environment",
-                "OTEL_RESOURCE_ATTRIBUTES": "service.name=environment_resource_attributes",
-            ],
-            resourceDetection: .automatic(additionalDetectors: [ManualDetector()])
-        )
-
-        let logger = Logger(label: #function)
-        let serviceGroup = ServiceGroup(services: [tracer], logger: logger)
-
-        Task {
-            try await serviceGroup.run()
-        }
-
-        let span = tracer.startSpan("1")
-        span.end()
-
-        let batch1 = await batches.next()
-        let finishedSpan = try XCTUnwrap(batch1?.first)
-        XCTAssertEqual(finishedSpan.resource.attributes["service.name"]?.toSpanAttribute(), "environment")
-
-        await serviceGroup.triggerGracefulShutdown()
-    }
-
-    func test_startSpan_onSpanEnd_whenServiceNameAttributeIsSet_usesServiceName() async throws {
-        let idGenerator = OTelRandomIDGenerator()
-        let sampler = OTelConstantSampler(isOn: true)
-        let propagator = OTelW3CPropagator()
-        let exporter = OTelStreamingSpanExporter()
-        var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exporter: exporter)
-
-        let tracer = await OTelTracer(
-            idGenerator: idGenerator,
-            sampler: sampler,
-            propagator: propagator,
-            processor: processor,
-            environment: [:],
-            resourceDetection: .manual(OTelResource(attributes: ["service.name": "manual"]))
-        )
-
-        let logger = Logger(label: #function)
-        let serviceGroup = ServiceGroup(services: [tracer], logger: logger)
-
-        Task {
-            try await serviceGroup.run()
-        }
-
-        let span = tracer.startSpan("1")
-        span.end()
-
-        let batch1 = await batches.next()
-        let finishedSpan = try XCTUnwrap(batch1?.first)
-        XCTAssertEqual(finishedSpan.resource.attributes["service.name"]?.toSpanAttribute(), "manual")
-
-        await serviceGroup.triggerGracefulShutdown()
-    }
-
-    func test_startSpan_onSpanEnd_whenExecutableNameIsSet_includesExecutableNameInFallbackService() async throws {
-        let idGenerator = OTelRandomIDGenerator()
-        let sampler = OTelConstantSampler(isOn: true)
-        let propagator = OTelW3CPropagator()
-        let exporter = OTelStreamingSpanExporter()
-        var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exporter: exporter)
-
-        let tracer = await OTelTracer(
-            idGenerator: idGenerator,
-            sampler: sampler,
-            propagator: propagator,
-            processor: processor,
-            environment: [:],
-            resourceDetection: .manual(OTelResource(attributes: ["process.executable.name": "swift"]))
-        )
-
-        let logger = Logger(label: #function)
-        let serviceGroup = ServiceGroup(services: [tracer], logger: logger)
-
-        Task {
-            try await serviceGroup.run()
-        }
-
-        let span = tracer.startSpan("1")
-        span.end()
-
-        let batch1 = await batches.next()
-        let finishedSpan = try XCTUnwrap(batch1?.first)
-        XCTAssertEqual(finishedSpan.resource.attributes["service.name"]?.toSpanAttribute(), "unknown_service:swift")
-
-        await serviceGroup.triggerGracefulShutdown()
-    }
-
-    func test_startSpan_onSpanEnd_whenExecutableNameIsNotSet_usesFallbackServiceName() async throws {
-        let idGenerator = OTelRandomIDGenerator()
-        let sampler = OTelConstantSampler(isOn: true)
-        let propagator = OTelW3CPropagator()
-        let exporter = OTelStreamingSpanExporter()
-        var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exporter: exporter)
-
-        let tracer = await OTelTracer(
-            idGenerator: idGenerator,
-            sampler: sampler,
-            propagator: propagator,
-            processor: processor,
-            environment: [:],
-            resourceDetection: .disabled
-        )
-
-        let logger = Logger(label: #function)
-        let serviceGroup = ServiceGroup(services: [tracer], logger: logger)
-
-        Task {
-            try await serviceGroup.run()
-        }
-
-        let span = tracer.startSpan("1")
-        span.end()
-
-        let batch1 = await batches.next()
-        let finishedSpan = try XCTUnwrap(batch1?.first)
-        XCTAssertEqual(finishedSpan.resource.attributes["service.name"]?.toSpanAttribute(), "unknown_service")
-
-        await serviceGroup.triggerGracefulShutdown()
-    }
-
-    func test_startSpan_onSpanEnd_whenResourceDetectionTimedOut_usesFallbackServiceName() async throws {
-        let idGenerator = OTelRandomIDGenerator()
-        let sampler = OTelConstantSampler(isOn: true)
-        let propagator = OTelW3CPropagator()
-        let exporter = OTelStreamingSpanExporter()
-        var batches = await exporter.batches.makeAsyncIterator()
-        let processor = OTelSimpleSpanProcessor(exporter: exporter)
-        let clock = TestClock()
-
-        struct TimeoutResourceDetector: OTelResourceDetector {
-            let description = "timeout"
-
-            let onResource: @Sendable () async -> Void
-
-            func resource() async throws -> OTelResource {
-                await onResource()
-                try await Task.sleep(for: .seconds(1))
-                return OTelResource(attributes: ["service.name": "timeout"])
-            }
-        }
-
-        let resourceDetector = TimeoutResourceDetector {
-            var sleeps = clock.sleepCalls.makeAsyncIterator()
-            await sleeps.next()
-            // advance past timeout
-            clock.advance(by: .seconds(2))
-        }
-
-        let tracer = await OTelTracer(
-            idGenerator: idGenerator,
-            sampler: sampler,
-            propagator: propagator,
-            processor: processor,
-            environment: [:],
-            resourceDetection: .automatic(additionalDetectors: [resourceDetector]),
-            resourceDetectionTimeout: .seconds(1),
-            clock: clock
-        )
-
-        let logger = Logger(label: #function)
-        let serviceGroup = ServiceGroup(services: [tracer], logger: logger)
-
-        Task {
-            try await serviceGroup.run()
-        }
-
-        let span = tracer.startSpan("1")
-        span.end()
-
-        let batch1 = await batches.next()
-        let finishedSpan = try XCTUnwrap(batch1?.first)
-        XCTAssertEqual(finishedSpan.resource.attributes["service.name"]?.toSpanAttribute(), "unknown_service")
-
-        await serviceGroup.triggerGracefulShutdown()
-    }
-
     func test_forceFlush_forceFlushesProcessor() async throws {
         let idGenerator = OTelRandomIDGenerator()
         let sampler = OTelConstantSampler(isOn: true)
@@ -457,12 +262,13 @@ final class OTelTracerTests: XCTestCase {
         let clock = TestClock()
         let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: [:]), clock: clock)
 
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let logger = Logger(label: #function)
@@ -489,15 +295,16 @@ final class OTelTracerTests: XCTestCase {
 
     // MARK: - Instrument
 
-    func test_inject_withSpanContext_callsPropagator() async {
+    func test_inject_withSpanContext_callsPropagator() {
         let idGenerator = OTelRandomIDGenerator()
         let propagator = OTelInMemoryPropagator()
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         var context = ServiceContext.topLevel
@@ -516,14 +323,15 @@ final class OTelTracerTests: XCTestCase {
         XCTAssertEqual(propagator.injectedSpanContexts, [spanContext])
     }
 
-    func test_inject_withoutSpanContext_doesNotCallPropagator() async {
+    func test_inject_withoutSpanContext_doesNotCallPropagator() {
         let propagator = OTelInMemoryPropagator()
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: OTelRandomIDGenerator(),
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         var dictionary = [String: String]()
@@ -531,7 +339,7 @@ final class OTelTracerTests: XCTestCase {
         XCTAssertTrue(propagator.injectedSpanContexts.isEmpty)
     }
 
-    func test_extract_callsPropagator() async throws {
+    func test_extract_callsPropagator() throws {
         let idGenerator = OTelRandomIDGenerator()
         let spanContext = OTelSpanContext(
             traceID: idGenerator.nextTraceID(),
@@ -542,12 +350,13 @@ final class OTelTracerTests: XCTestCase {
             isRemote: false
         )
         let propagator = OTelInMemoryPropagator(extractionResult: .success(spanContext))
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         var context = ServiceContext.topLevel
@@ -566,12 +375,13 @@ final class OTelTracerTests: XCTestCase {
         let clock = TestClock()
         let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: [:]), clock: clock)
         let propagator = OTelInMemoryPropagator(extractionResult: .failure(TestError()))
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: idGenerator,
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: processor,
-            environment: [:]
+            environment: [:],
+            resource: OTelResource()
         )
 
         let logger = Logger(label: #function)

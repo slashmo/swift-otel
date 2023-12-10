@@ -11,51 +11,56 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Logging
 @_spi(Testing) import OTel
 import Tracing
 import XCTest
 
 final class OTelEnvironmentResourceDetectorTests: XCTestCase {
-    func test_resource_withValidEnvironmentVariable_returnsResource() async throws {
+    override func setUp() {
+        LoggingSystem.bootstrapInternal(logLevel: .trace)
+    }
+
+    func test_resource_withValidEnvironmentVariable_returnsResource() throws {
         let environment = OTelEnvironment(values: [
             "OTEL_RESOURCE_ATTRIBUTES": "service.name=test,service.version=1.2.3",
         ])
         let detector = OTelEnvironmentResourceDetector(environment: environment)
 
-        let resource = try await detector.resource()
+        let resource = try detector.resource(logger: Logger(label: #function))
 
         XCTAssertEqual(resource, OTelResource(attributes: ["service.name": "test", "service.version": "1.2.3"]))
     }
 
-    func test_resource_withoutEnvironmentVariable_returnsEmptyResource() async throws {
+    func test_resource_withoutEnvironmentVariable_returnsEmptyResource() throws {
         let environment = OTelEnvironment()
         let detector = OTelEnvironmentResourceDetector(environment: environment)
 
-        let resource = try await detector.resource()
+        let resource = try detector.resource(logger: Logger(label: #function))
 
         XCTAssertEqual(resource, OTelResource())
     }
 
-    func test_resource_withEmptyEnvironmentValue_returnsEmptyResource() async throws {
+    func test_resource_withEmptyEnvironmentValue_returnsEmptyResource() throws {
         let environment = OTelEnvironment(values: ["OTEL_RESOURCE_ATTRIBUTES": ""])
         let detector = OTelEnvironmentResourceDetector(environment: environment)
 
-        let resource = try await detector.resource()
+        let resource = try detector.resource(logger: Logger(label: #function))
 
         XCTAssertEqual(resource, OTelResource())
     }
 
-    func test_resource_withMalformedEnvironmentValue_throwsError() async throws {
+    func test_resource_withMalformedEnvironmentValue_throwsError() throws {
         let environment = OTelEnvironment(
             values: ["OTEL_RESOURCE_ATTRIBUTES": "service.name=test,service.version,service.id=42"]
         )
         let detector = OTelEnvironmentResourceDetector(environment: environment)
 
         do {
-            let resource = try await detector.resource()
+            let resource = try detector.resource(logger: Logger(label: #function))
             XCTFail("Expected error, got resource: \(resource)")
-        } catch let error as OTelEnvironmentResourceDetector.Error {
-            XCTAssertEqual(error, .invalidKeyValuePair(["service.version"]))
+        } catch let error as OTelEnvironmentResourceAttributeParsingError {
+            XCTAssertEqual(error, .init(keyValuePair: ["service.version"]))
         }
     }
 }

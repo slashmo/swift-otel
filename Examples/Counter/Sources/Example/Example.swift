@@ -21,6 +21,14 @@ import Tracing
 @main
 enum Example {
     static func main() async throws {
+        let environment = OTelEnvironment.detected()
+        let resourceDetection = OTelResourceDetection(detectors: [
+            OTelProcessResourceDetector(),
+            OTelEnvironmentResourceDetector(environment: environment),
+            .manual(OTelResource(attributes: ["service.name": "counter"])),
+        ])
+        let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
+
         /*
          Bootstrap the logging system to use the OTel metadata provider.
          This will automatically include trace and span IDs in log statements
@@ -34,8 +42,6 @@ enum Example {
         }, metadataProvider: .otel)
         let logger = Logger(label: "example")
 
-        let environment = OTelEnvironment.detected()
-
         /*
          Here we create an event loop group and an OTel span exporter
          that sends spans via gRPC to an OTel collector.
@@ -44,7 +50,7 @@ enum Example {
         let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment), group: group)
 
         /*
-         This exported is passed to a batch span processor.
+         This exporter is passed to a batch span processor.
          The processor receives ended spans from the tracer, batches them up, and finally forwards them to the exporter.
          */
         let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: environment))
@@ -53,13 +59,13 @@ enum Example {
          We need to await tracer initialization since the tracer needs
          some time to detect attributes about the resource being traced.
          */
-        let tracer = await OTelTracer(
+        let tracer = OTelTracer(
             idGenerator: OTelRandomIDGenerator(),
             sampler: OTelConstantSampler(isOn: true),
             propagator: OTelW3CPropagator(),
             processor: processor,
             environment: environment,
-            resourceDetection: .manual(OTelResource(attributes: ["service.name": "counter"]))
+            resource: resource
         )
 
         /*

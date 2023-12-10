@@ -2,10 +2,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-otel-basic",
+    name: "swift-otel-counter",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "example", targets: ["Example"]),
+        .executable(name: "counter", targets: ["Example"]),
     ],
     dependencies: [
         .package(path: "../../"),

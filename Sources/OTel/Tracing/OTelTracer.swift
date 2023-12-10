@@ -43,63 +43,16 @@ public final class OTelTracer<
         propagator: Propagator,
         processor: Processor,
         environment: OTelEnvironment,
-        resourceDetection: OTelResourceDetection = .disabled,
-        resourceDetectionTimeout: Duration = .seconds(3),
+        resource: OTelResource,
         clock: Clock
-    ) async {
+    ) {
         self.idGenerator = idGenerator
         self.sampler = sampler
         self.propagator = propagator
         self.processor = processor
-        let logger = Logger(label: "OTelTracer")
-        self.logger = logger
-
-        let detectedResource = await withThrowingTaskGroup(
-            of: OTelResource.self,
-            returning: OTelResource.self
-        ) { group in
-            group.addTask {
-                let detectedResource = await resourceDetection.resource(
-                    environmentDetector: OTelEnvironmentResourceDetector(environment: environment),
-                    logger: logger
-                )
-                return detectedResource
-            }
-
-            group.addTask {
-                try? await Task.sleep(for: resourceDetectionTimeout, clock: clock)
-                throw CancellationError()
-            }
-
-            do {
-                let detectedResource = try await group.next() ?? OTelResource()
-                group.cancelAll()
-                return detectedResource
-            } catch {
-                logger.notice("Resource detection timed out. Using fallback service name.", metadata: [
-                    "fallback": "unknown_service",
-                ])
-                group.cancelAll()
-                return OTelResource()
-            }
-        }
-
-        let serviceName = Self.serviceName(environment: environment, resource: detectedResource)
-        resource = detectedResource.merging(OTelResource(attributes: ["service.name": "\(serviceName)"]))
-
+        logger = Logger(label: "OTelTracer")
+        self.resource = resource
         (eventStream, eventStreamContinuation) = AsyncStream.makeStream()
-    }
-
-    private static func serviceName(environment: OTelEnvironment, resource: OTelResource) -> String {
-        if let serviceName = environment.values["OTEL_SERVICE_NAME"] {
-            return serviceName
-        } else if case .string(let serviceName) = resource.attributes["service.name"]?.toSpanAttribute() {
-            return serviceName
-        } else if case .string(let executableName) = resource.attributes["process.executable.name"]?.toSpanAttribute() {
-            return "unknown_service:\(executableName)"
-        } else {
-            return "unknown_service"
-        }
     }
 
     private enum Event {
@@ -118,25 +71,22 @@ extension OTelTracer where Clock == ContinuousClock {
     ///   - propagator: The propagator injecting/extracting span contexts.
     ///   - processor: The processor handling started/ended spans.
     ///   - environment: The environment variables.
-    ///   - resourceDetection: How to detect attributes about the resource being traced. Defaults to `.disabled`.
-    ///   - resourceDetectionTimeout: How long resource detection is allowed to run before being cancelled. Defaults to `3` seconds.
+    ///   - resource: Attributes about the resource being traced. Should be obtained using <doc:resource-detection>.
     public convenience init(
         idGenerator: IDGenerator,
         sampler: Sampler,
         propagator: Propagator,
         processor: Processor,
         environment: OTelEnvironment,
-        resourceDetection: OTelResourceDetection = .disabled,
-        resourceDetectionTimeout: Duration = .seconds(3)
-    ) async {
-        await self.init(
+        resource: OTelResource
+    ) {
+        self.init(
             idGenerator: idGenerator,
             sampler: sampler,
             propagator: propagator,
             processor: processor,
             environment: environment,
-            resourceDetection: resourceDetection,
-            resourceDetectionTimeout: resourceDetectionTimeout,
+            resource: resource,
             clock: .continuous
         )
     }

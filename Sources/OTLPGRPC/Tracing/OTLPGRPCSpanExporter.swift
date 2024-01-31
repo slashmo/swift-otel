@@ -37,7 +37,7 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
     ///   - backgroundActivityLogger: Logs info about the underlying gRPC connection. Defaults to disabled, i.e. not emitting any logs.
     public init(
         configuration: OTLPGRPCSpanExporterConfiguration,
-        group: any EventLoopGroup,
+        group: any EventLoopGroup = MultiThreadedEventLoopGroup.singleton,
         requestLogger: Logger = ._otelDisabled,
         backgroundActivityLogger: Logger = ._otelDisabled
     ) {

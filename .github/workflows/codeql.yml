@@ -15,6 +15,8 @@ jobs:
 
     strategy:
       fail-fast: false
+      matrix:
+        swift: [5.9]
 
     steps:
     - name: Install Swift
@@ -36,8 +38,8 @@ jobs:
       uses: actions/cache@v4.0.0
       with:
         path: .build
-        key: ${{ runner.os }}-${{ matrix.swift }}-spm-${{ hashFiles('Package.swift') }}
-        restore-keys: ${{ runner.os }}-${{ matrix.swift }}-spm-
+        key: ${{ runner.os }}-${{ matrix.swift }}-codeql-spm-${{ hashFiles('Package.swift') }}
+        restore-keys: ${{ runner.os }}-${{ matrix.swift }}-codeql-spm-
 
     - name: Resolve Swift dependencies
       run: swift package resolve

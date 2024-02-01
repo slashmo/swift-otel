@@ -13,7 +13,6 @@
 
 import Hummingbird
 import Logging
-import NIO
 import OTel
 import OTLPGRPC
 import ServiceLifecycle
@@ -39,7 +38,7 @@ enum ServerMiddlewareExample {
         let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
 
         // Bootstrap the tracing backend to export traces periodically in OTLP/gRPC.
-        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment), group: MultiThreadedEventLoopGroup.singleton)
+        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))
         let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: environment))
         let tracer = OTelTracer(
             idGenerator: OTelRandomIDGenerator(),

@@ -54,7 +54,7 @@ enum ServerMiddlewareExample {
         let router = HBRouter()
         router.middlewares.add(HBTracingMiddleware())
         router.middlewares.add(HBLogRequestsMiddleware(.info))
-        router.get("hello") { request, context  in "hello" }
+        router.get("hello") { _, _ in "hello" }
         var app = HBApplication(router: router)
 
         // Add the tracer lifecycle service to the HTTP server service group and start the application.

@@ -31,6 +31,8 @@ jobs:
         uses: vapor/swiftly-action@v0.1
         with:
           toolchain: ${{ matrix.swift }}
+        env:
+          SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout
         uses: actions/checkout@v4.1.0
@@ -76,6 +78,8 @@ jobs:
         uses: vapor/swiftly-action@v0.1
         with:
           toolchain: latest
+        env:
+          SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout
         uses: actions/checkout@v4.1.0
       - name: Resolve Swift dependencies

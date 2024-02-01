@@ -79,7 +79,7 @@ should include an OTel `trace_id` field.
 
 Visit Jaeger UI in your browser at [localhost:16686](http://localhost:16686).
 
-Select `HelloWorldServer` from the dropdown and click `Find Traces`, or use
+Select `example_server` from the dropdown and click `Find Traces`, or use
 [this pre-canned link](http://localhost:16686/search?service=example_server).
 
 See the traces for the recent requests and click to select a trace for a given request.

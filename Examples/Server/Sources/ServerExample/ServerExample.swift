@@ -29,7 +29,7 @@ enum ServerMiddlewareExample {
             return handler
         }
 
-        // Configure OTel resource detection to apply attributes to automatically apply helpful attributes to events.
+        // Configure OTel resource detection to automatically apply helpful attributes to events.
         let environment = OTelEnvironment.detected()
         let resourceDetection = OTelResourceDetection(detectors: [
             OTelProcessResourceDetector(),

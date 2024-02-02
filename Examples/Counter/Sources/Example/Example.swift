@@ -43,11 +43,9 @@ enum Example {
         let logger = Logger(label: "example")
 
         /*
-         Here we create an event loop group and an OTel span exporter
-         that sends spans via gRPC to an OTel collector.
+         Here we create an OTel span exporter that sends spans via gRPC to an OTel collector.
          */
-        let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
-        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment), group: group)
+        let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))
 
         /*
          This exporter is passed to a batch span processor.

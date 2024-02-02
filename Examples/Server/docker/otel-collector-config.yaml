@@ -4,9 +4,6 @@ receivers:
       grpc:
         endpoint: "otel-collector:4317"
 
-processors:
-  batch: {}
-
 exporters:
   debug:  # Data sources: traces, metrics, logs
     verbosity: detailed
@@ -20,7 +17,6 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
       exporters: [otlp/jaeger, debug]
 
 # yaml-language-server: $schema=https://raw.githubusercontent.com/srikanthccv/otelcol-jsonschema/main/schema.json

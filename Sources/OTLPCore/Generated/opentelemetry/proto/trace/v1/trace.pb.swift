@@ -369,7 +369,7 @@ public struct Opentelemetry_Proto_Trace_V1_Span {
 
 extension Opentelemetry_Proto_Trace_V1_Span.SpanKind: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  public static var allCases: [Opentelemetry_Proto_Trace_V1_Span.SpanKind] = [
+  public static let allCases: [Opentelemetry_Proto_Trace_V1_Span.SpanKind] = [
     .unspecified,
     .internal,
     .server,
@@ -443,7 +443,7 @@ public struct Opentelemetry_Proto_Trace_V1_Status {
 
 extension Opentelemetry_Proto_Trace_V1_Status.StatusCode: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  public static var allCases: [Opentelemetry_Proto_Trace_V1_Status.StatusCode] = [
+  public static let allCases: [Opentelemetry_Proto_Trace_V1_Status.StatusCode] = [
     .unset,
     .ok,
     .error,

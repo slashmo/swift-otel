@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 @testable import OTel
+import OTelTesting
 import XCTest
 
 final class HistogramTests: XCTestCase {
@@ -22,8 +23,7 @@ final class HistogramTests: XCTestCase {
             .milliseconds(500),
             .seconds(1),
         ])
-        histogram.box.withLockedValue { _ in
-        }
+
         histogram.assertStateEquals(count: 0, sum: .zero, buckets: [
             (bound: .milliseconds(100), count: 0),
             (bound: .milliseconds(250), count: 0),
@@ -117,30 +117,5 @@ final class HistogramTests: XCTestCase {
         }
         XCTAssert(Double.nan.bucketRepresentation.isNaN)
         XCTAssert(Double.signalingNaN.bucketRepresentation.isSignalingNaN)
-    }
-}
-
-extension DurationHistogram {
-    fileprivate struct EquatableBucket: Equatable {
-        var bound: Duration
-        var count: Int
-    }
-
-    fileprivate func assertStateEquals(
-        count: Int,
-        sum: Duration,
-        buckets: [(bound: Duration, count: Int)],
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        let state = box.withLockedValue { $0 }
-        XCTAssertEqual(state.count, count, "Unexpected count", file: file, line: line)
-        XCTAssertEqual(state.sum, sum, "Unexpected sum", file: file, line: line)
-        XCTAssertEqual(
-            state.buckets.map { EquatableBucket(bound: $0.bound, count: $0.count) },
-            buckets.map { EquatableBucket(bound: $0.bound, count: $0.count) },
-            "Unexpected buckets",
-            file: file, line: line
-        )
     }
 }

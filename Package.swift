@@ -18,6 +18,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.2"),
+        .package(url: "https://github.com/apple/swift-metrics.git", from: "2.4.1"),
 
         // MARK: - OTLP
 
@@ -40,6 +41,7 @@ let package = Package(
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
                 .product(name: "Atomics", package: "swift-atomics"),
+                .product(name: "CoreMetrics", package: "swift-metrics"),
             ],
             swiftSettings: sharedSwiftSettings
         ),

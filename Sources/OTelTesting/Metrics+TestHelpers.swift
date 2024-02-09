@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import OTel
+@testable @_spi(Metrics) import OTel
 import XCTest
 
 extension Counter {
@@ -50,5 +50,64 @@ extension Histogram {
             "Unexpected buckets",
             file: file, line: line
         )
+    }
+}
+
+extension OTelMetricPoint.OTelMetricData {
+    package var asSum: OTelSum? {
+        guard case .sum(let sum) = self else { return nil }
+        return sum
+    }
+
+    package var asGauge: OTelGauge? {
+        guard case .gauge(let gauge) = self else { return nil }
+        return gauge
+    }
+
+    package var asHistogram: OTelHistogram? {
+        guard case .histogram(let histogram) = self else { return nil }
+        return histogram
+    }
+
+    package func assertIsCumulativeSumWithOneValue(_ value: OTelNumberDataPoint.Value, file: StaticString = #file, line: UInt = #line) {
+        guard
+            case .sum(let sum) = self,
+            sum.monotonic,
+            sum.aggregationTemporality == .cumulative,
+            sum.points.count == 1,
+            let point = sum.points.first
+        else {
+            XCTFail("Not cumulative sum with one point: \(self)", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(point.value, value, file: file, line: line)
+    }
+
+    package func assertIsGaugeWithOneValue(_ value: OTelNumberDataPoint.Value, file: StaticString = #file, line: UInt = #line) {
+        guard
+            case .gauge(let gauge) = self,
+            gauge.points.count == 1,
+            let point = gauge.points.first
+        else {
+            XCTFail("Not gauge with one point: \(self)", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(point.value, value, file: file, line: line)
+    }
+
+    package func assertIsCumulativeHistogramWith(count: Int, sum: Double, buckets: [OTelHistogramDataPoint.Bucket], file: StaticString = #file, line: UInt = #line) {
+        guard
+            case .histogram(let histogram) = self,
+            histogram.aggregationTemporality == .cumulative,
+            histogram.points.count == 1,
+            let point = histogram.points.first
+        else {
+            XCTFail("Not cumulative histogram with one point: \(self)", file: file, line: line)
+            return
+        }
+
+        XCTAssertEqual(point.count, UInt64(count), file: file, line: line)
+        XCTAssertEqual(point.sum, sum, file: file, line: line)
+        XCTAssertEqual(point.buckets, buckets, file: file, line: line)
     }
 }

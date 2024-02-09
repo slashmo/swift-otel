@@ -32,6 +32,26 @@ public final class TestClock: Clock, @unchecked Sendable {
         public static func < (lhs: Self, rhs: Self) -> Bool {
             lhs.offset < rhs.offset
         }
+
+        public static func minutes(_ minutes: some BinaryInteger) -> Self {
+            .init(offset: .seconds(minutes * 60))
+        }
+
+        public static func seconds(_ seconds: some BinaryInteger) -> Self {
+            .init(offset: .seconds(seconds))
+        }
+
+        public static func milliseconds(_ milliseconds: some BinaryInteger) -> Self {
+            .init(offset: .milliseconds(milliseconds))
+        }
+
+        public static func microseconds(_ microseconds: some BinaryInteger) -> Self {
+            .init(offset: .microseconds(microseconds))
+        }
+
+        public static func nanoseconds(_ nanoseconds: some BinaryInteger) -> Self {
+            .init(offset: .nanoseconds(nanoseconds))
+        }
     }
 
     public var minimumResolution: Duration = .zero
@@ -60,44 +80,68 @@ public final class TestClock: Clock, @unchecked Sendable {
     public func sleep(until deadline: Instant, tolerance: Duration? = nil) async throws {
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
-                self.state.withLockedValue { state in
-                    if deadline <= state.now {
-                        continuation.resume()
+                enum Action {
+                    case shouldResume, shouldCancel, none
+                }
+                let action = self.state.withLockedValue { state -> Action in
+                    guard !Task.isCancelled else {
+                        return .shouldCancel
                     }
-
+                    guard deadline > state.now else {
+                        return .shouldResume
+                    }
                     let id = UInt64.random(in: .min ..< .max)
                     state.continuations.append((id, deadline, continuation))
+                    return .none
+                }
+                switch action {
+                case .shouldResume:
+                    continuation.resume()
+                case .shouldCancel:
+                    continuation.resume(throwing: CancellationError())
+                case .none:
+                    break
                 }
                 sleepCallsContinuation.yield()
             }
         } onCancel: {
-            self.state.withLockedValue { state in
-                for entry in state.continuations {
-                    entry.continuation.resume(throwing: CancellationError())
-                    state.continuations.removeAll(where: { $0.id == entry.id })
-                }
+            let continuations = self.state.withLockedValue { state in
+                let continutations = state.continuations
+                state.continuations.removeAll()
+                return continutations
+            }
+            for entry in continuations {
+                entry.continuation.resume(throwing: CancellationError())
             }
         }
     }
 
     public func advance(by duration: Duration = .zero) {
-        state.withLockedValue { state in
-            let newDeadline = state.now.advanced(by: duration)
-            precondition(state.now < newDeadline)
-            state.now = newDeadline
+        let continuationsToResume = state.withLockedValue { state in
+            let deadline = state.now.advanced(by: duration)
+            precondition(state.now < deadline)
+            state.now = deadline
 
-            state.continuations.lazy.filter { $0.deadline <= newDeadline }.forEach { $0.continuation.resume() }
-            state.continuations.removeAll { $0.deadline <= newDeadline }
+            let continuationsToResume = state.continuations.filter { $0.deadline <= deadline }
+            state.continuations.removeAll { $0.deadline <= deadline }
+            return continuationsToResume
+        }
+        for entry in continuationsToResume {
+            entry.continuation.resume()
         }
     }
 
     public func advance(to deadline: Instant) {
-        state.withLockedValue { state in
+        let continuationsToResume = state.withLockedValue { state in
             precondition(state.now < deadline)
             state.now = deadline
 
-            state.continuations.lazy.filter { $0.deadline <= deadline }.forEach { $0.continuation.resume() }
+            let continuationsToResume = state.continuations.filter { $0.deadline <= deadline }
             state.continuations.removeAll { $0.deadline <= deadline }
+            return continuationsToResume
+        }
+        for entry in continuationsToResume {
+            entry.continuation.resume()
         }
     }
 }

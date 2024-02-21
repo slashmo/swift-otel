@@ -13,7 +13,7 @@
 
 import Logging
 import struct NIOConcurrencyHelpers.NIOLockedValueBox
-@testable import OTel
+@testable @_spi(Metrics) import OTel
 import OTelTesting
 import XCTest
 
@@ -79,7 +79,7 @@ final class OTelMetricRegistryTests: XCTestCase {
         )
     }
 
-    func test_identity_sameNameDifferentOrder_identical() {
+    func test_identity_sameNameDifferentLabelOrder_identical() {
         let registry = OTelMetricRegistry()
         XCTAssertIdentical(
             registry.makeCounter(name: "c", labels: [("one", "1"), ("two", "2")]),
@@ -281,6 +281,107 @@ final class OTelMetricRegistryTests: XCTestCase {
 
         XCTAssertEqual(duplicateRegistrationHandler.invocations.withLockedValue { $0 }.count, 0)
     }
+
+    func test_makeCounter_retainsAllMadeInstruments() {
+        let registry = OTelMetricRegistry()
+        XCTAssertEqual(registry.numDistinctInstruments, 0)
+        _ = registry.makeCounter(name: "c1")
+        _ = registry.makeCounter(name: "c1")
+        _ = registry.makeCounter(name: "c1", labels: [])
+        _ = registry.makeCounter(name: "c1", labels: [])
+        XCTAssertEqual(registry.numDistinctInstruments, 1)
+        _ = registry.makeCounter(name: "c1", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "c1", labels: [("x", "1")])
+        XCTAssertEqual(registry.numDistinctInstruments, 2)
+        _ = registry.makeCounter(name: "c1", labels: [("x", "2")])
+        _ = registry.makeCounter(name: "c1", labels: [("x", "2")])
+        XCTAssertEqual(registry.numDistinctInstruments, 3)
+        _ = registry.makeCounter(name: "c1", labels: [("y", "1")])
+        _ = registry.makeCounter(name: "c1", labels: [("y", "1")])
+        XCTAssertEqual(registry.numDistinctInstruments, 4)
+        _ = registry.makeCounter(name: "c2")
+        _ = registry.makeCounter(name: "c2")
+        XCTAssertEqual(registry.numDistinctInstruments, 5)
+    }
+
+    func test_makeGauge_retainsAllMadeInstruments() {
+        let registry = OTelMetricRegistry()
+        _ = registry.makeGauge(name: "g1")
+        _ = registry.makeGauge(name: "g1")
+        _ = registry.makeGauge(name: "g1", labels: [])
+        _ = registry.makeGauge(name: "g1", labels: [])
+        XCTAssertEqual(registry.numDistinctInstruments, 1)
+        _ = registry.makeGauge(name: "g1", labels: [("x", "1")])
+        _ = registry.makeGauge(name: "g1", labels: [("x", "1")])
+        XCTAssertEqual(registry.numDistinctInstruments, 2)
+        _ = registry.makeGauge(name: "g1", labels: [("x", "2")])
+        _ = registry.makeGauge(name: "g1", labels: [("x", "2")])
+        XCTAssertEqual(registry.numDistinctInstruments, 3)
+        _ = registry.makeGauge(name: "g1", labels: [("y", "1")])
+        _ = registry.makeGauge(name: "g1", labels: [("y", "1")])
+        XCTAssertEqual(registry.numDistinctInstruments, 4)
+        _ = registry.makeGauge(name: "g2")
+        _ = registry.makeGauge(name: "g2")
+        XCTAssertEqual(registry.numDistinctInstruments, 5)
+    }
+
+    func test_makeValueHistogram_retainsAllMadeInstruments() {
+        let registry = OTelMetricRegistry()
+        _ = registry.makeValueHistogram(name: "v1", buckets: [])
+        _ = registry.makeValueHistogram(name: "v1", buckets: [])
+        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [1, 2])
+        XCTAssertEqual(registry.numDistinctInstruments, 1)
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [1, 2])
+        XCTAssertEqual(registry.numDistinctInstruments, 2)
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [1, 2])
+        XCTAssertEqual(registry.numDistinctInstruments, 3)
+        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [1, 2])
+        XCTAssertEqual(registry.numDistinctInstruments, 4)
+        _ = registry.makeValueHistogram(name: "v2", buckets: [])
+        _ = registry.makeValueHistogram(name: "v2", buckets: [])
+        XCTAssertEqual(registry.numDistinctInstruments, 5)
+    }
+
+    func test_makeDurationHistogram_retainsAllMadeInstruments() {
+        let registry = OTelMetricRegistry()
+        _ = registry.makeDurationHistogram(name: "d1", buckets: [])
+        _ = registry.makeDurationHistogram(name: "d1", buckets: [])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(2)])
+        XCTAssertEqual(registry.numDistinctInstruments, 1)
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(2)])
+        XCTAssertEqual(registry.numDistinctInstruments, 2)
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(2)])
+        XCTAssertEqual(registry.numDistinctInstruments, 3)
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(2)])
+        XCTAssertEqual(registry.numDistinctInstruments, 4)
+        _ = registry.makeDurationHistogram(name: "d2", buckets: [])
+        _ = registry.makeDurationHistogram(name: "d2", buckets: [])
+        XCTAssertEqual(registry.numDistinctInstruments, 5)
+    }
 }
 
 final class DuplicateRegistrationHandlerTests: XCTestCase {
@@ -314,5 +415,18 @@ final class DuplicateRegistrationHandlerTests: XCTestCase {
 
     func test_DuplicateRegistrationHandler_default() {
         XCTAssert(OTelMetricRegistry().storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
+    }
+}
+
+extension OTelMetricRegistry {
+    var numDistinctInstruments: Int {
+        let metrics = storage.withLockedValue { $0 }
+        let x: [Int] = [
+            metrics.counters.values.map(\.values.count).reduce(0, +),
+            metrics.gauges.values.map(\.values.count).reduce(0, +),
+            metrics.durationHistograms.values.map(\.values.count).reduce(0, +),
+            metrics.valueHistograms.values.map(\.values.count).reduce(0, +),
+        ]
+        return x.reduce(0, +)
     }
 }

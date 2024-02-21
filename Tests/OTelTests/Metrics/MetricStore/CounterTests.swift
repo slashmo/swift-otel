@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 @testable import OTel
+import OTelTesting
 import XCTest
 
 final class CounterTests: XCTestCase {
@@ -53,15 +54,5 @@ final class CounterTests: XCTestCase {
             }
         }
         counter.assertStateEquals(integerPart: 100_000, doublePart: 100_000)
-    }
-}
-
-extension Counter {
-    private var integerAtomicValue: Int64 { intAtomic.load(ordering: .relaxed) }
-    private var doubleAtomicValue: Double { Double(bitPattern: floatAtomic.load(ordering: .relaxed)) }
-
-    fileprivate func assertStateEquals(integerPart: Int64, doublePart: Double, file: StaticString = #file, line: UInt = #line) {
-        XCTAssertEqual(integerAtomicValue, integerPart, "Unexpected integer part", file: file, line: line)
-        XCTAssertEqual(doubleAtomicValue, doublePart, "Unexpected double part", file: file, line: line)
     }
 }

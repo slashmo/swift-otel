@@ -18,6 +18,7 @@ import struct NIOConcurrencyHelpers.NIOLockedValueBox
 ///
 /// The registry owns the mapping from instrument identfier and attributes to the stateful instrument for recording
 /// measurements.
+@_spi(Metrics)
 public final class OTelMetricRegistry: Sendable {
     private let logger = Logger(label: "OTelMetricRegistry")
 
@@ -95,6 +96,7 @@ public final class OTelMetricRegistry: Sendable {
                 }
                 let newInstrument = Counter(name: name, unit: unit, description: description, attributes: attributes)
                 existingInstruments[attributes] = newInstrument
+                storage.counters[identifier] = existingInstruments
                 return newInstrument
             }
             storage.register(identifier, forName: name)
@@ -113,6 +115,7 @@ public final class OTelMetricRegistry: Sendable {
                 }
                 let newInstrument = Gauge(name: name, unit: unit, description: description, attributes: attributes)
                 existingInstruments[attributes] = newInstrument
+                storage.gauges[identifier] = existingInstruments
                 return newInstrument
             }
             storage.register(identifier, forName: name)
@@ -131,6 +134,7 @@ public final class OTelMetricRegistry: Sendable {
                 }
                 let newInstrument = DurationHistogram(name: name, unit: unit, description: description, attributes: attributes, buckets: buckets)
                 existingInstruments[attributes] = newInstrument
+                storage.durationHistograms[identifier] = existingInstruments
                 return newInstrument
             }
             storage.register(identifier, forName: name)
@@ -149,6 +153,7 @@ public final class OTelMetricRegistry: Sendable {
                 }
                 let newInstrument = ValueHistogram(name: name, unit: unit, description: description, attributes: attributes, buckets: buckets)
                 existingInstruments[attributes] = newInstrument
+                storage.valueHistograms[identifier] = existingInstruments
                 return newInstrument
             }
             storage.register(identifier, forName: name)
@@ -166,6 +171,8 @@ public final class OTelMetricRegistry: Sendable {
                 if existingInstrument.isEmpty {
                     storage.counters.removeValue(forKey: identifier)
                     storage.unregister(identifier, forName: identifier.name)
+                } else {
+                    storage.counters[identifier] = existingInstrument
                 }
             }
         }
@@ -179,6 +186,8 @@ public final class OTelMetricRegistry: Sendable {
                 if existingInstrument.isEmpty {
                     storage.gauges.removeValue(forKey: identifier)
                     storage.unregister(identifier, forName: identifier.name)
+                } else {
+                    storage.gauges[identifier] = existingInstrument
                 }
             }
         }
@@ -192,6 +201,8 @@ public final class OTelMetricRegistry: Sendable {
                 if existingInstrument.isEmpty {
                     storage.durationHistograms.removeValue(forKey: identifier)
                     storage.unregister(identifier, forName: identifier.name)
+                } else {
+                    storage.durationHistograms[identifier] = existingInstrument
                 }
             }
         }
@@ -205,6 +216,8 @@ public final class OTelMetricRegistry: Sendable {
                 if existingInstrument.isEmpty {
                     storage.valueHistograms.removeValue(forKey: identifier)
                     storage.unregister(identifier, forName: identifier.name)
+                } else {
+                    storage.valueHistograms[identifier] = existingInstrument
                 }
             }
         }

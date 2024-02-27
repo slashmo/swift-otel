@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import class Foundation.Thread
 import struct NIOConcurrencyHelpers.NIOLockedValueBox
-import XCTest
 
 func fatalError(_ message: @autoclosure () -> String = String(), file: StaticString = #file, line: UInt = #line) -> Never {
     print("hooking fatal error")

@@ -35,7 +35,7 @@ jobs:
         languages: swift
 
     - name: Cache Swift PM
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@v4.0.1
       with:
         path: .build
         key: ${{ runner.os }}-${{ matrix.swift }}-codeql-spm-${{ hashFiles('Package.swift') }}

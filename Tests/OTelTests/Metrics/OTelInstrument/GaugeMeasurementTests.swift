@@ -59,9 +59,11 @@ final class GaugeMeasurementTests: XCTestCase {
         gauge.measure().data.assertIsGaugeWithOneValue(.double(100_000))
     }
 
-    func test_measure_measurementIncludesName() {
-        let gauge = Gauge(name: "my_gauge", attributes: [])
+    func test_measure_measurementIncludesIdentifyingFields() {
+        let gauge = Counter(name: "my_gauge", unit: "bytes", description: "some description", attributes: [])
         XCTAssertEqual(gauge.measure().name, "my_gauge")
+        XCTAssertEqual(gauge.measure().unit, "bytes")
+        XCTAssertEqual(gauge.measure().description, "some description")
     }
 
     func test_measure_measurementIncludesLabelsAsAttributes() throws {

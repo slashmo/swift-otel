@@ -119,12 +119,14 @@ public struct OTLPMetricsFactory: Sendable {
 extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
     public func makeCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.CounterHandler {
         let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
-        return registry.makeCounter(name: label, labels: dimensions)
+        let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
+        return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeFloatingPointCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.FloatingPointCounterHandler {
         let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
-        return registry.makeCounter(name: label, labels: dimensions)
+        let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
+        return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeRecorder(
@@ -133,21 +135,25 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
         aggregate: Bool
     ) -> CoreMetrics.RecorderHandler {
         let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         guard aggregate else {
-            return registry.makeGauge(name: label, labels: dimensions)
+            return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
         }
         let buckets = valueHistogramBuckets[label] ?? defaultValueHistogramBuckets
-        return registry.makeValueHistogram(name: label, labels: dimensions, buckets: buckets)
+        return registry.makeValueHistogram(name: label, unit: unit, description: description, attributes: attributes, buckets: buckets)
     }
 
     public func makeMeter(label: String, dimensions: [(String, String)]) -> CoreMetrics.MeterHandler {
-        registry.makeGauge(name: label, labels: dimensions)
+        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
+        return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeTimer(label: String, dimensions: [(String, String)]) -> CoreMetrics.TimerHandler {
         let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         let buckets = durationHistogramBuckets[label] ?? defaultDurationHistogramBuckets
-        return registry.makeDurationHistogram(name: label, labels: dimensions, buckets: buckets)
+        return registry.makeDurationHistogram(name: label, unit: unit, description: description, attributes: attributes, buckets: buckets)
     }
 
     public func destroyCounter(_ handler: CoreMetrics.CounterHandler) {
@@ -187,5 +193,24 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
             return
         }
         registry.unregisterDurationHistogram(histogram)
+    }
+}
+
+// MARK: - Helpers
+
+extension OTLPMetricsFactory {
+    /// Returns the values for keys `unit` and `description`, if they are present in the array.
+    private func extractIdentifyingFieldsAndAttributes(from dimensions: [(String, String)]) -> (unit: String?, description: String?, Set<Attribute>) {
+        var unit: String?
+        var description: String?
+        var attributes = Set<Attribute>()
+        for (key, value) in dimensions {
+            switch key {
+            case "unit": unit = value
+            case "description": description = value
+            default: attributes.insert(Attribute(key: key, value: value))
+            }
+        }
+        return (unit, description, attributes)
     }
 }

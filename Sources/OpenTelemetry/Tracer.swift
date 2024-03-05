@@ -18,7 +18,9 @@ import Tracing
 extension OTel {
     public final class Tracer {
         private let resource: OTel.Resource
-        private var idGenerator: OTelIDGenerator
+
+        private var idGenerator: NIOLockedValueBox<OTelIDGenerator>
+
         private let sampler: OTelSampler
         private let processor: OTelSpanProcessor
         private let propagator: OTelPropagator
@@ -33,7 +35,7 @@ extension OTel {
             logger: Logger
         ) {
             self.resource = resource
-            self.idGenerator = idGenerator
+            self.idGenerator = .init(idGenerator)
             self.sampler = sampler
             self.processor = processor
             self.propagator = propagator
@@ -105,13 +107,13 @@ extension OTel.Tracer: Tracer {
 
         let traceID: OTel.TraceID
         let traceState: OTel.TraceState?
-        let spanID = idGenerator.generateSpanID()
+        let spanID = idGenerator.withLockedValue { $0.generateSpanID() }
 
         if let parentSpanContext = parentContext.spanContext {
             traceID = parentSpanContext.traceID
             traceState = parentSpanContext.traceState
         } else {
-            traceID = idGenerator.generateTraceID()
+            traceID = idGenerator.withLockedValue { $0.generateTraceID() }
             traceState = nil
         }
 

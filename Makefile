@@ -68,7 +68,8 @@ PROTO_ROOT = opentelemetry-proto
 PROTO_MODULEMAP = module-mapping.proto
 
 OTLP_CORE_SWIFT_ROOT = Sources/OTLPCore/Generated
-OTLP_GRPC_SWIFT_ROOT = Sources/OTLPGRPC/Generated
+OTLP_CLIENT_GRPC_SWIFT_ROOT = Sources/OTLPGRPC/Generated
+OTLP_SERVER_GRPC_SWIFT_ROOT = Tests/OTLPGRPCTests/Generated
 
 OTLP_CORE_PROTOS += $(PROTO_ROOT)/opentelemetry/proto/common/v1/common.proto
 OTLP_CORE_PROTOS += $(PROTO_ROOT)/opentelemetry/proto/resource/v1/resource.proto
@@ -80,7 +81,8 @@ OTLP_GRPC_PROTOS += $(PROTO_ROOT)/opentelemetry/proto/collector/trace/v1/trace_s
 
 OTLP_CORE_SWIFTS = $(patsubst  $(PROTO_ROOT)/%.proto,$(OTLP_CORE_SWIFT_ROOT)/%.pb.swift,$(OTLP_CORE_PROTOS))
 
-OTLP_GRPC_SWIFTS = $(subst $(PROTO_ROOT),$(OTLP_GRPC_SWIFT_ROOT),$(OTLP_GRPC_PROTOS:.proto=.pb.swift) $(OTLP_GRPC_PROTOS:.proto=.grpc.swift))
+OTLP_CLIENT_GRPC_SWIFTS = $(subst $(PROTO_ROOT),$(OTLP_CLIENT_GRPC_SWIFT_ROOT),$(OTLP_GRPC_PROTOS:.proto=.pb.swift) $(OTLP_GRPC_PROTOS:.proto=.grpc.swift))
+OTLP_SERVER_GRPC_SWIFTS = $(subst $(PROTO_ROOT),$(OTLP_CLIENT_GRPC_SWIFT_ROOT),$(OTLP_GRPC_PROTOS:.proto=.pb.swift) $(OTLP_GRPC_PROTOS:.proto=.grpc.swift))
 
 $(OTLP_CORE_SWIFTS): $(OTLP_CORE_PROTOS) $(PROTO_MODULEMAP) $(PROTOC_GEN_SWIFT)
 	@mkdir -pv $(OTLP_CORE_SWIFT_ROOT)
@@ -91,17 +93,26 @@ $(OTLP_CORE_SWIFTS): $(OTLP_CORE_PROTOS) $(PROTO_MODULEMAP) $(PROTOC_GEN_SWIFT)
 		--swift_opt=Visibility=Public \
 		--experimental_allow_proto3_optional \
 
-$(OTLP_GRPC_SWIFTS): $(OTLP_GRPC_PROTOS) $(PROTO_MODULEMAP) $(PROTOC_GEN_GRPC_SWIFT)
-	@mkdir -pv $(OTLP_GRPC_SWIFT_ROOT)
+$(OTLP_CLIENT_GRPC_SWIFTS): $(OTLP_GRPC_PROTOS) $(PROTO_MODULEMAP) $(PROTOC_GEN_GRPC_SWIFT)
+	@mkdir -pv $(OTLP_CLIENT_GRPC_SWIFT_ROOT)
 	protoc $(OTLP_GRPC_PROTOS) \
 		--proto_path=$(PROTO_ROOT) \
 		--plugin=$(PROTOC_GEN_GRPC_SWIFT) \
-		--swift_out=$(OTLP_GRPC_SWIFT_ROOT) \
+		--swift_out=$(OTLP_CLIENT_GRPC_SWIFT_ROOT) \
 		--swift_opt=ProtoPathModuleMappings=$(PROTO_MODULEMAP) \
-		--grpc-swift_out=Client=true,Server=false:$(OTLP_GRPC_SWIFT_ROOT) \
+		--grpc-swift_out=Client=true,Server=false:$(OTLP_CLIENT_GRPC_SWIFT_ROOT) \
+
+$(OTLP_SERVER_GRPC_SWIFTS): $(OTLP_GRPC_PROTOS) $(PROTO_MODULEMAP) $(PROTOC_GEN_GRPC_SWIFT)
+	@mkdir -pv $(OTLP_SERVER_GRPC_SWIFT_ROOT)
+	protoc $(OTLP_GRPC_PROTOS) \
+		--proto_path=$(PROTO_ROOT) \
+		--plugin=$(PROTOC_GEN_GRPC_SWIFT) \
+		--swift_out=$(OTLP_SERVER_GRPC_SWIFT_ROOT) \
+		--swift_opt=ProtoPathModuleMappings=$(PROTO_MODULEMAP) \
+		--grpc-swift_out=Client=false,Server=true:$(OTLP_SERVER_GRPC_SWIFT_ROOT) \
 
 .PHONY: generate
-generate: $(OTLP_CORE_SWIFTS) $(OTLP_GRPC_SWIFTS)  # Generate Swift files from Protobuf.
+generate: $(OTLP_CORE_SWIFTS) $(OTLP_CLIENT_GRPC_SWIFTS) $(OTLP_SERVER_GRPC_SWIFTS)  # Generate Swift files from Protobuf.
 
 .PHONY: delete-generated-code
 delete-generated-code:  # Delete all pb.swift and .grpc.swift files.

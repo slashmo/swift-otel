@@ -21,23 +21,16 @@ import Tracing
 import XCTest
 
 final class OTLPGRPCSpanExporterTests: XCTestCase {
-    private var group: MultiThreadedEventLoopGroup!
-
     override func setUp() async throws {
         LoggingSystem.bootstrapInternal(logLevel: .trace)
-        group = MultiThreadedEventLoopGroup(numberOfThreads: 2)
-    }
-
-    override func tearDown() async throws {
-        try await group.shutdownGracefully()
     }
 
     func test_export_whenConnected_sendsExportRequestToCollector() async throws {
-        let collector = OTLPGRPCTraceCollectorMock(group: group)
+        let collector = OTLPGRPCMockCollector()
 
         try await collector.withServer { endpoint in
             let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
-            let exporter = OTLPGRPCSpanExporter(configuration: configuration, group: group)
+            let exporter = OTLPGRPCSpanExporter(configuration: configuration)
 
             let span = OTelFinishedSpan.stub()
             try await exporter.export([span])
@@ -45,8 +38,8 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
             await exporter.shutdown()
         }
 
-        XCTAssertEqual(collector.requests.count, 1)
-        let request = try XCTUnwrap(collector.requests.first)
+        XCTAssertEqual(collector.traceProvider.requests.count, 1)
+        let request = try XCTUnwrap(collector.traceProvider.requests.first)
 
         XCTAssertEqual(
             request.headers.first(name: "user-agent"),
@@ -55,7 +48,7 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
     }
 
     func test_export_withCustomHeaders_includesCustomHeadersInExportRequest() async throws {
-        let collector = OTLPGRPCTraceCollectorMock(group: group)
+        let collector = OTLPGRPCMockCollector()
         let span = OTelFinishedSpan.stub(resource: OTelResource(attributes: ["service.name": "test"]))
 
         try await collector.withServer { endpoint in
@@ -67,15 +60,15 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
                     "key2": "84",
                 ]
             )
-            let exporter = OTLPGRPCSpanExporter(configuration: configuration, group: group)
+            let exporter = OTLPGRPCSpanExporter(configuration: configuration)
 
             try await exporter.export([span])
 
             await exporter.shutdown()
         }
 
-        XCTAssertEqual(collector.requests.count, 1)
-        let request = try XCTUnwrap(collector.requests.first)
+        XCTAssertEqual(collector.traceProvider.requests.count, 1)
+        let request = try XCTUnwrap(collector.traceProvider.requests.first)
 
         XCTAssertEqual(request.exportRequest.resourceSpans.count, 1)
         let resourceSpans = try XCTUnwrap(request.exportRequest.resourceSpans.first)
@@ -95,12 +88,12 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
     }
 
     func test_export_whenAlreadyShutdown_throwsAlreadyShutdownError() async throws {
-        let collector = OTLPGRPCTraceCollectorMock(group: group)
+        let collector = OTLPGRPCMockCollector()
 
         do {
             try await collector.withServer { endpoint in
                 let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
-                let exporter = OTLPGRPCSpanExporter(configuration: configuration, group: group)
+                let exporter = OTLPGRPCSpanExporter(configuration: configuration)
                 await exporter.shutdown()
 
                 let span = OTelFinishedSpan.stub()

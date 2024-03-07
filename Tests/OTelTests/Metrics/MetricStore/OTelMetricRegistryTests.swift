@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Logging
+@testable import Logging
 import struct NIOConcurrencyHelpers.NIOLockedValueBox
 @testable @_spi(Metrics) import OTel
 import OTelTesting
@@ -387,15 +387,14 @@ final class OTelMetricRegistryTests: XCTestCase {
 final class DuplicateRegistrationHandlerTests: XCTestCase {
     func test_LoggingDuplicateRegistrationHandler() {
         let recordingLogHandler = RecordingLogHandler()
-        LoggingSystem.bootstrap { _ in recordingLogHandler }
+        LoggingSystem.bootstrapInternal { _ in recordingLogHandler }
         let handler = WarningDuplicateRegistrationHandler(logger: Logger(label: "test"))
         handler.handle(
             newRegistration: .counter(name: "name"),
             existingRegistrations: [.gauge(name: "name"), .histogram(name: "name")]
         )
         let recordedLogMessages = recordingLogHandler.recordedLogMessages.withLockedValue { $0 }
-        XCTAssertEqual(recordedLogMessages.count, 1)
-        XCTAssertEqual(recordedLogMessages.first?.level, .warning)
+        XCTAssertEqual(recordingLogHandler.warningCount, 1)
     }
 
     func test_FatalErrorDuplicateRegistrationHandler() {

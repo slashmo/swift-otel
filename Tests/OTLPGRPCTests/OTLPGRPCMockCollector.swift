@@ -84,20 +84,3 @@ final class MetricsServiceProvider: Sendable, Opentelemetry_Proto_Collector_Metr
         return ExportResponse()
     }
 }
-
-/// This _used_ to be in the generated code, but not with latest versions of swift-protobuf/grpc-swift plugins.
-///
-/// The only thing stopping them being Sendable is the `unknownFields: SwiftProtobuf.UnknownStorage` property, which has
-/// the following TODO in the swift-protobuf repo:
-///
-/// > `UnknownStorage` should be `Sendable` but we cannot do so yet without possibly breaking compatibility.
-///
-/// We'll workaround this by marking things as sendable here until that is addressed.
-#if swift(>=5.5) && canImport(_Concurrency)
-    extension Opentelemetry_Proto_Collector_Metrics_V1_ExportMetricsServiceRequest: @unchecked Sendable {}
-    extension Opentelemetry_Proto_Collector_Metrics_V1_ExportMetricsServiceResponse: @unchecked Sendable {}
-    extension Opentelemetry_Proto_Collector_Metrics_V1_ExportMetricsPartialSuccess: @unchecked Sendable {}
-    extension Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceRequest: @unchecked Sendable {}
-    extension Opentelemetry_Proto_Collector_Trace_V1_ExportTraceServiceResponse: @unchecked Sendable {}
-    extension Opentelemetry_Proto_Collector_Trace_V1_ExportTracePartialSuccess: @unchecked Sendable {}
-#endif // swift(>=5.5) && canImport(_Concurrency)

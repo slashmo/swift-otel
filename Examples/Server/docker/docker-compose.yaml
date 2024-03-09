@@ -8,6 +8,20 @@ services:
     ports:
       - "4317:4317"  # OTLP gRPC receiver
 
+  prometheus:
+    image: prom/prometheus:latest
+    entrypoint:
+      - "/bin/prometheus"
+      - "--log.level=debug"
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "9090:9090"  # Prometheus web UI
+
   jaeger:
     image: jaegertracing/all-in-one
     ports:

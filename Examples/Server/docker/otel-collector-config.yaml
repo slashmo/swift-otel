@@ -8,6 +8,9 @@ exporters:
   debug:  # Data sources: traces, metrics, logs
     verbosity: detailed
 
+  prometheus:  # Data sources: metrics
+    endpoint: "otel-collector:7070"
+
   otlp/jaeger:  # Data sources: traces
     endpoint: "jaeger:4317"
     tls:
@@ -15,6 +18,10 @@ exporters:
 
 service:
   pipelines:
+    metrics:
+      receivers: [otlp]
+      # processors: [batch]
+      exporters: [prometheus, debug]
     traces:
       receivers: [otlp]
       exporters: [otlp/jaeger, debug]

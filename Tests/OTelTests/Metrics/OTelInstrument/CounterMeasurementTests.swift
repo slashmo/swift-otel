@@ -56,9 +56,11 @@ final class CounterMeasurementTests: XCTestCase {
         counter.measure().data.assertIsCumulativeSumWithOneValue(.double(200_000))
     }
 
-    func test_measure_measurementIncludesName() {
-        let counter = Counter(name: "my_counter", attributes: [])
+    func test_measure_measurementIncludesIdentifyingFields() {
+        let counter = Counter(name: "my_counter", unit: "bytes", description: "some description", attributes: [])
         XCTAssertEqual(counter.measure().name, "my_counter")
+        XCTAssertEqual(counter.measure().unit, "bytes")
+        XCTAssertEqual(counter.measure().description, "some description")
     }
 
     func test_measure_measurementIncludesLabelsAsAttributes() throws {

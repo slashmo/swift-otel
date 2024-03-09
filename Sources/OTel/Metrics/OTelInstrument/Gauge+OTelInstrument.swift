@@ -28,8 +28,8 @@ extension Gauge: OTelMetricInstrument {
         let value = Double(bitPattern: atomic.load(ordering: .relaxed))
         return OTelMetricPoint(
             name: name,
-            description: "",
-            unit: "",
+            description: description ?? "",
+            unit: unit ?? "",
             data: .gauge(OTelGauge(
                 points: [.init(
                     attributes: attributes.map { OTelAttribute(key: $0.key, value: $0.value) },

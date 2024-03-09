@@ -29,8 +29,8 @@ extension Histogram: OTelMetricInstrument {
         let state = box.withLockedValue { $0 }
         return OTelMetricPoint(
             name: name,
-            description: "",
-            unit: "",
+            description: description ?? "",
+            unit: unit ?? "",
             data: .histogram(OTelHistogram(
                 aggregationTemporality: .cumulative,
                 points: [.init(

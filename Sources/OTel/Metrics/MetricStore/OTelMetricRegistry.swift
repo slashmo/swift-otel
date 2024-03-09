@@ -224,24 +224,6 @@ public final class OTelMetricRegistry: Sendable {
     }
 }
 
-extension OTelMetricRegistry {
-    func makeCounter(name: String, unit: String? = nil, description: String? = nil, labels: [(String, String)]) -> Counter {
-        makeCounter(name: name, unit: unit, description: description, attributes: Set(labels))
-    }
-
-    func makeGauge(name: String, unit: String? = nil, description: String? = nil, labels: [(String, String)]) -> Gauge {
-        makeGauge(name: name, unit: unit, description: description, attributes: Set(labels))
-    }
-
-    func makeDurationHistogram(name: String, unit: String? = nil, description: String? = nil, labels: [(String, String)], buckets: [Duration]) -> DurationHistogram {
-        makeDurationHistogram(name: name, unit: unit, description: description, attributes: Set(labels), buckets: buckets)
-    }
-
-    func makeValueHistogram(name: String, unit: String? = nil, description: String? = nil, labels: [(String, String)], buckets: [Double]) -> ValueHistogram {
-        makeValueHistogram(name: name, unit: unit, description: description, attributes: Set(labels), buckets: buckets)
-    }
-}
-
 struct InstrumentIdentifier: Equatable, Hashable, Sendable {
     var name: String
     var unit: String?

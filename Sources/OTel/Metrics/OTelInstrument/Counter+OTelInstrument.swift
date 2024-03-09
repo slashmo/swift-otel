@@ -36,8 +36,8 @@ extension Counter: OTelMetricInstrument {
         }
         return OTelMetricPoint(
             name: name,
-            description: "",
-            unit: "",
+            description: description ?? "",
+            unit: unit ?? "",
             data: .sum(OTelSum(
                 points: [.init(
                     attributes: attributes.map { OTelAttribute(key: $0.key, value: $0.value) },

@@ -62,40 +62,20 @@ final class OTelMetricRegistryTests: XCTestCase {
     func test_identity_sameNameSameLabels_identical() {
         let registry = OTelMetricRegistry()
         XCTAssertIdentical(
-            registry.makeCounter(name: "c", labels: [("one", "1")]),
-            registry.makeCounter(name: "c", labels: [("one", "1")])
+            registry.makeCounter(name: "c", attributes: Set([("one", "1")])),
+            registry.makeCounter(name: "c", attributes: Set([("one", "1")]))
         )
         XCTAssertIdentical(
-            registry.makeGauge(name: "g", labels: [("one", "1")]),
-            registry.makeGauge(name: "g", labels: [("one", "1")])
+            registry.makeGauge(name: "g", attributes: Set([("one", "1")])),
+            registry.makeGauge(name: "g", attributes: Set([("one", "1")]))
         )
         XCTAssertIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("one", "1")], buckets: []),
-            registry.makeDurationHistogram(name: "d", labels: [("one", "1")], buckets: [])
+            registry.makeDurationHistogram(name: "d", attributes: Set([("one", "1")]), buckets: []),
+            registry.makeDurationHistogram(name: "d", attributes: Set([("one", "1")]), buckets: [])
         )
         XCTAssertIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("one", "1")], buckets: []),
-            registry.makeValueHistogram(name: "v", labels: [("one", "1")], buckets: [])
-        )
-    }
-
-    func test_identity_sameNameDifferentLabelOrder_identical() {
-        let registry = OTelMetricRegistry()
-        XCTAssertIdentical(
-            registry.makeCounter(name: "c", labels: [("one", "1"), ("two", "2")]),
-            registry.makeCounter(name: "c", labels: [("two", "2"), ("one", "1")])
-        )
-        XCTAssertIdentical(
-            registry.makeGauge(name: "g", labels: [("one", "1"), ("two", "2")]),
-            registry.makeGauge(name: "g", labels: [("two", "2"), ("one", "1")])
-        )
-        XCTAssertIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("one", "1"), ("two", "2")], buckets: []),
-            registry.makeDurationHistogram(name: "d", labels: [("two", "2"), ("one", "1")], buckets: [])
-        )
-        XCTAssertIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("one", "1"), ("two", "2")], buckets: []),
-            registry.makeValueHistogram(name: "v", labels: [("two", "2"), ("one", "1")], buckets: [])
+            registry.makeValueHistogram(name: "v", attributes: Set([("one", "1")]), buckets: []),
+            registry.makeValueHistogram(name: "v", attributes: Set([("one", "1")]), buckets: [])
         )
     }
 
@@ -122,20 +102,20 @@ final class OTelMetricRegistryTests: XCTestCase {
     func test_identity_sameNameSameLabelKeysDifferentValues_distinct() {
         let registry = OTelMetricRegistry()
         XCTAssertNotIdentical(
-            registry.makeCounter(name: "c", labels: [("x", "1"), ("y", "2")]),
-            registry.makeCounter(name: "c", labels: [("x", "2"), ("y", "4")])
+            registry.makeCounter(name: "c", attributes: Set([("x", "1"), ("y", "2")])),
+            registry.makeCounter(name: "c", attributes: Set([("x", "2"), ("y", "4")]))
         )
         XCTAssertNotIdentical(
-            registry.makeGauge(name: "g", labels: [("x", "1"), ("y", "2")]),
-            registry.makeGauge(name: "g", labels: [("x", "2"), ("y", "4")])
+            registry.makeGauge(name: "g", attributes: Set([("x", "1"), ("y", "2")])),
+            registry.makeGauge(name: "g", attributes: Set([("x", "2"), ("y", "4")]))
         )
         XCTAssertNotIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1"), ("y", "2")], buckets: []),
-            registry.makeDurationHistogram(name: "d", labels: [("x", "2"), ("y", "4")], buckets: [])
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1"), ("y", "2")]), buckets: []),
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "2"), ("y", "4")]), buckets: [])
         )
         XCTAssertNotIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("x", "1"), ("y", "2")], buckets: []),
-            registry.makeValueHistogram(name: "v", labels: [("x", "2"), ("y", "4")], buckets: [])
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1"), ("y", "2")]), buckets: []),
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "2"), ("y", "4")]), buckets: [])
         )
     }
 
@@ -143,20 +123,20 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
 
         XCTAssertNotIdentical(
-            registry.makeCounter(name: "c", labels: [("x", "1")]),
-            registry.makeCounter(name: "c", labels: [("y", "1")])
+            registry.makeCounter(name: "c", attributes: Set([("x", "1")])),
+            registry.makeCounter(name: "c", attributes: Set([("y", "1")]))
         )
         XCTAssertNotIdentical(
-            registry.makeGauge(name: "g", labels: [("x", "1")]),
-            registry.makeGauge(name: "g", labels: [("y", "1")])
+            registry.makeGauge(name: "g", attributes: Set([("x", "1")])),
+            registry.makeGauge(name: "g", attributes: Set([("y", "1")]))
         )
         XCTAssertNotIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1")], buckets: []),
-            registry.makeDurationHistogram(name: "d", labels: [("y", "1")], buckets: [])
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1")]), buckets: []),
+            registry.makeDurationHistogram(name: "d", attributes: Set([("y", "1")]), buckets: [])
         )
         XCTAssertNotIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("x", "1")], buckets: []),
-            registry.makeValueHistogram(name: "v", labels: [("y", "1")], buckets: [])
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1")]), buckets: []),
+            registry.makeValueHistogram(name: "v", attributes: Set([("y", "1")]), buckets: [])
         )
     }
 
@@ -164,22 +144,22 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
 
         XCTAssertNotIdentical(
-            registry.makeCounter(name: "c", labels: [("x", "1")]),
-            registry.makeCounter(name: "c", labels: [("x", "1"), ("y", "1")])
+            registry.makeCounter(name: "c", attributes: Set([("x", "1")])),
+            registry.makeCounter(name: "c", attributes: Set([("x", "1"), ("y", "1")]))
         )
 
         XCTAssertNotIdentical(
-            registry.makeGauge(name: "g", labels: [("x", "1")]),
-            registry.makeGauge(name: "g", labels: [("x", "1"), ("y", "1")])
+            registry.makeGauge(name: "g", attributes: Set([("x", "1")])),
+            registry.makeGauge(name: "g", attributes: Set([("x", "1"), ("y", "1")]))
         )
 
         XCTAssertNotIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1")], buckets: []),
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1"), ("y", "1")], buckets: [])
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1")]), buckets: []),
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1"), ("y", "1")]), buckets: [])
         )
         XCTAssertNotIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("x", "1")], buckets: []),
-            registry.makeValueHistogram(name: "v", labels: [("x", "1"), ("y", "1")], buckets: [])
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1")]), buckets: []),
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1"), ("y", "1")]), buckets: [])
         )
     }
 
@@ -187,12 +167,12 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
 
         XCTAssertIdentical(
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1")], buckets: [.seconds(1)]),
-            registry.makeDurationHistogram(name: "d", labels: [("x", "1")], buckets: [.seconds(2)])
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1")]), buckets: [.seconds(1)]),
+            registry.makeDurationHistogram(name: "d", attributes: Set([("x", "1")]), buckets: [.seconds(2)])
         )
         XCTAssertIdentical(
-            registry.makeValueHistogram(name: "v", labels: [("x", "1")], buckets: [1]),
-            registry.makeValueHistogram(name: "v", labels: [("x", "1")], buckets: [2])
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1")]), buckets: [1]),
+            registry.makeValueHistogram(name: "v", attributes: Set([("x", "1")]), buckets: [2])
         )
     }
 
@@ -204,47 +184,47 @@ final class OTelMetricRegistryTests: XCTestCase {
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 0)
 
         // Registering a new metric does not invoke handler.
-        _ = registry.makeCounter(name: "name", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 0)
 
         // Registering the same metric does not invoke handler.
-        _ = registry.makeCounter(name: "name", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 0)
 
         // Registering a metric with the same identifying fields but different attributes does not invoke handler.
-        _ = registry.makeCounter(name: "name", labels: [("y", "2")])
+        _ = registry.makeCounter(name: "name", attributes: Set([("y", "2")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 0)
 
         // Registring a metric of the same type but with a different identifying field invokes the handler once only.
-        _ = registry.makeCounter(name: "name", unit: "new_unit", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", unit: "new_unit", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 1)
-        _ = registry.makeCounter(name: "name", unit: "new_unit", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", unit: "new_unit", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 1)
 
         // OTel spec also states that description is also an identifying field.
-        _ = registry.makeCounter(name: "name", unit: "new_unit", description: "new description", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", unit: "new_unit", description: "new description", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 2)
-        _ = registry.makeCounter(name: "name", unit: "new_unit", description: "new description", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "name", unit: "new_unit", description: "new description", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 2)
 
         // The kind of instrument is, of course, also an identifying field.
-        _ = registry.makeGauge(name: "name", labels: [("x", "1")])
+        _ = registry.makeGauge(name: "name", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 3)
-        _ = registry.makeGauge(name: "name", labels: [("x", "1")])
+        _ = registry.makeGauge(name: "name", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 3)
 
         // Same for histogram...
-        _ = registry.makeValueHistogram(name: "name", labels: [("x", "1")], buckets: [1])
+        _ = registry.makeValueHistogram(name: "name", attributes: Set([("x", "1")]), buckets: [1])
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 4)
-        _ = registry.makeValueHistogram(name: "name", labels: [("x", "1")], buckets: [1])
+        _ = registry.makeValueHistogram(name: "name", attributes: Set([("x", "1")]), buckets: [1])
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 4)
 
         // ...but currently we do _not_ consider the buckets to be identifying.
-        _ = registry.makeValueHistogram(name: "name", labels: [("x", "1")], buckets: [2])
+        _ = registry.makeValueHistogram(name: "name", attributes: Set([("x", "1")]), buckets: [2])
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 4)
 
         // While name is an identifying field, it is treated case-insensitively.
-        _ = registry.makeCounter(name: "NaMe", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "NaMe", attributes: Set([("x", "1")]))
         XCTAssertEqual(handler.invocations.withLockedValue { $0.count }, 4)
     }
 
@@ -265,19 +245,19 @@ final class OTelMetricRegistryTests: XCTestCase {
         let duplicateRegistrationHandler = RecordingDuplicateRegistrationHandler()
         let registry = OTelMetricRegistry(duplicateRegistrationHandler: duplicateRegistrationHandler)
 
-        registry.unregisterCounter(registry.makeCounter(name: "name", labels: [("a", "1")]))
-        registry.unregisterCounter(registry.makeCounter(name: "name", labels: [("b", "1")]))
+        registry.unregisterCounter(registry.makeCounter(name: "name", attributes: Set([("a", "1")])))
+        registry.unregisterCounter(registry.makeCounter(name: "name", attributes: Set([("b", "1")])))
 
-        registry.unregisterGauge(registry.makeGauge(name: "name", labels: [("a", "1")]))
-        registry.unregisterGauge(registry.makeGauge(name: "name", labels: [("b", "1")]))
+        registry.unregisterGauge(registry.makeGauge(name: "name", attributes: Set([("a", "1")])))
+        registry.unregisterGauge(registry.makeGauge(name: "name", attributes: Set([("b", "1")])))
 
-        registry.unregisterDurationHistogram(registry.makeDurationHistogram(name: "name", labels: [("a", "1")], buckets: []))
-        registry.unregisterDurationHistogram(registry.makeDurationHistogram(name: "name", labels: [("b", "1")], buckets: []))
+        registry.unregisterDurationHistogram(registry.makeDurationHistogram(name: "name", attributes: Set([("a", "1")]), buckets: []))
+        registry.unregisterDurationHistogram(registry.makeDurationHistogram(name: "name", attributes: Set([("b", "1")]), buckets: []))
 
-        registry.unregisterValueHistogram(registry.makeValueHistogram(name: "name", labels: [("a", "1")], buckets: []))
-        registry.unregisterValueHistogram(registry.makeValueHistogram(name: "name", labels: [("b", "1")], buckets: []))
+        registry.unregisterValueHistogram(registry.makeValueHistogram(name: "name", attributes: Set([("a", "1")]), buckets: []))
+        registry.unregisterValueHistogram(registry.makeValueHistogram(name: "name", attributes: Set([("b", "1")]), buckets: []))
 
-        _ = registry.makeCounter(name: "name", labels: [("a", "1")])
+        _ = registry.makeCounter(name: "name", attributes: Set([("a", "1")]))
 
         XCTAssertEqual(duplicateRegistrationHandler.invocations.withLockedValue { $0 }.count, 0)
     }
@@ -287,17 +267,17 @@ final class OTelMetricRegistryTests: XCTestCase {
         XCTAssertEqual(registry.numDistinctInstruments, 0)
         _ = registry.makeCounter(name: "c1")
         _ = registry.makeCounter(name: "c1")
-        _ = registry.makeCounter(name: "c1", labels: [])
-        _ = registry.makeCounter(name: "c1", labels: [])
+        _ = registry.makeCounter(name: "c1", attributes: Set([]))
+        _ = registry.makeCounter(name: "c1", attributes: Set([]))
         XCTAssertEqual(registry.numDistinctInstruments, 1)
-        _ = registry.makeCounter(name: "c1", labels: [("x", "1")])
-        _ = registry.makeCounter(name: "c1", labels: [("x", "1")])
+        _ = registry.makeCounter(name: "c1", attributes: Set([("x", "1")]))
+        _ = registry.makeCounter(name: "c1", attributes: Set([("x", "1")]))
         XCTAssertEqual(registry.numDistinctInstruments, 2)
-        _ = registry.makeCounter(name: "c1", labels: [("x", "2")])
-        _ = registry.makeCounter(name: "c1", labels: [("x", "2")])
+        _ = registry.makeCounter(name: "c1", attributes: Set([("x", "2")]))
+        _ = registry.makeCounter(name: "c1", attributes: Set([("x", "2")]))
         XCTAssertEqual(registry.numDistinctInstruments, 3)
-        _ = registry.makeCounter(name: "c1", labels: [("y", "1")])
-        _ = registry.makeCounter(name: "c1", labels: [("y", "1")])
+        _ = registry.makeCounter(name: "c1", attributes: Set([("y", "1")]))
+        _ = registry.makeCounter(name: "c1", attributes: Set([("y", "1")]))
         XCTAssertEqual(registry.numDistinctInstruments, 4)
         _ = registry.makeCounter(name: "c2")
         _ = registry.makeCounter(name: "c2")
@@ -308,17 +288,17 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
         _ = registry.makeGauge(name: "g1")
         _ = registry.makeGauge(name: "g1")
-        _ = registry.makeGauge(name: "g1", labels: [])
-        _ = registry.makeGauge(name: "g1", labels: [])
+        _ = registry.makeGauge(name: "g1", attributes: Set([]))
+        _ = registry.makeGauge(name: "g1", attributes: Set([]))
         XCTAssertEqual(registry.numDistinctInstruments, 1)
-        _ = registry.makeGauge(name: "g1", labels: [("x", "1")])
-        _ = registry.makeGauge(name: "g1", labels: [("x", "1")])
+        _ = registry.makeGauge(name: "g1", attributes: Set([("x", "1")]))
+        _ = registry.makeGauge(name: "g1", attributes: Set([("x", "1")]))
         XCTAssertEqual(registry.numDistinctInstruments, 2)
-        _ = registry.makeGauge(name: "g1", labels: [("x", "2")])
-        _ = registry.makeGauge(name: "g1", labels: [("x", "2")])
+        _ = registry.makeGauge(name: "g1", attributes: Set([("x", "2")]))
+        _ = registry.makeGauge(name: "g1", attributes: Set([("x", "2")]))
         XCTAssertEqual(registry.numDistinctInstruments, 3)
-        _ = registry.makeGauge(name: "g1", labels: [("y", "1")])
-        _ = registry.makeGauge(name: "g1", labels: [("y", "1")])
+        _ = registry.makeGauge(name: "g1", attributes: Set([("y", "1")]))
+        _ = registry.makeGauge(name: "g1", attributes: Set([("y", "1")]))
         XCTAssertEqual(registry.numDistinctInstruments, 4)
         _ = registry.makeGauge(name: "g2")
         _ = registry.makeGauge(name: "g2")
@@ -329,25 +309,25 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
         _ = registry.makeValueHistogram(name: "v1", buckets: [])
         _ = registry.makeValueHistogram(name: "v1", buckets: [])
-        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [1, 2])
-        _ = registry.makeValueHistogram(name: "v1", labels: [], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([]), buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([]), buckets: [1, 2])
         XCTAssertEqual(registry.numDistinctInstruments, 1)
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [1, 2])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "1")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "1")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "1")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "1")]), buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "1")]), buckets: [1, 2])
         XCTAssertEqual(registry.numDistinctInstruments, 2)
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [1, 2])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("x", "2")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "2")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "2")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "2")]), buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("x", "2")]), buckets: [1, 2])
         XCTAssertEqual(registry.numDistinctInstruments, 3)
-        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [0, 1])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [1, 2])
-        _ = registry.makeValueHistogram(name: "v1", labels: [("y", "1")], buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("y", "1")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("y", "1")]), buckets: [0, 1])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("y", "1")]), buckets: [1, 2])
+        _ = registry.makeValueHistogram(name: "v1", attributes: Set([("y", "1")]), buckets: [1, 2])
         XCTAssertEqual(registry.numDistinctInstruments, 4)
         _ = registry.makeValueHistogram(name: "v2", buckets: [])
         _ = registry.makeValueHistogram(name: "v2", buckets: [])
@@ -358,25 +338,25 @@ final class OTelMetricRegistryTests: XCTestCase {
         let registry = OTelMetricRegistry()
         _ = registry.makeDurationHistogram(name: "d1", buckets: [])
         _ = registry.makeDurationHistogram(name: "d1", buckets: [])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(2)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([]), buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([]), buckets: [.seconds(2)])
         XCTAssertEqual(registry.numDistinctInstruments, 1)
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(2)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "1")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "1")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "1")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "1")]), buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "1")]), buckets: [.seconds(2)])
         XCTAssertEqual(registry.numDistinctInstruments, 2)
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(2)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("x", "2")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "2")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "2")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "2")]), buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("x", "2")]), buckets: [.seconds(2)])
         XCTAssertEqual(registry.numDistinctInstruments, 3)
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(1)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(2)])
-        _ = registry.makeDurationHistogram(name: "d1", labels: [("y", "1")], buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("y", "1")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("y", "1")]), buckets: [.seconds(1)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("y", "1")]), buckets: [.seconds(2)])
+        _ = registry.makeDurationHistogram(name: "d1", attributes: Set([("y", "1")]), buckets: [.seconds(2)])
         XCTAssertEqual(registry.numDistinctInstruments, 4)
         _ = registry.makeDurationHistogram(name: "d2", buckets: [])
         _ = registry.makeDurationHistogram(name: "d2", buckets: [])
@@ -393,7 +373,6 @@ final class DuplicateRegistrationHandlerTests: XCTestCase {
             newRegistration: .counter(name: "name"),
             existingRegistrations: [.gauge(name: "name"), .histogram(name: "name")]
         )
-        let recordedLogMessages = recordingLogHandler.recordedLogMessages.withLockedValue { $0 }
         XCTAssertEqual(recordingLogHandler.warningCount, 1)
     }
 

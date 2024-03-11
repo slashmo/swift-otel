@@ -17,20 +17,22 @@ containers to collect and visualize the traces from the server, which is
 running on your local machine.
 
 ```none
-┌─────────────────────────────────────────────────────────────────────┐
-│                                                                 Host│
-│                       ┌────────────────────────────────────────────┐│
-│                       │                              Docker Compose││
-│ ┌────────┐            │ ┌───────────┐                              ││
-│ │        │            │ │           │               ┌────────────┐ ││
-│ │  HTTP  │            │ │   OTel    │               │            │ ││
-│ │ server │─OTLP/gRPC──┼▶│ Collector │─OTLP/gRPC────▶│   Jaeger   │ ││
-│ │        │            │ │           │               │            │ ││
-│ └────────┘            │ └───────────┘               └────────────┘ ││
-│      ▲       ┌──────┐ └────────────────────────────────────────────┘│
-│      └───────│ curl │                                               │
-│   GET /hello └──────┘                                               │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                  Host│
+│                       ┌────────────────────────────────────────────┐ │
+│                       │                              Docker Compose│ │
+│                       │ ┌───────────┐                              │ │
+│                       │ │           │  OTLP/gRPC    ┌────────────┐ │ │
+│ ┌────────┐            │ │           │──────────────▶│   Jaeger   │ │ │
+│ │        │            │ │           │               └────────────┘ │ │
+│ │  HTTP  │ OTLP/gRPC  │ │   OTel    │ GET /metrics  ┌────────────┐ │ │
+│ │ server │────────────┼▶│ Collector │◀──────────────│ Prometheus │ │ │
+│ │        │            │ │           │               └────────────┘ │ │
+│ └────────┘            │ │           │  Debug logs   ┌────────────┐ │ │
+│      ▲      ┌──────┐  │ │           │──────────────▶│   stderr   │ │ │
+│      └──────│ curl │  │ └───────────┘               └────────────┘ │ │
+│  GET /hello └──────┘  └────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 The server sends requests to OTel Collector, which is configured with an OTLP
@@ -43,8 +45,9 @@ In one terminal window, run the following command:
 
 ```console
 % docker compose -f docker/docker-compose.yaml up
-[+] Running 2/2
+[+] Running 3/3
  ✔ Container docker-jaeger-1          Created                       0.5s
+ ✔ Container docker-prometheus-1      Created                       0.4s
  ✔ Container docker-otel-collector-1  Created                       0.5s
 ...
 ```
@@ -86,3 +89,12 @@ See the traces for the recent requests and click to select a trace for a given r
 
 Click to expand the trace, the metadata associated with the request and the
 process, and the events.
+
+### Visualizing the metrics using Prometheus UI
+
+Now open the Prometheus UI in your web browser by visiting
+[localhost:9090](http://localhost:9090). Click the graph tab and update the
+query to `hb_request_duration_bucket`, or use [this pre-canned
+link](http://localhost:9090/graph?g0.expr=hb_request_duration_bucket).
+
+You should see the graph showing the recent request durations.

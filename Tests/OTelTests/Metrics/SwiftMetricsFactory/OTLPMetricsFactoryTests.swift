@@ -433,4 +433,34 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         XCTAssertEqual(factory.defaultValueHistogramBuckets, defaultBucketsFromOTelSpec)
         XCTAssertEqual(factory.defaultDurationHistogramBuckets, defaultBucketsFromOTelSpec.map { .milliseconds($0) })
     }
+
+    func test_factoryMethods_extractUnitAndDescriptionFromDimensions() throws {
+        let duplicateRegistrationHandler = RecordingDuplicateRegistrationHandler()
+        let registry = OTelMetricRegistry(duplicateRegistrationHandler: duplicateRegistrationHandler)
+        let factory = OTLPMetricsFactory(registry: registry)
+
+        let c = factory.makeCounter(label: "c", dimensions: [("unit", "s"), ("description", "mumble")])
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+
+        let f = factory.makeFloatingPointCounter(label: "f", dimensions: [("unit", "s"), ("description", "mumble")])
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+
+        let m = factory.makeMeter(label: "m", dimensions: [("unit", "s"), ("description", "mumble")])
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+
+        let r = factory.makeRecorder(label: "r", dimensions: [("unit", "s"), ("description", "mumble")], aggregate: true)
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+
+        let r_ = factory.makeRecorder(label: "g", dimensions: [("unit", "s"), ("description", "mumble")], aggregate: false)
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+
+        let t = factory.makeTimer(label: "t", dimensions: [("unit", "s"), ("description", "mumble")])
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+    }
 }

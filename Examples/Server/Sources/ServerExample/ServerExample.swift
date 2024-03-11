@@ -13,9 +13,9 @@
 
 import Hummingbird
 import Logging
-import OTel
-import OTLPGRPC
-import ServiceLifecycle
+import Metrics
+@_spi(Metrics) import OTel
+@_spi(Metrics) import OTLPGRPC
 import Tracing
 
 @main
@@ -37,6 +37,20 @@ enum ServerMiddlewareExample {
         ])
         let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
 
+        // Bootstrap the metrics backend to export metrics periodically in OTLP/gRPC.
+        let registry = OTelMetricRegistry()
+        let metricsExporter = try OTLPGRPCMetricExporter(configuration: .init(environment: environment))
+        let metrics = OTelPeriodicExportingMetricsReader(
+            resource: resource,
+            producer: registry,
+            exporter: metricsExporter,
+            configuration: .init(
+                environment: environment,
+                exportInterval: .seconds(5) // NOTE: This is overridden for the example; the default is 60 seconds.
+            )
+        )
+        MetricsSystem.bootstrap(OTLPMetricsFactory(registry: registry))
+
         // Bootstrap the tracing backend to export traces periodically in OTLP/gRPC.
         let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))
         let processor = OTelBatchSpanProcessor(exporter: exporter, configuration: .init(environment: environment))
@@ -53,12 +67,13 @@ enum ServerMiddlewareExample {
         // Create an HTTP server with instrumentation middleware and a simple /hello endpoint, on 127.0.0.1:8080.
         let router = HBRouter()
         router.middlewares.add(HBTracingMiddleware())
+        router.middlewares.add(HBMetricsMiddleware())
         router.middlewares.add(HBLogRequestsMiddleware(.info))
         router.get("hello") { _, _ in "hello" }
         var app = HBApplication(router: router)
 
         // Add the tracer lifecycle service to the HTTP server service group and start the application.
-        app.addServices(tracer)
+        app.addServices(metrics, tracer)
         try await app.runService()
     }
 }

@@ -88,9 +88,11 @@ final class HistogramMeasurementTests: XCTestCase {
         ])
     }
 
-    func test_measure_measurementIncludesName() {
-        let histogram = DurationHistogram(name: "my_histogram", attributes: [], buckets: [])
+    func test_measure_measurementIncludesIdentifyingFields() {
+        let histogram = DurationHistogram(name: "my_histogram", unit: "bytes", description: "some description", attributes: [], buckets: [])
         XCTAssertEqual(histogram.measure().name, "my_histogram")
+        XCTAssertEqual(histogram.measure().unit, "bytes")
+        XCTAssertEqual(histogram.measure().description, "some description")
     }
 
     func test_measure_measurementIncludesLabelsAsAttributes() throws {

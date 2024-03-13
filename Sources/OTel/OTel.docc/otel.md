@@ -48,6 +48,7 @@ The goal of Swift OTel is to support all three in a way that feels right at home
 
 @Links(visualStyle: detailedGrid) {
     - <doc:counter-sample>
+    - <doc:server-sample>
 }
 
 ## Topics

@@ -3,7 +3,6 @@
 @Metadata {
     @PageKind(sampleCode)
     @CallToAction(purpose: link, url: "https://github.com/slashmo/swift-otel/blob/main/Examples/Counter")
-    @PageImage(purpose: card, source: "counter-sample-card", alt: "An illustration of a counter.")
     @Available("Swift", introduced: 5.9)
 }
 

@@ -52,8 +52,10 @@ public final class OTelMetricRegistry: Sendable {
 
     let storage: NIOLockedValueBox<Storage>
 
-    /// A duplicate instrument registration occurs when more than one instrument of the same
-    /// name is created with different _identifying fields_.
+    /// Behavior when a duplicate instrument registration occurs.
+    ///
+    /// A duplicate instrument registration occurs when more than one instrument of the same name is created with
+    /// different _identifying fields_.
     public struct DuplicateRegistrationBehavior: Sendable {
         enum Behavior: Sendable {
             case warn, crash

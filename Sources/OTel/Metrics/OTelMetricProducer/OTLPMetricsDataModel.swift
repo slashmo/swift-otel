@@ -53,7 +53,6 @@ public struct OTelInstrumentationScope: Equatable, Sendable {
     public var droppedAttributeCount: Int32
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#metric-points)
 @_spi(Metrics)
 public struct OTelMetricPoint: Equatable, Sendable {
     public var name: String
@@ -68,7 +67,6 @@ public struct OTelMetricPoint: Equatable, Sendable {
     public var data: OTelMetricData
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#sums)
 @_spi(Metrics)
 public struct OTelSum: Equatable, Sendable {
     public var points: [OTelNumberDataPoint]
@@ -76,27 +74,23 @@ public struct OTelSum: Equatable, Sendable {
     public var monotonic: Bool
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#gauge)
 @_spi(Metrics)
 public struct OTelGauge: Equatable, Sendable {
     public var points: [OTelNumberDataPoint]
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#histogram)
 @_spi(Metrics)
 public struct OTelHistogram: Equatable, Sendable {
     public var aggregationTemporality: OTelAggregationTemporailty
     public var points: [OTelHistogramDataPoint]
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md)
 @_spi(Metrics)
 public struct OTelAttribute: Hashable, Equatable, Sendable {
     public var key: String
     public var value: String
 }
 
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#temporality)
 @_spi(Metrics)
 public enum OTelAggregationTemporailty: Equatable, Sendable {
     case delta
@@ -120,7 +114,6 @@ public struct OTelNumberDataPoint: Equatable, Sendable {
     public var flags: [Flags]
 }
 
-// https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#histogram
 @_spi(Metrics)
 public struct OTelHistogramDataPoint: Equatable, Sendable {
     public struct Bucket: Equatable, Sendable {
@@ -139,9 +132,6 @@ public struct OTelHistogramDataPoint: Equatable, Sendable {
     public var exemplars: [OTelExemplar]
 }
 
-/// An exemplar is a recorded value that associates OpenTelemetry context to a metric event within a Metric. One use case is to allow users to link Trace signals w/ Metrics.
-///
-/// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/data-model.md#exemplars)
 @_spi(Metrics)
 public struct OTelExemplar: Equatable, Sendable {
     var spanID: OTelSpanID?

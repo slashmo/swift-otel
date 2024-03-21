@@ -28,8 +28,6 @@ import CoreMetrics
 
 /// A Swift Metrics `MetricsFactory` implementation backed by ``OTelMetricRegistry``.
 ///
-/// - TODO: Review the API surface we want to provide.
-///
 ///   Right now, this is a wrapper type around the ``OTelMetricRegistry`` which adds some configuration. The API is
 ///   similar to what is in Swift Prometheus, but we might not need to layer this way.
 ///
@@ -49,52 +47,63 @@ public struct OTLPMetricsFactory: Sendable {
     }
 
     /// The underlying registry that provides the handler for the Swift Metrics API.
-    public var registry: OTelMetricRegistry
+    let registry: OTelMetricRegistry
 
-    /// The default bucket upper bounds for duration histograms created for a Swift Metrics `Timer`.
-    public var defaultDurationHistogramBuckets: [Duration]
-
-    /// The bucket upper bounds for duration histograms created for a Swift Metrics `Timer` with a specific label.
-    public var durationHistogramBuckets: [String: [Duration]]
-
-    /// The default bucket upper bounds for value histograms created for a Swift Metrics `Recorder`.
-    public var defaultValueHistogramBuckets: [Double]
-
-    /// The bucket upper bounds for value histograms created for a Swift Metrics `Recorder` with a specific label.
-    public var valueHistogramBuckets: [String: [Double]]
-
-    /// A closure to modify the name and labels used in the Swift Metrics API.
-    ///
-    /// This allows users to override the metadata for metrics recorded by third party packages.
-    public var nameAndLabelSanitizer: @Sendable (_ name: String, _ labels: [(String, String)]) -> (String, [(String, String)])
+    /// Configuration options for the metrics factory.
+    let configuration: Configuration
 
     /// Create a new ``OTLPMetricsFactory``.
+    /// - Parameters:
+    ///   - registry: The registry to store metrics.
+    ///   - configuration: Configuration options for the factory.
     ///
-    /// - Parameter registry: The registry for metric instruments.
-    public init(registry: OTelMetricRegistry = Self.defaultRegistry) {
+    /// - Seealso: ``OTLPMetricsFactory/Configuration``.
+    public init(registry: OTelMetricRegistry = defaultRegistry, configuration: Configuration = .default) {
         self.registry = registry
+        self.configuration = configuration
+    }
+}
 
-        durationHistogramBuckets = [:]
-        defaultDurationHistogramBuckets = [
-            .zero,
-            .milliseconds(5),
-            .milliseconds(10),
-            .milliseconds(25),
-            .milliseconds(50),
-            .milliseconds(75),
-            .milliseconds(100),
-            .milliseconds(250),
-            .milliseconds(500),
-            .milliseconds(750),
-            .milliseconds(1000),
-            .milliseconds(2500),
-            .milliseconds(5000),
-            .milliseconds(7500),
-            .milliseconds(10000),
-        ]
+extension OTLPMetricsFactory {
+    /// Configuration options for the metrics factory.
+    ///
+    /// - Seealso: See the static property ``default`` for details on the default configuration values.
+    public struct Configuration: Sendable {
+        /// The default bucket upper bounds for duration histograms created for a Swift Metrics `Timer`.
+        public var defaultDurationHistogramBuckets: [Duration]
 
-        valueHistogramBuckets = [:]
-        defaultValueHistogramBuckets = [
+        /// The bucket upper bounds for duration histograms created for a Swift Metrics `Timer` with a specific label.
+        public var durationHistogramBuckets: [String: [Duration]]
+
+        /// The default bucket upper bounds for value histograms created for a Swift Metrics `Recorder`.
+        public var defaultValueHistogramBuckets: [Double]
+
+        /// The bucket upper bounds for value histograms created for a Swift Metrics `Recorder` with a specific label.
+        public var valueHistogramBuckets: [String: [Double]]
+
+        /// A closure to drop or modify metric registration made using the Swift Metrics API.
+        ///
+        /// This allows users to interpose registrations made by third party packages.
+        ///
+        /// The closure will be called for each registration with the `label` and `dimensions` provided to the Swift Metrics
+        /// API and should return the label and dimensions to actually use, or `nil` if this metric should be dropped.
+        public var registrationPreprocessor: @Sendable (_ label: String, _ dimensions: [(String, String)]) -> (String, [(String, String)])?
+
+        /// The default bucket upper bounds for histograms defined by the [OTel specification].
+        ///
+        /// The specification outlines the following bounds to be used when no metric-specific bounds are defined:
+        ///
+        /// `(-∞, 0], (0, 5.0], (5.0, 10.0], (10.0, 25.0], (25.0, 50.0], (50.0, 75.0], (75.0, 100.0], (100.0, 250.0],
+        /// (250.0, 500.0], (500.0, 750.0], (750.0, 1000.0], (1000.0, 2500.0], (2500.0, 5000.0], (5000.0, 7500.0],
+        /// (7500.0, 10000.0], (10000.0, +∞)`
+        //
+        /// - Seealso: Use ``defaultValueHistogramBuckets`` and ``defaultDurationHistogramBuckets`` to use different
+        /// default bucket bounds for metrics created using the Swift Metrics `Recorder` and `Timer` APIs respectively.
+        /// - Seealso: Use ``valueHistogramBuckets`` and ``durationHistogramBuckets`` to override the bucket bounds for
+        ///   specific metrics created using the Swift Metrics `Recorder` and `Timer` APIs respectively.
+        ///
+        ///  [OTel specification]: https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#explicit-bucket-histogram-aggregation
+        public static let defaultOTelHistogramBuckets: [Double] = [
             0,
             5,
             10,
@@ -112,19 +121,65 @@ public struct OTLPMetricsFactory: Sendable {
             10000,
         ]
 
-        nameAndLabelSanitizer = { ($0, $1) }
+        /// Default configuration options.
+        ///
+        /// ## Histogram bucket bounds
+        ///
+        /// By default, the configuration uses the [default histogram bucket bounds defined in the OTel
+        /// specification][0]:
+        ///
+        /// `(-∞, 0], (0, 5.0], (5.0, 10.0], (10.0, 25.0], (25.0, 50.0], (50.0, 75.0], (75.0, 100.0], (100.0, 250.0],
+        /// (250.0, 500.0], (500.0, 750.0], (750.0, 1000.0], (1000.0, 2500.0], (2500.0, 5000.0], (5000.0, 7500.0],
+        /// (7500.0, 10000.0], (10000.0, +∞)`
+        ///
+        /// When used for duration histograms, these values are used as millisecond durations.
+        ///
+        /// Use ``OTLPMetricsFactory/Configuration/defaultValueHistogramBuckets`` and ``OTLPMetricsFactory/Configuration/defaultDurationHistogramBuckets`` to use different
+        /// default bucket bounds for metrics created using the Swift Metrics `Recorder` and `Timer` APIs respectively.
+        ///
+        /// Use ``OTLPMetricsFactory/Configuration/valueHistogramBuckets`` and ``OTLPMetricsFactory/Configuration/durationHistogramBuckets`` to override the bucket bounds for
+        ///   _specific_ metrics created using the Swift Metrics `Recorder` and `Timer` APIs respectively.
+        ///
+        /// ## Metric registration
+        ///
+        /// The metrics factory will handle all metric registrations using the Swift Metrics API, including those made
+        /// by third-party libraries. For this reason it can be useful to customize the registration behavior.
+        ///
+        /// Use ``OTLPMetricsFactory/Configuration/registrationPreprocessor`` to customize the label and/or dimensions
+        /// of metric, or drop the metric entirely. The default preprocessor will pass through all metrics unmodified.
+        ///
+        /// The OTel specification defines what instrument fields are considered _identifying_ and [how SDKs should
+        /// handle duplicate instrument registration][1]. By default a warning is emitted to the logging system. Note
+        /// that this warning will not be surfaced if no logging backend has been configured.
+        ///
+        /// Use ``OTelMetricRegistry/init(onDuplicateRegistration:)`` to customize the action to take when duplicate
+        /// registration occurs.
+        ///
+        /// [0]: https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#explicit-bucket-histogram-aggregation
+        /// [1]: https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#duplicate-instrument-registration
+        public static let `default` = Self(
+            defaultDurationHistogramBuckets: defaultOTelHistogramBuckets.map(Duration.milliseconds),
+            durationHistogramBuckets: [:],
+            defaultValueHistogramBuckets: defaultOTelHistogramBuckets,
+            valueHistogramBuckets: [:],
+            registrationPreprocessor: { ($0, $1) }
+        )
     }
 }
 
 extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
     public func makeCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.CounterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = configuration.registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeCounter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeFloatingPointCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.FloatingPointCounterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = configuration.registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeFloatingPointCounter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
@@ -134,25 +189,31 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
         dimensions: [(String, String)],
         aggregate: Bool
     ) -> CoreMetrics.RecorderHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = configuration.registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeRecorder(label: label, dimensions: dimensions, aggregate: aggregate)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         guard aggregate else {
             return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
         }
-        let buckets = valueHistogramBuckets[label] ?? defaultValueHistogramBuckets
+        let buckets = configuration.valueHistogramBuckets[label] ?? configuration.defaultValueHistogramBuckets
         return registry.makeValueHistogram(name: label, unit: unit, description: description, attributes: attributes, buckets: buckets)
     }
 
     public func makeMeter(label: String, dimensions: [(String, String)]) -> CoreMetrics.MeterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = configuration.registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeMeter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeTimer(label: String, dimensions: [(String, String)]) -> CoreMetrics.TimerHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = configuration.registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeTimer(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
-        let buckets = durationHistogramBuckets[label] ?? defaultDurationHistogramBuckets
+        let buckets = configuration.durationHistogramBuckets[label] ?? configuration.defaultDurationHistogramBuckets
         return registry.makeDurationHistogram(name: label, unit: unit, description: description, attributes: attributes, buckets: buckets)
     }
 

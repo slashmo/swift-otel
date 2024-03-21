@@ -70,10 +70,13 @@ public struct OTLPMetricsFactory: Sendable {
         public static let crash = Self(behavior: .crash)
     }
 
-    /// A closure to modify the name and labels used in the Swift Metrics API.
+    /// A closure to drop or modify metric registration made using the Swift Metrics API.
     ///
-    /// This allows users to override the metadata for metrics recorded by third party packages.
-    public var nameAndLabelSanitizer: @Sendable (_ name: String, _ labels: [(String, String)]) -> (String, [(String, String)])
+    /// This allows users to interpose registrations made by third party packages.
+    ///
+    /// The closure will be called for each registration with the `label` and `dimensions` provided to the Swift Metrics
+    /// API and should return the label and dimensions to actually use, or `nil` if this metric should be dropped.
+    public var registrationPreprocessor: @Sendable (_ label: String, _ dimensions: [(String, String)]) -> (String, [(String, String)])?
 
     /// Create a new ``OTLPMetricsFactory``.
     /// - Parameters:
@@ -133,19 +136,23 @@ public struct OTLPMetricsFactory: Sendable {
             10000,
         ]
 
-        nameAndLabelSanitizer = { ($0, $1) }
+        registrationPreprocessor = { ($0, $1) }
     }
 }
 
 extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
     public func makeCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.CounterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeCounter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeFloatingPointCounter(label: String, dimensions: [(String, String)]) -> CoreMetrics.FloatingPointCounterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeFloatingPointCounter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
@@ -155,7 +162,9 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
         dimensions: [(String, String)],
         aggregate: Bool
     ) -> CoreMetrics.RecorderHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeRecorder(label: label, dimensions: dimensions, aggregate: aggregate)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         guard aggregate else {
             return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
@@ -165,13 +174,17 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
     }
 
     public func makeMeter(label: String, dimensions: [(String, String)]) -> CoreMetrics.MeterHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeMeter(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         return registry.makeGauge(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeTimer(label: String, dimensions: [(String, String)]) -> CoreMetrics.TimerHandler {
-        let (label, dimensions) = nameAndLabelSanitizer(label, dimensions)
+        guard let (label, dimensions) = registrationPreprocessor(label, dimensions) else {
+            return NOOPMetricsHandler.instance.makeTimer(label: label, dimensions: dimensions)
+        }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
         let buckets = durationHistogramBuckets[label] ?? defaultDurationHistogramBuckets
         return registry.makeDurationHistogram(name: label, unit: unit, description: description, attributes: attributes, buckets: buckets)

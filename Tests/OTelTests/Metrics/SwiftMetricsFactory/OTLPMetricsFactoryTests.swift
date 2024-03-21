@@ -465,4 +465,54 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
         XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
     }
+
+    func test_registrationPreprocessor_overridesMetadata_registryUsesOverrides() throws {
+        let registry = OTelMetricRegistry()
+        var factory = OTLPMetricsFactory(registry: registry)
+        factory.registrationPreprocessor = { label, dimensions in
+            let name = label.replacingOccurrences(of: "%", with: "")
+            let labels = dimensions.map { key, value in
+                let key = key.replacingOccurrences(of: "%", with: "")
+                let value = value.replacingOccurrences(of: "%", with: "")
+                return (key, value)
+            }
+            return (name, labels)
+        }
+
+        for method in [
+            factory.makeCounter,
+            factory.makeFloatingPointCounter,
+            factory.makeMeter,
+            factory.makeTimer,
+            { factory.makeRecorder(label: $0, dimensions: $1, aggregate: true) },
+        ] {
+            let handler = method("nam%e", [("descriptio%n", "mumbl%e")])
+            let instrumentIdentifier = try XCTUnwrap(handler as? IdentifiableInstrument).instrumentIdentifier
+            XCTAssertEqual(instrumentIdentifier.name, "name")
+            XCTAssertEqual(instrumentIdentifier.description, "mumble")
+        }
+    }
+
+    func test_registrationPreprocessor_returnsNil_registryDoesNotContainMetric() throws {
+        let registry = OTelMetricRegistry()
+        var factory = OTLPMetricsFactory(registry: registry)
+        factory.registrationPreprocessor = { label, dimensions in
+            if label.contains("%") || dimensions.contains(where: { $0.0.contains("%") || $0.1.contains("%") }) {
+                return nil
+            }
+            return (label, dimensions)
+        }
+
+        for method in [
+            factory.makeCounter,
+            factory.makeFloatingPointCounter,
+            factory.makeMeter,
+            factory.makeTimer,
+            { factory.makeRecorder(label: $0, dimensions: $1, aggregate: true) },
+        ] {
+            let handler = method("nam%e", [("descriptio%n", "mumbl%e")])
+            XCTAssert(handler is NOOPMetricsHandler)
+            XCTAssertEqual(registry.numDistinctInstruments, 0)
+        }
+    }
 }

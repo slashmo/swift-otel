@@ -385,15 +385,6 @@ final class DuplicateRegistrationHandlerTests: XCTestCase {
             )
         }
     }
-
-    func test_DuplicateRegistrationHandler_selection() {
-        XCTAssert(OTelMetricRegistry(onDuplicateRegistration: .warn).storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
-        XCTAssert(OTelMetricRegistry(onDuplicateRegistration: .crash).storage.withLockedValue { $0 }.duplicateRegistrationHandler is FatalErrorDuplicateRegistrationHandler)
-    }
-
-    func test_DuplicateRegistrationHandler_default() {
-        XCTAssert(OTelMetricRegistry().storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
-    }
 }
 
 extension OTelMetricRegistry {

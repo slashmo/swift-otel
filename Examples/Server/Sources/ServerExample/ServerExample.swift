@@ -38,18 +38,18 @@ enum ServerMiddlewareExample {
         let resource = await resourceDetection.resource(environment: environment, logLevel: .trace)
 
         // Bootstrap the metrics backend to export metrics periodically in OTLP/gRPC.
-        let registry = OTelMetricRegistry()
+        let metricsProducer = OTLPMetricsFactory()
         let metricsExporter = try OTLPGRPCMetricExporter(configuration: .init(environment: environment))
         let metrics = OTelPeriodicExportingMetricsReader(
             resource: resource,
-            producer: registry,
+            producer: metricsProducer,
             exporter: metricsExporter,
             configuration: .init(
                 environment: environment,
                 exportInterval: .seconds(5) // NOTE: This is overridden for the example; the default is 60 seconds.
             )
         )
-        MetricsSystem.bootstrap(OTLPMetricsFactory(registry: registry))
+        MetricsSystem.bootstrap(metricsProducer)
 
         // Bootstrap the tracing backend to export traces periodically in OTLP/gRPC.
         let exporter = try OTLPGRPCSpanExporter(configuration: .init(environment: environment))

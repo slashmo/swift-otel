@@ -18,8 +18,7 @@ import struct NIOConcurrencyHelpers.NIOLockedValueBox
 ///
 /// The registry owns the mapping from instrument identfier and attributes to the stateful instrument for recording
 /// measurements.
-@_spi(Metrics)
-public final class OTelMetricRegistry: Sendable {
+final class OTelMetricRegistry: Sendable {
     private let logger = Logger(label: "OTelMetricRegistry")
 
     struct Storage {
@@ -52,39 +51,12 @@ public final class OTelMetricRegistry: Sendable {
 
     let storage: NIOLockedValueBox<Storage>
 
-    /// A duplicate instrument registration occurs when more than one instrument of the same
-    /// name is created with different _identifying fields_.
-    public struct DuplicateRegistrationBehavior: Sendable {
-        enum Behavior: Sendable {
-            case warn, crash
-        }
-
-        var behavior: Behavior
-
-        /// Emits a log message at warning level.
-        public static let warn = Self(behavior: .warn)
-
-        /// Crashes with a fatal error.
-        public static let crash = Self(behavior: .crash)
-    }
-
     internal init(duplicateRegistrationHandler: some DuplicateRegistrationHandler) {
         self.storage = .init(Storage(duplicateRegistrationHandler: duplicateRegistrationHandler))
     }
 
-    /// Create a new ``OTelMetricRegistry``.
-    /// - Parameters:
-    ///   - onDuplicateRegistration: Action to take when more than one instrument of the same name is created with
-    ///     different identifying fields.
-    ///
-    /// - Seealso: ``OTelMetricRegistry/DuplicateRegistrationBehavior``.
-    public convenience init(onDuplicateRegistration: DuplicateRegistrationBehavior = .warn) {
-        switch onDuplicateRegistration.behavior {
-        case .warn:
-            self.init(duplicateRegistrationHandler: WarningDuplicateRegistrationHandler.default)
-        case .crash:
-            self.init(duplicateRegistrationHandler: FatalErrorDuplicateRegistrationHandler())
-        }
+    convenience init() {
+        self.init(duplicateRegistrationHandler: WarningDuplicateRegistrationHandler.default)
     }
 
     func makeCounter(name: String, unit: String? = nil, description: String? = nil, attributes: Set<Attribute> = []) -> Counter {

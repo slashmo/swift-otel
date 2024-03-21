@@ -28,8 +28,6 @@ import CoreMetrics
 
 /// A Swift Metrics `MetricsFactory` implementation backed by ``OTelMetricRegistry``.
 ///
-/// - TODO: Review the API surface we want to provide.
-///
 ///   Right now, this is a wrapper type around the ``OTelMetricRegistry`` which adds some configuration. The API is
 ///   similar to what is in Swift Prometheus, but we might not need to layer this way.
 ///
@@ -41,15 +39,8 @@ import CoreMetrics
 ///   we want to extend this package to provide direct OTel funcionality.
 @_spi(Metrics)
 public struct OTLPMetricsFactory: Sendable {
-    private static let _defaultRegistry = OTelMetricRegistry()
-
-    /// The shared, default registry.
-    public static var defaultRegistry: OTelMetricRegistry {
-        _defaultRegistry
-    }
-
     /// The underlying registry that provides the handler for the Swift Metrics API.
-    public var registry: OTelMetricRegistry
+    var registry: OTelMetricRegistry
 
     /// The default bucket upper bounds for duration histograms created for a Swift Metrics `Timer`.
     public var defaultDurationHistogramBuckets: [Duration]
@@ -63,15 +54,45 @@ public struct OTLPMetricsFactory: Sendable {
     /// The bucket upper bounds for value histograms created for a Swift Metrics `Recorder` with a specific label.
     public var valueHistogramBuckets: [String: [Double]]
 
+    /// A duplicate instrument registration occurs when more than one instrument of the same
+    /// name is created with different _identifying fields_.
+    public struct DuplicateRegistrationBehavior: Sendable {
+        enum Behavior: Sendable {
+            case warn, crash
+        }
+
+        var behavior: Behavior
+
+        /// Emits a log message at warning level.
+        public static let warn = Self(behavior: .warn)
+
+        /// Crashes with a fatal error.
+        public static let crash = Self(behavior: .crash)
+    }
+
     /// A closure to modify the name and labels used in the Swift Metrics API.
     ///
     /// This allows users to override the metadata for metrics recorded by third party packages.
     public var nameAndLabelSanitizer: @Sendable (_ name: String, _ labels: [(String, String)]) -> (String, [(String, String)])
 
     /// Create a new ``OTLPMetricsFactory``.
+    /// - Parameters:
+    ///   - onDuplicateRegistration: Action to take when more than one instrument of the same name is created with
+    ///     different identifying fields.
     ///
-    /// - Parameter registry: The registry for metric instruments.
-    public init(registry: OTelMetricRegistry = Self.defaultRegistry) {
+    /// - Seealso: ``OTLPMetricsFactory/DuplicateRegistrationBehavior``.
+    public init(onDuplicateRegistration: DuplicateRegistrationBehavior = .warn) {
+        let registry: OTelMetricRegistry
+        switch onDuplicateRegistration.behavior {
+        case .warn:
+            registry = OTelMetricRegistry(duplicateRegistrationHandler: WarningDuplicateRegistrationHandler.default)
+        case .crash:
+            registry = OTelMetricRegistry(duplicateRegistrationHandler: FatalErrorDuplicateRegistrationHandler())
+        }
+        self.init(registry: registry)
+    }
+
+    init(registry: OTelMetricRegistry) {
         self.registry = registry
 
         durationHistogramBuckets = [:]

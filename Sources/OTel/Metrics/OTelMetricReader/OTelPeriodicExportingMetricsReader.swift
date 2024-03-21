@@ -22,7 +22,7 @@ public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Ser
     private let logger = Logger(label: "OTelPeriodicExportingMetricsReader")
 
     var resource: OTelResource
-    var producer: OTelMetricProducer // TODO: support for multiple producers?
+    var producer: OTelMetricProducer
     var exporter: OTelMetricExporter
     var configuration: OTelPeriodicExportingMetricsReaderConfiguration
     var clock: Clock
@@ -77,7 +77,7 @@ public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Ser
 
 @_spi(Metrics)
 extension OTelPeriodicExportingMetricsReader where Clock == ContinuousClock {
-    public init(
+    init(
         resource: OTelResource,
         producer: OTelMetricProducer,
         exporter: OTelMetricExporter,
@@ -88,5 +88,26 @@ extension OTelPeriodicExportingMetricsReader where Clock == ContinuousClock {
         self.exporter = exporter
         self.configuration = configuration
         clock = .continuous
+    }
+
+    /// Create a new ``OTelPeriodicExportingMetricsReader``.
+    ///
+    /// - Parameters:
+    ///   - resource: The resource associated with the metrics, usually obtained using <doc:resource-detection>.
+    ///   - producer: The metrics factory that was used to bootstrap the metrics system, from which to read metrics.
+    ///   - exporter: The exporter to use to export the metrics.
+    ///   - configuration: The configuration options for the periodic exporting reader.
+    public init(
+        resource: OTelResource,
+        producer: OTLPMetricsFactory,
+        exporter: OTelMetricExporter,
+        configuration: OTelPeriodicExportingMetricsReaderConfiguration
+    ) {
+        self.init(
+            resource: resource,
+            producer: producer.registry,
+            exporter: exporter,
+            configuration: configuration
+        )
     }
 }

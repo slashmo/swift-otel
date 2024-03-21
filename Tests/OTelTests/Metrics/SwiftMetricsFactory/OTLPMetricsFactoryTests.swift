@@ -396,11 +396,13 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         XCTAssertEqual(duplicateRegistrationHandler.invocations.withLockedValue { $0 }.count, 0)
     }
 
-    func test_FactoryInitializer_usesSingletonRegistryByDefault() {
-        XCTAssertIdentical(
-            OTLPMetricsFactory().registry,
-            OTLPMetricsFactory().registry
-        )
+    func test_DuplicateRegistrationHandler_selection() {
+        XCTAssert(OTLPMetricsFactory(onDuplicateRegistration: .warn).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
+        XCTAssert(OTLPMetricsFactory(onDuplicateRegistration: .crash).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is FatalErrorDuplicateRegistrationHandler)
+    }
+
+    func test_DuplicateRegistrationHandler_default() {
+        XCTAssert(OTLPMetricsFactory().registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
     }
 
     func test_destroy_gracefullyHandlesBogusHandles() {

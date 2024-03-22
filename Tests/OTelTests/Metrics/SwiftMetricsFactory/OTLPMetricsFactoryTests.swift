@@ -87,9 +87,10 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_makeTimer_customBuckets() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultDurationHistogramBuckets = [.milliseconds(100), .milliseconds(200)]
-        factory.durationHistogramBuckets = ["custom": [.milliseconds(300), .milliseconds(400)]]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultDurationHistogramBuckets = [.milliseconds(100), .milliseconds(200)]
+        configuration.durationHistogramBuckets = ["custom": [.milliseconds(300), .milliseconds(400)]]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         do {
             let timer = factory.makeTimer(label: "default", dimensions: [])
@@ -112,9 +113,10 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_makeRecorder_customBuckets() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultValueHistogramBuckets = [0.1, 0.2]
-        factory.valueHistogramBuckets = ["custom": [0.3, 0.4]]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultValueHistogramBuckets = [0.1, 0.2]
+        configuration.valueHistogramBuckets = ["custom": [0.3, 0.4]]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         do {
             let recorder = factory.makeRecorder(label: "default", dimensions: [], aggregate: true)
@@ -194,8 +196,9 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_Recorder_withAggregration_methods() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultValueHistogramBuckets = [0.1, 0.25, 0.5, 1]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultValueHistogramBuckets = [0.1, 0.25, 0.5, 1]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
         let recorder = factory.makeRecorder(label: "r", dimensions: [("x", "1")], aggregate: true)
 
         (recorder as? ValueHistogram)?.assertStateEquals(count: 0, sum: 0, buckets: [
@@ -256,13 +259,14 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_Timer_methods() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultDurationHistogramBuckets = [
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultDurationHistogramBuckets = [
             .nanoseconds(100),
             .nanoseconds(250),
             .nanoseconds(500),
             .microseconds(1),
         ]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
         let timer = factory.makeTimer(label: "t", dimensions: [("x", "1")])
 
         (timer as? DurationHistogram)?.assertStateEquals(count: 0, sum: .zero, buckets: [
@@ -397,8 +401,11 @@ final class OTLPMetricsFactoryTests: XCTestCase {
     }
 
     func test_DuplicateRegistrationHandler_selection() {
-        XCTAssert(OTLPMetricsFactory(onDuplicateRegistration: .warn).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
-        XCTAssert(OTLPMetricsFactory(onDuplicateRegistration: .crash).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is FatalErrorDuplicateRegistrationHandler)
+        var configuration: OTLPMetricsFactory.Configuration = .default
+        configuration.duplicateRegistrationBehavior = .warn
+        XCTAssert(OTLPMetricsFactory(configuration: configuration).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is WarningDuplicateRegistrationHandler)
+        configuration.duplicateRegistrationBehavior = .crash
+        XCTAssert(OTLPMetricsFactory(configuration: configuration).registry.storage.withLockedValue { $0 }.duplicateRegistrationHandler is FatalErrorDuplicateRegistrationHandler)
     }
 
     func test_DuplicateRegistrationHandler_default() {
@@ -432,8 +439,8 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         // https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#explicit-bucket-histogram-aggregation
         let defaultBucketsFromOTelSpec = [0.0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000]
         let factory = OTLPMetricsFactory()
-        XCTAssertEqual(factory.defaultValueHistogramBuckets, defaultBucketsFromOTelSpec)
-        XCTAssertEqual(factory.defaultDurationHistogramBuckets, defaultBucketsFromOTelSpec.map { .milliseconds($0) })
+        XCTAssertEqual(factory.configuration.defaultValueHistogramBuckets, defaultBucketsFromOTelSpec)
+        XCTAssertEqual(factory.configuration.defaultDurationHistogramBuckets, defaultBucketsFromOTelSpec.map { .milliseconds($0) })
     }
 
     func test_factoryMethods_extractUnitAndDescriptionFromDimensions() throws {
@@ -468,8 +475,8 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_registrationPreprocessor_overridesMetadata_registryUsesOverrides() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.registrationPreprocessor = { label, dimensions in
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.registrationPreprocessor = { label, dimensions in
             let name = label.replacingOccurrences(of: "%", with: "")
             let labels = dimensions.map { key, value in
                 let key = key.replacingOccurrences(of: "%", with: "")
@@ -478,6 +485,7 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             }
             return (name, labels)
         }
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         for method in [
             factory.makeCounter,
@@ -495,13 +503,14 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_registrationPreprocessor_returnsNil_registryDoesNotContainMetric() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.registrationPreprocessor = { label, dimensions in
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.registrationPreprocessor = { label, dimensions in
             if label.contains("%") || dimensions.contains(where: { $0.0.contains("%") || $0.1.contains("%") }) {
                 return nil
             }
             return (label, dimensions)
         }
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         for method in [
             factory.makeCounter,

@@ -30,16 +30,16 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         let registry = OTelMetricRegistry()
         let factory = OTLPMetricsFactory(registry: registry)
 
-        let counter = try XCTUnwrap(factory.makeFloatingPointCounter(label: "c", dimensions: [("x", "1")]) as? OTel.Counter)
+        let counter = try XCTUnwrap(factory.makeFloatingPointCounter(label: "c", dimensions: [("x", "1")]) as? OTel.FloatingPointCounter)
         XCTAssertEqual(counter.name, "c")
         XCTAssertEqual(counter.attributes, Set([("x", "1")]))
     }
 
-    func testMakeCounterAndMakeFloatingPointCounterReturnSameOTelCounter() throws {
+    func test_makeCounter_makeFloatingPointCounter_returnDistinctOTelCounters() throws {
         let registry = OTelMetricRegistry()
         let factory = OTLPMetricsFactory(registry: registry)
 
-        XCTAssertIdentical(
+        XCTAssertNotIdentical(
             factory.makeCounter(label: "c", dimensions: [("x", "1")]),
             factory.makeFloatingPointCounter(label: "c", dimensions: [("x", "1")])
         )
@@ -142,13 +142,13 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         let factory = OTLPMetricsFactory(registry: registry)
         let counter = factory.makeCounter(label: "c", dimensions: [("x", "1")])
 
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.Counter)?.atomicValue, 0)
         counter.increment(by: 2)
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 2, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.Counter)?.atomicValue, 2)
         counter.increment(by: 2)
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 4, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.Counter)?.atomicValue, 4)
         counter.reset()
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.Counter)?.atomicValue, 0)
     }
 
     func test_FloatingPointCounter_methods() {
@@ -156,13 +156,13 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         let factory = OTLPMetricsFactory(registry: registry)
         let counter = factory.makeFloatingPointCounter(label: "c", dimensions: [("x", "1")])
 
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.FloatingPointCounter)?.atomicValue, 0.0)
         counter.increment(by: 2)
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 2.0)
-        counter.increment(by: Double(2.5))
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 4.5)
+        XCTAssertEqual((counter as? OTel.FloatingPointCounter)?.atomicValue, 2.0)
+        counter.increment(by: 2.5)
+        XCTAssertEqual((counter as? OTel.FloatingPointCounter)?.atomicValue, 4.5)
         counter.reset()
-        (counter as? OTel.Counter)?.assertStateEquals(integerPart: 0, doublePart: 0.0)
+        XCTAssertEqual((counter as? OTel.FloatingPointCounter)?.atomicValue, 0.0)
     }
 
     func test_Meter_methods() {
@@ -171,13 +171,13 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         let meter = factory.makeMeter(label: "m", dimensions: [("x", "1")])
 
         meter.set(43.5)
-        XCTAssertEqual((meter as? OTel.Gauge)?.doubleAtomicValue, 43.5)
+        XCTAssertEqual((meter as? OTel.Gauge)?.atomicValue, 43.5)
         meter.increment(by: 6.5)
-        XCTAssertEqual((meter as? OTel.Gauge)?.doubleAtomicValue, 50.0)
+        XCTAssertEqual((meter as? OTel.Gauge)?.atomicValue, 50.0)
         meter.decrement(by: 8.0)
-        XCTAssertEqual((meter as? OTel.Gauge)?.doubleAtomicValue, 42.0)
+        XCTAssertEqual((meter as? OTel.Gauge)?.atomicValue, 42.0)
         meter.set(Int64(6))
-        XCTAssertEqual((meter as? OTel.Gauge)?.doubleAtomicValue, 6.0)
+        XCTAssertEqual((meter as? OTel.Gauge)?.atomicValue, 6.0)
     }
 
     func test_Recorder_withoutAggregration_methods() throws {
@@ -185,13 +185,13 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         let factory = OTLPMetricsFactory(registry: registry)
         let recorder = factory.makeRecorder(label: "r", dimensions: [("x", "1")], aggregate: false)
 
-        XCTAssertEqual((recorder as? OTel.Gauge)?.doubleAtomicValue, 0.0)
+        XCTAssertEqual((recorder as? OTel.Gauge)?.atomicValue, 0.0)
         recorder.record(Int64(2))
-        XCTAssertEqual((recorder as? OTel.Gauge)?.doubleAtomicValue, 2.0)
+        XCTAssertEqual((recorder as? OTel.Gauge)?.atomicValue, 2.0)
         recorder.record(Double(-3.1))
-        XCTAssertEqual((recorder as? OTel.Gauge)?.doubleAtomicValue, -3.1)
+        XCTAssertEqual((recorder as? OTel.Gauge)?.atomicValue, -3.1)
         recorder.record(Int64(42))
-        XCTAssertEqual((recorder as? OTel.Gauge)?.doubleAtomicValue, 42)
+        XCTAssertEqual((recorder as? OTel.Gauge)?.atomicValue, 42)
     }
 
     func test_Recorder_withAggregration_methods() throws {

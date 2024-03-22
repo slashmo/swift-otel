@@ -15,17 +15,15 @@
 import XCTest
 
 extension Counter {
-    private var integerAtomicValue: Int64 { intAtomic.load(ordering: .relaxed) }
-    private var doubleAtomicValue: Double { Double(bitPattern: floatAtomic.load(ordering: .relaxed)) }
+    package var atomicValue: Int64 { atomic.load(ordering: .relaxed) }
+}
 
-    package func assertStateEquals(integerPart: Int64, doublePart: Double, file: StaticString = #file, line: UInt = #line) {
-        XCTAssertEqual(integerAtomicValue, integerPart, "Unexpected integer part", file: file, line: line)
-        XCTAssertEqual(doubleAtomicValue, doublePart, "Unexpected double part", file: file, line: line)
-    }
+extension FloatingPointCounter {
+    package var atomicValue: Double { Double(bitPattern: atomic.load(ordering: .relaxed)) }
 }
 
 extension Gauge {
-    package var doubleAtomicValue: Double { Double(bitPattern: atomic.load(ordering: .relaxed)) }
+    package var atomicValue: Double { Double(bitPattern: atomic.load(ordering: .relaxed)) }
 }
 
 extension Histogram {

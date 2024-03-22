@@ -16,9 +16,7 @@ import Logging
 import ServiceLifecycle
 
 @_spi(Metrics)
-public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Service, CustomStringConvertible where Clock.Duration == Duration {
-    public let description = "OTelPeriodicExportingMetricsReader"
-
+public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock> where Clock.Duration == Duration {
     private let logger = Logger(label: "OTelPeriodicExportingMetricsReader")
 
     var resource: OTelResource
@@ -64,6 +62,10 @@ public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Ser
             logger.error("Failed to export metrics.", metadata: ["error": "\(error)"])
         }
     }
+}
+
+extension OTelPeriodicExportingMetricsReader: CustomStringConvertible, Service {
+    public var description: String { "OTelPeriodicExportingMetricsReader" }
 
     public func run() async throws {
         let interval = configuration.exportInterval

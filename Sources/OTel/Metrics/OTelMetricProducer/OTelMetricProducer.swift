@@ -20,6 +20,5 @@ protocol OTelMetricProducer: Sendable {
     ///
     /// - Returns: a batch of metric points.
     /// - Seealso: [](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#produce-batch)
-    /// - TODO: Consider adding metrics filter parameter (experimental in OTel 1.29.0)
     func produce() -> [OTelMetricPoint]
 }

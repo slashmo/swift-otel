@@ -35,5 +35,5 @@ public protocol OTelMetricExporter: Sendable {
 /// An error indicating that an exporter has already been shut down but has been asked to export a batch of metrics.
 @_spi(Metrics)
 public struct OTelMetricExporterAlreadyShutDownError: Error {
-    public init() {}
+    package init() {}
 }

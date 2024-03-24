@@ -21,6 +21,11 @@ extension OTelMetricRegistry: OTelMetricProducer {
                 buffer.append(instrument.measure())
             }
         }
+        for instruments in metrics.floatingPointCounters.values {
+            for instrument in instruments.values {
+                buffer.append(instrument.measure())
+            }
+        }
         for instruments in metrics.gauges.values {
             for instrument in instruments.values {
                 buffer.append(instrument.measure())

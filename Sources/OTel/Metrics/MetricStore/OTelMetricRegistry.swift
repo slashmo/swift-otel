@@ -24,6 +24,7 @@ public final class OTelMetricRegistry: Sendable {
 
     struct Storage {
         var counters = [InstrumentIdentifier: [Set<Attribute>: Counter]]()
+        var floatingPointCounters = [InstrumentIdentifier: [Set<Attribute>: FloatingPointCounter]]()
         var gauges = [InstrumentIdentifier: [Set<Attribute>: Gauge]]()
         var valueHistograms = [InstrumentIdentifier: [Set<Attribute>: ValueHistogram]]()
         var durationHistograms = [InstrumentIdentifier: [Set<Attribute>: DurationHistogram]]()
@@ -108,6 +109,25 @@ public final class OTelMetricRegistry: Sendable {
         }
     }
 
+    func makeFloatingPointCounter(name: String, unit: String? = nil, description: String? = nil, attributes: Set<Attribute> = []) -> FloatingPointCounter {
+        storage.withLockedValue { storage in
+            let identifier = InstrumentIdentifier.floatingPointCounter(name: name, unit: unit, description: description)
+            if var existingInstruments = storage.floatingPointCounters[identifier] {
+                if let existingInstrument = existingInstruments[attributes] {
+                    return existingInstrument
+                }
+                let newInstrument = FloatingPointCounter(name: name, unit: unit, description: description, attributes: attributes)
+                existingInstruments[attributes] = newInstrument
+                storage.floatingPointCounters[identifier] = existingInstruments
+                return newInstrument
+            }
+            storage.register(identifier, forName: name)
+            let newInstrument = FloatingPointCounter(name: name, unit: unit, description: description, attributes: attributes)
+            storage.floatingPointCounters[identifier] = [attributes: newInstrument]
+            return newInstrument
+        }
+    }
+
     func makeGauge(name: String, unit: String? = nil, description: String? = nil, attributes: Set<Attribute> = []) -> Gauge {
         storage.withLockedValue { storage in
             let identifier = InstrumentIdentifier.gauge(name: name, unit: unit, description: description)
@@ -180,6 +200,21 @@ public final class OTelMetricRegistry: Sendable {
         }
     }
 
+    func unregisterFloatingPointCounter(_ floatingPointCounter: FloatingPointCounter) {
+        let identifier = floatingPointCounter.instrumentIdentifier
+        self.storage.withLockedValue { storage in
+            if var existingInstrument = storage.floatingPointCounters[identifier] {
+                existingInstrument.removeValue(forKey: floatingPointCounter.attributes)
+                if existingInstrument.isEmpty {
+                    storage.floatingPointCounters.removeValue(forKey: identifier)
+                    storage.unregister(identifier, forName: identifier.name)
+                } else {
+                    storage.floatingPointCounters[identifier] = existingInstrument
+                }
+            }
+        }
+    }
+
     func unregisterGauge(_ gauge: Gauge) {
         let identifier = gauge.instrumentIdentifier
         self.storage.withLockedValue { storage in
@@ -230,7 +265,7 @@ struct InstrumentIdentifier: Equatable, Hashable, Sendable {
     var name: String
     var unit: String?
     var description: String?
-    enum InstrumentKind { case counter, gauge, histogram }
+    enum InstrumentKind { case counter, floatingPointCounter, gauge, histogram }
     var kind: InstrumentKind
 
     private init(name: String, unit: String? = nil, description: String? = nil, kind: InstrumentKind) {
@@ -242,6 +277,10 @@ struct InstrumentIdentifier: Equatable, Hashable, Sendable {
 
     static func counter(name: String, unit: String? = nil, description: String? = nil) -> Self {
         self.init(name: name, unit: unit, description: description, kind: .counter)
+    }
+
+    static func floatingPointCounter(name: String, unit: String? = nil, description: String? = nil) -> Self {
+        self.init(name: name, unit: unit, description: description, kind: .floatingPointCounter)
     }
 
     static func gauge(name: String, unit: String? = nil, description: String? = nil) -> Self {
@@ -259,6 +298,10 @@ protocol IdentifiableInstrument {
 
 extension Counter: IdentifiableInstrument {
     var instrumentIdentifier: InstrumentIdentifier { .counter(name: name, unit: unit, description: description) }
+}
+
+extension FloatingPointCounter: IdentifiableInstrument {
+    var instrumentIdentifier: InstrumentIdentifier { .floatingPointCounter(name: name, unit: unit, description: description) }
 }
 
 extension Gauge: IdentifiableInstrument {

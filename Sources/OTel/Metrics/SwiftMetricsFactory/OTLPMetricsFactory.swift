@@ -181,7 +181,7 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
             return NOOPMetricsHandler.instance.makeFloatingPointCounter(label: label, dimensions: dimensions)
         }
         let (unit, description, attributes) = extractIdentifyingFieldsAndAttributes(from: dimensions)
-        return registry.makeCounter(name: label, unit: unit, description: description, attributes: attributes)
+        return registry.makeFloatingPointCounter(name: label, unit: unit, description: description, attributes: attributes)
     }
 
     public func makeRecorder(
@@ -225,10 +225,10 @@ extension OTLPMetricsFactory: CoreMetrics.MetricsFactory {
     }
 
     public func destroyFloatingPointCounter(_ handler: FloatingPointCounterHandler) {
-        guard let counter = handler as? Counter else {
+        guard let counter = handler as? FloatingPointCounter else {
             return
         }
-        registry.unregisterCounter(counter)
+        registry.unregisterFloatingPointCounter(counter)
     }
 
     public func destroyRecorder(_ handler: CoreMetrics.RecorderHandler) {

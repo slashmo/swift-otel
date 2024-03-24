@@ -13,4 +13,4 @@
 
 import CoreMetrics
 
-extension Counter: CoreMetrics.CounterHandler {}
+extension FloatingPointCounter: CoreMetrics.FloatingPointCounterHandler {}

@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 import Tracing
 
-extension Counter: OTelMetricInstrument {
+extension FloatingPointCounter: OTelMetricInstrument {
     /// Return the current state as an OTel metric data point.
     ///
     /// Since our simplifed Swift Metrics backend datamodel only stores the current count, the only sensible mapping to
@@ -26,7 +26,7 @@ extension Counter: OTelMetricInstrument {
     /// Since our simplifed Swift Metrics backend datamodel only stores the current count, the only sensible mapping to
     /// an OTel data point we can provide is a sum, with cumulative aggregation temporality.
     func measure(instant: some TracerInstant) -> OTelMetricPoint {
-        let value = atomic.load(ordering: .relaxed)
+        let value = Double(bitPattern: atomic.load(ordering: .relaxed))
         return OTelMetricPoint(
             name: name,
             description: description ?? "",
@@ -35,7 +35,7 @@ extension Counter: OTelMetricInstrument {
                 points: [.init(
                     attributes: attributes.map { OTelAttribute(key: $0.key, value: $0.value) },
                     timeNanosecondsSinceEpoch: instant.nanosecondsSinceEpoch,
-                    value: .int64(value),
+                    value: .double(value),
                     exemplars: [],
                     flags: []
                 )],

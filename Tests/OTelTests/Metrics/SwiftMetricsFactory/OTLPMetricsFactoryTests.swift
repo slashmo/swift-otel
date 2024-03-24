@@ -87,9 +87,10 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_makeTimer_customBuckets() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultDurationHistogramBuckets = [.milliseconds(100), .milliseconds(200)]
-        factory.durationHistogramBuckets = ["custom": [.milliseconds(300), .milliseconds(400)]]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultDurationHistogramBuckets = [.milliseconds(100), .milliseconds(200)]
+        configuration.durationHistogramBuckets = ["custom": [.milliseconds(300), .milliseconds(400)]]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         do {
             let timer = factory.makeTimer(label: "default", dimensions: [])
@@ -112,9 +113,10 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_makeRecorder_customBuckets() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultValueHistogramBuckets = [0.1, 0.2]
-        factory.valueHistogramBuckets = ["custom": [0.3, 0.4]]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultValueHistogramBuckets = [0.1, 0.2]
+        configuration.valueHistogramBuckets = ["custom": [0.3, 0.4]]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
 
         do {
             let recorder = factory.makeRecorder(label: "default", dimensions: [], aggregate: true)
@@ -194,8 +196,9 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_Recorder_withAggregration_methods() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultValueHistogramBuckets = [0.1, 0.25, 0.5, 1]
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultValueHistogramBuckets = [0.1, 0.25, 0.5, 1]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
         let recorder = factory.makeRecorder(label: "r", dimensions: [("x", "1")], aggregate: true)
 
         (recorder as? ValueHistogram)?.assertStateEquals(count: 0, sum: 0, buckets: [
@@ -256,13 +259,14 @@ final class OTLPMetricsFactoryTests: XCTestCase {
 
     func test_Timer_methods() throws {
         let registry = OTelMetricRegistry()
-        var factory = OTLPMetricsFactory(registry: registry)
-        factory.defaultDurationHistogramBuckets = [
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.defaultDurationHistogramBuckets = [
             .nanoseconds(100),
             .nanoseconds(250),
             .nanoseconds(500),
             .microseconds(1),
         ]
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
         let timer = factory.makeTimer(label: "t", dimensions: [("x", "1")])
 
         (timer as? DurationHistogram)?.assertStateEquals(count: 0, sum: .zero, buckets: [
@@ -430,8 +434,8 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         // https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#explicit-bucket-histogram-aggregation
         let defaultBucketsFromOTelSpec = [0.0, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000]
         let factory = OTLPMetricsFactory()
-        XCTAssertEqual(factory.defaultValueHistogramBuckets, defaultBucketsFromOTelSpec)
-        XCTAssertEqual(factory.defaultDurationHistogramBuckets, defaultBucketsFromOTelSpec.map { .milliseconds($0) })
+        XCTAssertEqual(factory.configuration.defaultValueHistogramBuckets, defaultBucketsFromOTelSpec)
+        XCTAssertEqual(factory.configuration.defaultDurationHistogramBuckets, defaultBucketsFromOTelSpec.map { .milliseconds($0) })
     }
 
     func test_factoryMethods_extractUnitAndDescriptionFromDimensions() throws {
@@ -444,23 +448,75 @@ final class OTLPMetricsFactoryTests: XCTestCase {
         XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
 
         let f = factory.makeFloatingPointCounter(label: "f", dimensions: [("unit", "s"), ("description", "mumble")])
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+        XCTAssertEqual((f as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((f as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
 
         let m = factory.makeMeter(label: "m", dimensions: [("unit", "s"), ("description", "mumble")])
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+        XCTAssertEqual((m as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((m as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
 
         let r = factory.makeRecorder(label: "r", dimensions: [("unit", "s"), ("description", "mumble")], aggregate: true)
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+        XCTAssertEqual((r as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((r as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
 
         let r_ = factory.makeRecorder(label: "g", dimensions: [("unit", "s"), ("description", "mumble")], aggregate: false)
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+        XCTAssertEqual((r_ as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((r_ as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
 
         let t = factory.makeTimer(label: "t", dimensions: [("unit", "s"), ("description", "mumble")])
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
-        XCTAssertEqual((c as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+        XCTAssertEqual((t as? IdentifiableInstrument)?.instrumentIdentifier.unit, "s")
+        XCTAssertEqual((t as? IdentifiableInstrument)?.instrumentIdentifier.description, "mumble")
+    }
+
+    func test_registrationPreprocessor_overridesMetadata_registryUsesOverrides() throws {
+        let registry = OTelMetricRegistry()
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.registrationPreprocessor = { label, dimensions in
+            let name = label.replacingOccurrences(of: "%", with: "")
+            let labels = dimensions.map { key, value in
+                let key = key.replacingOccurrences(of: "%", with: "")
+                let value = value.replacingOccurrences(of: "%", with: "")
+                return (key, value)
+            }
+            return (name, labels)
+        }
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
+
+        for method in [
+            factory.makeCounter,
+            factory.makeFloatingPointCounter,
+            factory.makeMeter,
+            factory.makeTimer,
+            { factory.makeRecorder(label: $0, dimensions: $1, aggregate: true) },
+        ] {
+            let handler = method("nam%e", [("descriptio%n", "mumbl%e")])
+            let instrumentIdentifier = try XCTUnwrap(handler as? IdentifiableInstrument).instrumentIdentifier
+            XCTAssertEqual(instrumentIdentifier.name, "name")
+            XCTAssertEqual(instrumentIdentifier.description, "mumble")
+        }
+    }
+
+    func test_registrationPreprocessor_returnsNil_registryDoesNotContainMetric() throws {
+        let registry = OTelMetricRegistry()
+        var configuration = OTLPMetricsFactory.Configuration.default
+        configuration.registrationPreprocessor = { label, dimensions in
+            if label.contains("%") || dimensions.contains(where: { $0.0.contains("%") || $0.1.contains("%") }) {
+                return nil
+            }
+            return (label, dimensions)
+        }
+        let factory = OTLPMetricsFactory(registry: registry, configuration: configuration)
+
+        for method in [
+            factory.makeCounter,
+            factory.makeFloatingPointCounter,
+            factory.makeMeter,
+            factory.makeTimer,
+            { factory.makeRecorder(label: $0, dimensions: $1, aggregate: true) },
+        ] {
+            let handler = method("nam%e", [("descriptio%n", "mumbl%e")])
+            XCTAssert(handler is NOOPMetricsHandler)
+            XCTAssertEqual(registry.numDistinctInstruments, 0)
+        }
     }
 }

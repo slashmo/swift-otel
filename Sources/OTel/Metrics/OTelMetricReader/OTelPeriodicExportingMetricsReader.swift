@@ -16,13 +16,11 @@ import Logging
 import ServiceLifecycle
 
 @_spi(Metrics)
-public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Service, CustomStringConvertible where Clock.Duration == Duration {
-    public let description = "OTelPeriodicExportingMetricsReader"
-
+public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock> where Clock.Duration == Duration {
     private let logger = Logger(label: "OTelPeriodicExportingMetricsReader")
 
     var resource: OTelResource
-    var producer: OTelMetricProducer // TODO: support for multiple producers?
+    var producer: OTelMetricProducer
     var exporter: OTelMetricExporter
     var configuration: OTelPeriodicExportingMetricsReaderConfiguration
     var clock: Clock
@@ -64,6 +62,10 @@ public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Ser
             logger.error("Failed to export metrics.", metadata: ["error": "\(error)"])
         }
     }
+}
+
+extension OTelPeriodicExportingMetricsReader: CustomStringConvertible, Service {
+    public var description: String { "OTelPeriodicExportingMetricsReader" }
 
     public func run() async throws {
         let interval = configuration.exportInterval
@@ -77,6 +79,13 @@ public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock>: Ser
 
 @_spi(Metrics)
 extension OTelPeriodicExportingMetricsReader where Clock == ContinuousClock {
+    /// Create a new ``OTelPeriodicExportingMetricsReader``.
+    ///
+    /// - Parameters:
+    ///   - resource: The resource associated with the metrics, usually obtained using <doc:resource-detection>.
+    ///   - producer: The producer used to periodically read metrics.
+    ///   - exporter: The exporter to use to export the metrics.
+    ///   - configuration: The configuration options for the periodic exporting reader.
     public init(
         resource: OTelResource,
         producer: OTelMetricProducer,

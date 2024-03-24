@@ -33,6 +33,7 @@ final class OTelPeriodicExportingMetricsReaderTests: XCTestCase {
             ),
             clock: clock
         )
+        _ = reader.description
         var sleepCalls = clock.sleepCalls.makeAsyncIterator()
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask {

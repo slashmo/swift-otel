@@ -14,7 +14,7 @@
 import ServiceContextModule
 import ServiceLifecycle
 
-/// Span processor allow for processing spans throught their lifetime via ``onStart(_:parentContext:)`` and ``onEnd(_:)`` calls.
+/// Span processors allow for processing spans throughout their lifetime via ``onStart(_:parentContext:)`` and ``onEnd(_:)`` calls.
 /// Usually, span processors will forward ended spans to a configurable ``OTelSpanExporter``.
 ///
 /// [OpenTelemetry specification: Span processor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#span-processor)

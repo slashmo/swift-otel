@@ -22,10 +22,10 @@ import Tracing
 public struct OTelLogHandler: Sendable, LogHandler {
     public var metadata: Logging.Logger.Metadata
     public var logLevel: Logging.Logger.Level
-    private let processor: any OTelLogProcessor
+    private let processor: any OTelLogEntryProcessor
 
     public init(
-        processor: any OTelLogProcessor,
+        processor: any OTelLogEntryProcessor,
         logLevel: Logger.Level,
         metadata: Logger.Metadata = [:]
     ) {
@@ -50,7 +50,7 @@ public struct OTelLogHandler: Sendable, LogHandler {
     ) {
         let instant = DefaultTracerClock().now
 
-        let message = OTelLog(
+        let message = OTelLogEntry(
             body: message.description,
             level: level,
             metadata: metadata,

@@ -15,16 +15,16 @@ import ServiceLifecycle
 import ServiceContextModule
 
 /// Log processors allow for processing logs throughout their lifetime via ``onStart(_:parentContext:)`` and ``onEnd(_:)`` calls.
-/// Usually, log processors will forward logs to a configurable ``OTelLogExporter``.
+/// Usually, log processors will forward logs to a configurable ``OTelLogEntryExporter``.
 ///
 /// [OpenTelemetry specification: LogRecord processor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/logs/sdk.md#logrecordprocessor)
 ///
 /// ### Implementation Notes
 ///
-/// On shutdown, processors forwarding logs to an ``OTelLogExporter`` MUST shutdown that exporter.
+/// On shutdown, processors forwarding logs to an ``OTelLogEntryExporter`` MUST shutdown that exporter.
 @_spi(Logging)
-public protocol OTelLogProcessor: Service & Sendable {
-    func onLog(_ log: OTelLog)
+public protocol OTelLogEntryProcessor: Service & Sendable {
+    func onLog(_ log: OTelLogEntry)
 
     /// Force log processors that batch logs to flush immediately.
     func forceFlush() async throws

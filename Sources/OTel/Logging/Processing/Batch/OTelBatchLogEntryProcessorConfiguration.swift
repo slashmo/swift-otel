@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The configuration options for an ``OTelBatchLogProcessor``.
+/// The configuration options for an ``OTelBatchLogEntryProcessor``.
 @_spi(Logging)
-public struct OTelBatchLogProcessorConfiguration: Sendable {
+public struct OTelBatchLogEntryProcessorConfiguration: Sendable {
     /// The maximum queue size.
     ///
     /// - Warning: After this size is reached log will be dropped.

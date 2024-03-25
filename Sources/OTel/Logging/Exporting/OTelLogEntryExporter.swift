@@ -15,11 +15,11 @@
 ///
 /// [OpenTelemetry specification: Span exporter](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#span-exporter)
 @_spi(Logging)
-public protocol OTelLogExporter: Sendable {
+public protocol OTelLogEntryExporter: Sendable {
     /// Export the given batch of spans.
     ///
     /// - Parameter batch: A batch of spans to export.
-    func export(_ batch: some Collection<OTelLog> & Sendable) async throws
+    func export(_ batch: some Collection<OTelLogEntry> & Sendable) async throws
 
     /// Force the span exporter to export any previously received spans as soon as possible.
     func forceFlush() async throws
@@ -34,7 +34,7 @@ public protocol OTelLogExporter: Sendable {
 
 /// An error indicating that a given exporter has already been shut down while receiving an additional batch of spans to export.
 @_spi(Logging)
-public struct OTelLogExporterAlreadyShutDownError: Error {
+public struct OTelLogEntryExporterAlreadyShutDownError: Error {
     /// Initialize the error.
     public init() {}
 }

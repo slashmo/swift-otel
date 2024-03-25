@@ -14,18 +14,18 @@
 import ServiceContextModule
 import ServiceLifecycle
 
-/// A pseudo-``OTelLogProcessor`` that may be used to process using multiple other ``OTelLogProcessor``s.
+/// A pseudo-``OTelLogEntryProcessor`` that may be used to process using multiple other ``OTelLogEntryProcessor``s.
 @_spi(Logging)
-public actor OTelMultiplexLogProcessor: OTelLogProcessor {
-    private let processors: [any OTelLogProcessor]
+public actor OTelMultiplexLogEntryProcessor: OTelLogEntryProcessor {
+    private let processors: [any OTelLogEntryProcessor]
     private let shutdownStream: AsyncStream<Void>
     private let shutdownContinuation: AsyncStream<Void>.Continuation
 
-    /// Create an ``OTelMultiplexLogProcessor``.
+    /// Create an ``OTelMultiplexLogEntryProcessor``.
     ///
-    /// - Parameter processors: An array of ``OTelLogProcessor``s, each of which will be invoked on log events
+    /// - Parameter processors: An array of ``OTelLogEntryProcessor``s, each of which will be invoked on log events
     /// Processors are called sequentially and the order of this array defines the order in which they're being called.
-    public init(processors: [any OTelLogProcessor]) {
+    public init(processors: [any OTelLogEntryProcessor]) {
         self.processors = processors
         (shutdownStream, shutdownContinuation) = AsyncStream.makeStream()
     }
@@ -51,7 +51,7 @@ public actor OTelMultiplexLogProcessor: OTelLogProcessor {
         }
     }
 
-    nonisolated public func onLog(_ log: OTelLog) {
+    nonisolated public func onLog(_ log: OTelLogEntry) {
         for processor in processors {
             processor.onLog(log)
         }

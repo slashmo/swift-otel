@@ -20,26 +20,26 @@ import ServiceLifecycle
 ///
 /// [OpenTelemetry Specification: Batching processor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/logs/sdk.md#batching-processor)
 @_spi(Logging)
-public actor OTelBatchLogProcessor<Exporter: OTelLogExporter, Clock: _Concurrency.Clock>:
-    OTelLogProcessor,
+public actor OTelBatchLogEntryProcessor<Exporter: OTelLogEntryExporter, Clock: _Concurrency.Clock>:
+    OTelLogEntryProcessor,
     Service,
     CustomStringConvertible
 where Clock.Duration == Duration
 {
-    public nonisolated let description = "OTelBatchLogProcessor"
+    public nonisolated let description = "OTelBatchLogEntryProcessor"
 
-    internal /* for testing */ private(set) var buffer: Deque<OTelLog>
+    internal /* for testing */ private(set) var buffer: Deque<OTelLogEntry>
 
     private let exporter: Exporter
-    private let configuration: OTelBatchLogProcessorConfiguration
+    private let configuration: OTelBatchLogEntryProcessorConfiguration
     private let clock: Clock
-    private let logStream: AsyncStream<OTelLog>
-    private let logContinuation: AsyncStream<OTelLog>.Continuation
+    private let logStream: AsyncStream<OTelLogEntry>
+    private let logContinuation: AsyncStream<OTelLogEntry>.Continuation
     private let explicitTickStream: AsyncStream<Void>
     private let explicitTick: AsyncStream<Void>.Continuation
 
     @_spi(Testing)
-    public init(exporter: Exporter, configuration: OTelBatchLogProcessorConfiguration, clock: Clock) {
+    public init(exporter: Exporter, configuration: OTelBatchLogEntryProcessorConfiguration, clock: Clock) {
         self.exporter = exporter
         self.configuration = configuration
         self.clock = clock
@@ -49,11 +49,11 @@ where Clock.Duration == Duration
         (logStream, logContinuation) = AsyncStream.makeStream()
     }
 
-    nonisolated public func onLog(_ log: OTelLog) {
+    nonisolated public func onLog(_ log: OTelLogEntry) {
         logContinuation.yield(log)
     }
 
-    private func _onLog(_ log: OTelLog) {
+    private func _onLog(_ log: OTelLogEntry) {
         buffer.append(log)
 
         if self.buffer.count == self.configuration.maximumQueueSize {
@@ -129,7 +129,7 @@ where Clock.Duration == Duration
         }
     }
 
-    private func export(_ batch: some Collection<OTelLog> & Sendable) async {
+    private func export(_ batch: some Collection<OTelLogEntry> & Sendable) async {
         do {
             try await exporter.export(batch)
         } catch is CancellationError {
@@ -141,13 +141,13 @@ where Clock.Duration == Duration
 }
 
 @_spi(Logging)
-extension OTelBatchLogProcessor where Clock == ContinuousClock {
+extension OTelBatchLogEntryProcessor where Clock == ContinuousClock {
     /// Create a batch log processor exporting log batches via the given log exporter.
     ///
     /// - Parameters:
     ///   - exporter: The log exporter to receive batched logs to export.
     ///   - configuration: Further configuration parameters to tweak the batching behavior.
-    public init(exporter: Exporter, configuration: OTelBatchLogProcessorConfiguration) {
+    public init(exporter: Exporter, configuration: OTelBatchLogEntryProcessorConfiguration) {
         self.init(exporter: exporter, configuration: configuration, clock: .continuous)
     }
 }

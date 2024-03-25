@@ -21,14 +21,14 @@ import NIOSSL
 
 /// Exports logs to an OTel collector using OTLP/gRPC.
 @_spi(Logging)
-public final class OTLPGRPCLogExporter: OTelLogExporter {
-    private let configuration: OTLPGRPCLogExporterConfiguration
+public final class OTLPGRPCLogEntryExporter: OTelLogEntryExporter {
+    private let configuration: OTLPGRPCLogEntryExporterConfiguration
     private let connection: ClientConnection
     private let client: Opentelemetry_Proto_Collector_Logs_V1_LogsServiceAsyncClient
-    private let logger = Logger(label: String(describing: OTLPGRPCLogExporter.self))
+    private let logger = Logger(label: String(describing: OTLPGRPCLogEntryExporter.self))
 
     public init(
-        configuration: OTLPGRPCLogExporterConfiguration,
+        configuration: OTLPGRPCLogEntryExporterConfiguration,
         group: EventLoopGroup = MultiThreadedEventLoopGroup.singleton,
         requestLogger: Logger = ._otelDisabled,
         backgroundActivityLogger: Logger = ._otelDisabled
@@ -68,9 +68,9 @@ public final class OTLPGRPCLogExporter: OTelLogExporter {
         )
     }
 
-    public func export(_ batch: some Collection<OTelLog> & Sendable) async throws {
+    public func export(_ batch: some Collection<OTelLogEntry> & Sendable) async throws {
         if case .shutdown = connection.connectivity.state {
-            throw OTelLogExporterAlreadyShutDownError()
+            throw OTelLogEntryExporterAlreadyShutDownError()
         }
 
         guard !batch.isEmpty else { return }

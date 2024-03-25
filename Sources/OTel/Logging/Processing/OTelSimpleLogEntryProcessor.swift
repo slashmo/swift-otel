@@ -12,10 +12,10 @@
 //===----------------------------------------------------------------------===//
 
 @_spi(Logging)
-public struct OTelSimpleLogProcessor<Exporter: OTelLogExporter>: OTelLogProcessor {
+public struct OTelSimpleLogEntryProcessor<Exporter: OTelLogEntryExporter>: OTelLogEntryProcessor {
     private let exporter: Exporter
-    private let stream: AsyncStream<OTelLog>
-    private let continuation: AsyncStream<OTelLog>.Continuation
+    private let stream: AsyncStream<OTelLogEntry>
+    private let continuation: AsyncStream<OTelLogEntry>.Continuation
     
     public init(exporter: Exporter) {
         self.exporter = exporter
@@ -32,7 +32,7 @@ public struct OTelSimpleLogProcessor<Exporter: OTelLogExporter>: OTelLogProcesso
         }
     }
 
-    public func onLog(_ log: OTelLog) {
+    public func onLog(_ log: OTelLogEntry) {
         continuation.yield(log)
     }
 

@@ -15,11 +15,11 @@ import NIOHPACK
 import OTel
 
 @_spi(Logging)
-public struct OTLPGRPCLogExporterConfiguration: Sendable {
+public struct OTLPGRPCLogEntryExporterConfiguration: Sendable {
     let endpoint: OTLPGRPCEndpoint
     let headers: HPACKHeaders
 
-    /// Create a configuration for an ``OTLPGRPCMetricExporter``.
+    /// Create a configuration for an ``OTLPGRPCLogEntryExporter``.
     ///
     /// - Parameters:
     ///   - environment: The environment variables.

@@ -14,7 +14,7 @@
 import Logging
 
 @_spi(Logging)
-public struct OTelLog: Equatable, Sendable {
+public struct OTelLogEntry: Equatable, Sendable {
     public let body: String
     public let level: Logger.Level
     public let metadata: Logger.Metadata?

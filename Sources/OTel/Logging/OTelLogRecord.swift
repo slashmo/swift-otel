@@ -14,9 +14,16 @@
 import Logging
 
 @_spi(Logging)
-public struct OTelLogEntry: Equatable, Sendable {
+public struct OTelLogRecord: Equatable, Sendable {
     public let body: String
     public let level: Logger.Level
     public let metadata: Logger.Metadata?
     public let timeNanosecondsSinceEpoch: UInt64
+
+    package init(body: String, level: Logger.Level, metadata: Logger.Metadata?, timeNanosecondsSinceEpoch: UInt64) {
+        self.body = body
+        self.level = level
+        self.metadata = metadata
+        self.timeNanosecondsSinceEpoch = timeNanosecondsSinceEpoch
+    }
 }

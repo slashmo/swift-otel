@@ -19,21 +19,37 @@ import Tracing
 
 @_spi(Logging)
 public struct OTelLogHandler: Sendable, LogHandler {
-    public var metadata: Logging.Logger.Metadata
-    public var logLevel: Logging.Logger.Level
-    private let processor: any OTelLogEntryProcessor
+    public var metadata: Logger.Metadata
+    public var logLevel: Logger.Level
+    private let processor: any OTelLogRecordProcessor
+    private let nanosecondsSinceEpoch: @Sendable () -> UInt64
 
     public init(
-        processor: any OTelLogEntryProcessor,
+        processor: any OTelLogRecordProcessor,
         logLevel: Logger.Level,
         metadata: Logger.Metadata = [:]
+    ) {
+        self.init(
+            processor: processor,
+            logLevel: logLevel,
+            metadata: metadata,
+            nanosecondsSinceEpoch: { DefaultTracerClock.now.nanosecondsSinceEpoch }
+        )
+    }
+
+    package init(
+        processor: any OTelLogRecordProcessor,
+        logLevel: Logger.Level,
+        metadata: Logger.Metadata,
+        nanosecondsSinceEpoch: @escaping @Sendable () -> UInt64
     ) {
         self.processor = processor
         self.logLevel = logLevel
         self.metadata = metadata
+        self.nanosecondsSinceEpoch = nanosecondsSinceEpoch
     }
 
-    public subscript(metadataKey key: String) -> Logging.Logger.Metadata.Value? {
+    public subscript(metadataKey key: String) -> Logger.Metadata.Value? {
         get { metadata[key] }
         set { metadata[key] = newValue }
     }
@@ -47,15 +63,20 @@ public struct OTelLogHandler: Sendable, LogHandler {
         function: String,
         line: UInt
     ) {
-        let instant = DefaultTracerClock().now
+        let effectiveMetadata: Logger.Metadata?
+        if let metadata {
+            effectiveMetadata = self.metadata.merging(metadata, uniquingKeysWith: { $1 })
+        } else {
+            effectiveMetadata = self.metadata.isEmpty ? nil : self.metadata
+        }
 
-        let message = OTelLogEntry(
+        let record = OTelLogRecord(
             body: message.description,
             level: level,
-            metadata: metadata,
-            timeNanosecondsSinceEpoch: instant.nanosecondsSinceEpoch
+            metadata: effectiveMetadata,
+            timeNanosecondsSinceEpoch: nanosecondsSinceEpoch()
         )
 
-        processor.onLog(message)
+        processor.onEmit(record)
     }
 }

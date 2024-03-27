@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ServiceLifecycle
 import ServiceContextModule
+import ServiceLifecycle
 
 /// Log processors allow for processing logs throughout their lifetime via ``onStart(_:parentContext:)`` and ``onEnd(_:)`` calls.
 /// Usually, log processors will forward logs to a configurable ``OTelLogEntryExporter``.

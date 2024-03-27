@@ -13,10 +13,10 @@
 
 import ServiceContextModule
 
-/// A log entry processor that ignores all operations, used when no logs should be processed.
+/// A log record processor that ignores all operations, used when no logs should be processed.
 @_spi(Logging)
-public struct OTelNoOpLogEntryProcessor: OTelLogEntryProcessor, CustomStringConvertible {
-    public let description = "OTelNoOpLogEntryProcessor"
+public struct OTelNoOpLogRecordProcessor: OTelLogRecordProcessor, CustomStringConvertible {
+    public let description = "OTelNoOpLogRecordProcessor"
 
     private let stream: AsyncStream<Void>
     private let continuation: AsyncStream<Void>.Continuation
@@ -30,7 +30,7 @@ public struct OTelNoOpLogEntryProcessor: OTelLogEntryProcessor, CustomStringConv
         for await _ in stream.cancelOnGracefulShutdown() {}
     }
 
-    public func onLog(_ log: OTelLogEntry) {
+    public func onEmit(_ log: OTelLogRecord) {
         // no-op
     }
 

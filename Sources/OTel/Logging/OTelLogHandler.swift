@@ -15,7 +15,6 @@ import AsyncAlgorithms
 import Logging
 import NIOConcurrencyHelpers
 import ServiceLifecycle
-import Logging
 import Tracing
 
 @_spi(Logging)

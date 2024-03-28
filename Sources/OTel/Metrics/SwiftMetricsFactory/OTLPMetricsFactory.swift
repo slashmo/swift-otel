@@ -27,17 +27,6 @@
 import CoreMetrics
 
 /// A Swift Metrics `MetricsFactory` implementation backed by ``OTelMetricRegistry``.
-///
-///   Right now, this is a wrapper type around the ``OTelMetricRegistry`` which adds some configuration. The API is
-///   similar to what is in Swift Prometheus, but we might not need to layer this way.
-///
-///   Specifically, Swift Prometheus provides public API on the registry itself for directly creating and exporting
-///   metrics, without using the Swift Metrics API.
-///
-///   Currently, the registry in this package is opaque, which begs the question: maybe the registry type should be
-///   internal and we just have this factory be the public API for now and defer making the registry public to if/when
-///   we want to extend this package to provide direct OTel funcionality.
-@_spi(Metrics)
 public struct OTLPMetricsFactory: Sendable {
     private static let _defaultRegistry = OTelMetricRegistry()
 

@@ -17,7 +17,6 @@ import OTel
 /// Configuration for an ``OTLPGRPCMetricExporter``.
 ///
 /// - TODO: This can probably be refactored to share a bunch of common logic with ``OTLPGRPCSpanExporterConfiguration``.
-@_spi(Metrics)
 public struct OTLPGRPCMetricExporterConfiguration: Sendable {
     let endpoint: OTLPGRPCEndpoint
     let headers: HPACKHeaders

@@ -12,8 +12,8 @@
 //===----------------------------------------------------------------------===//
 
 import NIOHPACK
-@_spi(Metrics) import OTel
-@testable @_spi(Metrics) import OTLPGRPC
+import OTel
+@testable import OTLPGRPC
 import XCTest
 
 final class OTLPGRPCMetricExporterConfigurationTests: XCTestCase {

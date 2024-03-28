@@ -12,9 +12,9 @@
 //===----------------------------------------------------------------------===//
 
 @testable import Logging
-@testable @_spi(Metrics) import OTel
-@_spi(Metrics) import OTLPGRPC
-@_spi(Metrics) import OTLPCore
+@testable import OTel
+import OTLPCore
+import OTLPGRPC
 import XCTest
 
 final class OTLPGRPCMetricExporterTests: XCTestCase {
@@ -65,9 +65,7 @@ final class OTLPGRPCMetricExporterTests: XCTestCase {
                                 .init(
                                     attributes: [.init(key: "point_attr_key", value: "point_attr_val")],
                                     timeNanosecondsSinceEpoch: 42,
-                                    value: .double(84.6),
-                                    exemplars: [],
-                                    flags: []
+                                    value: .double(84.6)
                                 ),
                             ]))
                         ),

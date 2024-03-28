@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import NIOConcurrencyHelpers
-@_spi(Metrics) import OTel
+import OTel
 import XCTest
 
 package struct RecordingMetricExporter: OTelMetricExporter {

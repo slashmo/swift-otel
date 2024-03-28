@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import CoreMetrics
-@testable @_spi(Metrics) import OTel
+@testable import OTel
 import OTelTesting
 import XCTest
 

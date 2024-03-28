@@ -33,19 +33,16 @@
 ///
 /// The types in this file represent the subset of the OTLP datamodel that we use, which map over the protobuf types.
 
-@_spi(Metrics)
 public struct OTelResourceMetrics: Equatable, Sendable {
     public var resource: OTelResource?
     public var scopeMetrics: [OTelScopeMetrics]
 }
 
-@_spi(Metrics)
 public struct OTelScopeMetrics: Equatable, Sendable {
     public var scope: OTelInstrumentationScope?
     public var metrics: [OTelMetricPoint]
 }
 
-@_spi(Metrics)
 public struct OTelInstrumentationScope: Equatable, Sendable {
     public var name: String?
     public var version: String?
@@ -53,68 +50,78 @@ public struct OTelInstrumentationScope: Equatable, Sendable {
     public var droppedAttributeCount: Int32
 }
 
-@_spi(Metrics)
 public struct OTelMetricPoint: Equatable, Sendable {
     public var name: String
     public var description: String
     public var unit: String
-    public enum OTelMetricData: Equatable, Sendable {
-        case gauge(OTelGauge)
-        case sum(OTelSum)
-        case histogram(OTelHistogram)
+    public struct OTelMetricData: Equatable, Sendable {
+        package enum Data: Equatable, Sendable {
+            case gauge(OTelGauge)
+            case sum(OTelSum)
+            case histogram(OTelHistogram)
+        }
+
+        package var data: Data
+
+        public static func gauge(_ data: OTelGauge) -> Self { self.init(data: .gauge(data)) }
+        public static func sum(_ data: OTelSum) -> Self { self.init(data: .sum(data)) }
+        public static func histogram(_ data: OTelHistogram) -> Self { self.init(data: .histogram(data)) }
     }
 
     public var data: OTelMetricData
 }
 
-@_spi(Metrics)
 public struct OTelSum: Equatable, Sendable {
     public var points: [OTelNumberDataPoint]
-    public var aggregationTemporality: OTelAggregationTemporailty
+    public var aggregationTemporality: OTelAggregationTemporality
     public var monotonic: Bool
 }
 
-@_spi(Metrics)
 public struct OTelGauge: Equatable, Sendable {
     public var points: [OTelNumberDataPoint]
 }
 
-@_spi(Metrics)
 public struct OTelHistogram: Equatable, Sendable {
-    public var aggregationTemporality: OTelAggregationTemporailty
+    public var aggregationTemporality: OTelAggregationTemporality
     public var points: [OTelHistogramDataPoint]
 }
 
-@_spi(Metrics)
 public struct OTelAttribute: Hashable, Equatable, Sendable {
     public var key: String
     public var value: String
 }
 
-@_spi(Metrics)
-public enum OTelAggregationTemporailty: Equatable, Sendable {
-    case delta
-    case cumulative
+public struct OTelAggregationTemporality: Equatable, Sendable {
+    package enum Temporality: Equatable, Sendable {
+        case delta
+        case cumulative
+    }
+
+    package var temporality: Temporality
+
+    public static let delta: Self = .init(temporality: .delta)
+    public static let cumulative: Self = .init(temporality: .cumulative)
 }
 
-@_spi(Metrics)
 public struct OTelNumberDataPoint: Equatable, Sendable {
     public var attributes: [OTelAttribute]
     public var startTimeNanosecondsSinceEpoch: UInt64?
     public var timeNanosecondsSinceEpoch: UInt64
-    public enum Value: Equatable, Sendable {
-        case int64(Int64)
-        case double(Double)
+    public struct Value: Equatable, Sendable {
+        package enum Value: Equatable, Sendable {
+            case int64(Int64)
+            case double(Double)
+        }
+
+        package var value: Value
+
+        public static func int64(_ value: Int64) -> Self { self.init(value: .int64(value)) }
+        public static func double(_ value: Double) -> Self { self.init(value: .double(value)) }
     }
 
     public var value: Value
-    public var exemplars: [OTelExemplar]
-    public enum Flags: Equatable, Sendable {}
-
-    public var flags: [Flags]
 }
 
-@_spi(Metrics)
 public struct OTelHistogramDataPoint: Equatable, Sendable {
     public struct Bucket: Equatable, Sendable {
         public var upperBound: Double
@@ -129,12 +136,4 @@ public struct OTelHistogramDataPoint: Equatable, Sendable {
     public var min: Double?
     public var max: Double?
     public var buckets: [Bucket]
-    public var exemplars: [OTelExemplar]
-}
-
-@_spi(Metrics)
-public struct OTelExemplar: Equatable, Sendable {
-    var spanID: OTelSpanID?
-    var observationTimeNanosecondsSinceEpoch: UInt64
-    var filteredAttributes: [OTelAttribute]
 }

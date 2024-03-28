@@ -11,9 +11,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable @_spi(Metrics) import OTel
-@_spi(Metrics) import OTelTesting
-@_spi(Metrics) import OTLPCore
+@testable import OTel
+@testable import OTelTesting
+import OTLPCore
 import XCTest
 
 final class OTelMetricDataModelProtoTests: XCTestCase {
@@ -142,15 +142,12 @@ final class OTelMetricDataModelProtoTests: XCTestCase {
         let point = OTelNumberDataPoint.stub(
             attributes: [.stub()],
             startTimeNanosecondsSinceEpoch: 42,
-            timeNanosecondsSinceEpoch: 84,
-            exemplars: [.stub()],
-            flags: []
+            timeNanosecondsSinceEpoch: 84
         )
         let proto = Opentelemetry_Proto_Metrics_V1_NumberDataPoint(point)
         XCTAssertEqual(proto.attributes.count, 1)
         XCTAssertEqual(proto.startTimeUnixNano, 42)
         XCTAssertEqual(proto.timeUnixNano, 84)
-        XCTAssertEqual(proto.exemplars.count, 1)
     }
 
     func test_initProto_pointInt_protoHasInt() {
@@ -182,8 +179,7 @@ final class OTelMetricDataModelProtoTests: XCTestCase {
             sum: 13,
             min: 14,
             max: 15,
-            buckets: [.stub(), .stub()],
-            exemplars: [.stub()]
+            buckets: [.stub(), .stub()]
         )
         let proto = Opentelemetry_Proto_Metrics_V1_HistogramDataPoint(point)
         XCTAssertEqual(proto.attributes.count, 1)
@@ -194,6 +190,5 @@ final class OTelMetricDataModelProtoTests: XCTestCase {
         XCTAssertEqual(proto.min, 14)
         XCTAssertEqual(proto.max, 15)
         XCTAssertEqual(proto.bucketCounts.count, 2)
-        XCTAssertEqual(proto.exemplars.count, 1)
     }
 }

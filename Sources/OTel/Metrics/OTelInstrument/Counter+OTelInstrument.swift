@@ -35,9 +35,7 @@ extension Counter: OTelMetricInstrument {
                 points: [.init(
                     attributes: attributes.map { OTelAttribute(key: $0.key, value: $0.value) },
                     timeNanosecondsSinceEpoch: instant.nanosecondsSinceEpoch,
-                    value: .int64(value),
-                    exemplars: [],
-                    flags: []
+                    value: .int64(value)
                 )],
                 aggregationTemporality: .cumulative,
                 monotonic: true

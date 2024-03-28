@@ -14,8 +14,8 @@
 import Hummingbird
 import Logging
 import Metrics
-@_spi(Metrics) import OTel
-@_spi(Metrics) import OTLPGRPC
+import OTel
+import OTLPGRPC
 import Tracing
 
 @main

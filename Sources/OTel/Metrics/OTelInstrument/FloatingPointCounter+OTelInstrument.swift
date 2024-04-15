@@ -35,9 +35,7 @@ extension FloatingPointCounter: OTelMetricInstrument {
                 points: [.init(
                     attributes: attributes.map { OTelAttribute(key: $0.key, value: $0.value) },
                     timeNanosecondsSinceEpoch: instant.nanosecondsSinceEpoch,
-                    value: .double(value),
-                    exemplars: [],
-                    flags: []
+                    value: .double(value)
                 )],
                 aggregationTemporality: .cumulative,
                 monotonic: true

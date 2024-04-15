@@ -18,7 +18,6 @@ import struct NIOConcurrencyHelpers.NIOLockedValueBox
 ///
 /// The registry owns the mapping from instrument identfier and attributes to the stateful instrument for recording
 /// measurements.
-@_spi(Metrics)
 public final class OTelMetricRegistry: Sendable {
     private let logger = Logger(label: "OTelMetricRegistry")
 
@@ -71,7 +70,7 @@ public final class OTelMetricRegistry: Sendable {
         public static let crash = Self(behavior: .crash)
     }
 
-    internal init(duplicateRegistrationHandler: some DuplicateRegistrationHandler) {
+    init(duplicateRegistrationHandler: some DuplicateRegistrationHandler) {
         self.storage = .init(Storage(duplicateRegistrationHandler: duplicateRegistrationHandler))
     }
 

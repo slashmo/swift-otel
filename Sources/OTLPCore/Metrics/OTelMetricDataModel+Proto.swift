@@ -11,26 +11,23 @@
 //
 //===----------------------------------------------------------------------===//
 
-@_spi(Metrics) import OTel
+import OTel
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_ResourceMetrics {
-    package init(_ resrouceMetrics: OTelResourceMetrics) {
-        if let resource = resrouceMetrics.resource {
+    package init(_ resourceMetrics: OTelResourceMetrics) {
+        if let resource = resourceMetrics.resource {
             self.resource = .init(resource)
         }
-        scopeMetrics = resrouceMetrics.scopeMetrics.map(Opentelemetry_Proto_Metrics_V1_ScopeMetrics.init)
+        scopeMetrics = resourceMetrics.scopeMetrics.map(Opentelemetry_Proto_Metrics_V1_ScopeMetrics.init)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Resource_V1_Resource {
     package init(_ resource: OTelResource) {
         attributes = .init(resource.attributes)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_ScopeMetrics {
     package init(_ scopeMetrics: OTelScopeMetrics) {
         if let scope = scopeMetrics.scope {
@@ -40,7 +37,6 @@ extension Opentelemetry_Proto_Metrics_V1_ScopeMetrics {
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Common_V1_InstrumentationScope {
     package init(_ instrumentationScope: OTelInstrumentationScope) {
         if let name = instrumentationScope.name {
@@ -54,13 +50,12 @@ extension Opentelemetry_Proto_Common_V1_InstrumentationScope {
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_Metric {
     package init(_ metric: OTelMetricPoint) {
         name = metric.name
         description_p = metric.description
         unit = metric.unit
-        switch metric.data {
+        switch metric.data.data {
         case .gauge(let gauge):
             self.gauge = .init(gauge)
         case .sum(let sum):
@@ -71,14 +66,12 @@ extension Opentelemetry_Proto_Metrics_V1_Metric {
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_Gauge {
     package init(_ gauge: OTelGauge) {
         dataPoints = .init(gauge.points)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_Sum {
     package init(_ sum: OTelSum) {
         aggregationTemporality = .init(sum.aggregationTemporality)
@@ -87,10 +80,9 @@ extension Opentelemetry_Proto_Metrics_V1_Sum {
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_AggregationTemporality {
-    package init(_ aggregationTemporaility: OTelAggregationTemporailty) {
-        switch aggregationTemporaility {
+    package init(_ aggregationTemporality: OTelAggregationTemporality) {
+        switch aggregationTemporality.temporality {
         case .cumulative:
             self = .cumulative
         case .delta:
@@ -99,14 +91,12 @@ extension Opentelemetry_Proto_Metrics_V1_AggregationTemporality {
     }
 }
 
-@_spi(Metrics)
 extension [Opentelemetry_Proto_Metrics_V1_NumberDataPoint] {
     package init(_ points: [OTelNumberDataPoint]) {
         self = points.map(Element.init)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_NumberDataPoint {
     package init(_ point: OTelNumberDataPoint) {
         attributes = .init(point.attributes)
@@ -114,24 +104,21 @@ extension Opentelemetry_Proto_Metrics_V1_NumberDataPoint {
             startTimeUnixNano = startTime
         }
         timeUnixNano = point.timeNanosecondsSinceEpoch
-        switch point.value {
+        switch point.value.value {
         case .double(let value):
             self.value = .asDouble(value)
         case .int64(let value):
             self.value = .asInt(value)
         }
-        exemplars = .init(point.exemplars)
     }
 }
 
-@_spi(Metrics)
 extension [Opentelemetry_Proto_Common_V1_KeyValue] {
     package init(_ attributes: [OTelAttribute]) {
         self = attributes.map(Element.init)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Common_V1_KeyValue {
     package init(_ attribute: OTelAttribute) {
         key = attribute.key
@@ -139,28 +126,12 @@ extension Opentelemetry_Proto_Common_V1_KeyValue {
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Common_V1_AnyValue {
     package init(_ string: String) {
         value = .stringValue(string)
     }
 }
 
-@_spi(Metrics)
-extension Opentelemetry_Proto_Metrics_V1_Exemplar {
-    package init(_ exemplar: OTelExemplar) {
-        // TODO:
-    }
-}
-
-@_spi(Metrics)
-extension [Opentelemetry_Proto_Metrics_V1_Exemplar] {
-    package init(_ exemplars: [OTelExemplar]) {
-        self = exemplars.map(Element.init)
-    }
-}
-
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_Histogram {
     package init(_ histogram: OTelHistogram) {
         aggregationTemporality = .init(histogram.aggregationTemporality)
@@ -168,14 +139,12 @@ extension Opentelemetry_Proto_Metrics_V1_Histogram {
     }
 }
 
-@_spi(Metrics)
 extension [Opentelemetry_Proto_Metrics_V1_HistogramDataPoint] {
     package init(_ points: [OTelHistogramDataPoint]) {
         self = points.map(Element.init)
     }
 }
 
-@_spi(Metrics)
 extension Opentelemetry_Proto_Metrics_V1_HistogramDataPoint {
     package init(_ point: OTelHistogramDataPoint) {
         attributes = .init(point.attributes)
@@ -197,11 +166,9 @@ extension Opentelemetry_Proto_Metrics_V1_HistogramDataPoint {
             bucketCounts.append(bucket.count)
             explicitBounds.append(bucket.upperBound)
         }
-        exemplars = .init(point.exemplars)
     }
 }
 
-@_spi(Metrics)
 extension [Opentelemetry_Proto_Metrics_V1_Metric] {
     package init(_ points: [OTelMetricPoint]) {
         self = points.map(Element.init)

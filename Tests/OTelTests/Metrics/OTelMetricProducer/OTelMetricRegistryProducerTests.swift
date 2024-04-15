@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable @_spi(Metrics) import OTel
+@testable import OTel
 import XCTest
 
 final class OTelMetricRegistryProducerTests: XCTestCase {

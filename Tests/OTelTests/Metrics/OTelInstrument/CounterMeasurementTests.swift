@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable @_spi(Metrics) import OTel
-@_spi(Metrics) import OTelTesting
+@testable import OTel
+import OTelTesting
 import XCTest
 
 final class CounterMeasurementTests: XCTestCase {

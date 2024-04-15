@@ -12,7 +12,6 @@
 //===----------------------------------------------------------------------===//
 
 /// A metric exporter that logs metrics to the console for debugging.
-@_spi(Metrics)
 public struct OTelConsoleMetricExporter: OTelMetricExporter {
     /// Create a new ``OTelConsoleMetricExporter``.
     init() {}

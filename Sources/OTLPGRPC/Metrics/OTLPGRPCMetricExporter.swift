@@ -16,11 +16,10 @@ import Logging
 import NIO
 import NIOHPACK
 import NIOSSL
-@_spi(Metrics) import OTel
-@_spi(Metrics) import OTLPCore
+import OTel
+import OTLPCore
 
 /// Exports metrics to an OTel collector using OTLP/gRPC.
-@_spi(Metrics)
 public final class OTLPGRPCMetricExporter: OTelMetricExporter {
     private let configuration: OTLPGRPCMetricExporterConfiguration
     private let connection: ClientConnection

@@ -44,8 +44,7 @@ extension Histogram: OTelMetricInstrument {
                         .init(upperBound: $0.bound.bucketRepresentation, count: UInt64($0.count))
                     } + [
                         .init(upperBound: .infinity, count: UInt64(state.count)),
-                    ],
-                    exemplars: []
+                    ]
                 )]
             ))
         )

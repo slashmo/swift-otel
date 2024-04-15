@@ -13,7 +13,7 @@
 
 @testable import Logging
 import struct NIOConcurrencyHelpers.NIOLockedValueBox
-@testable @_spi(Metrics) import OTel
+@testable import OTel
 import OTelTesting
 import XCTest
 

@@ -11,7 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable @_spi(Metrics) import OTel
+@testable import OTel
 import XCTest
 
 extension Counter {
@@ -53,23 +53,23 @@ extension Histogram {
 
 extension OTelMetricPoint.OTelMetricData {
     package var asSum: OTelSum? {
-        guard case .sum(let sum) = self else { return nil }
+        guard case .sum(let sum) = self.data else { return nil }
         return sum
     }
 
     package var asGauge: OTelGauge? {
-        guard case .gauge(let gauge) = self else { return nil }
+        guard case .gauge(let gauge) = self.data else { return nil }
         return gauge
     }
 
     package var asHistogram: OTelHistogram? {
-        guard case .histogram(let histogram) = self else { return nil }
+        guard case .histogram(let histogram) = self.data else { return nil }
         return histogram
     }
 
     package func assertIsCumulativeSumWithOneValue(_ value: OTelNumberDataPoint.Value, file: StaticString = #file, line: UInt = #line) {
         guard
-            case .sum(let sum) = self,
+            case .sum(let sum) = data,
             sum.monotonic,
             sum.aggregationTemporality == .cumulative,
             sum.points.count == 1,
@@ -83,7 +83,7 @@ extension OTelMetricPoint.OTelMetricData {
 
     package func assertIsGaugeWithOneValue(_ value: OTelNumberDataPoint.Value, file: StaticString = #file, line: UInt = #line) {
         guard
-            case .gauge(let gauge) = self,
+            case .gauge(let gauge) = data,
             gauge.points.count == 1,
             let point = gauge.points.first
         else {
@@ -95,7 +95,7 @@ extension OTelMetricPoint.OTelMetricData {
 
     package func assertIsCumulativeHistogramWith(count: Int, sum: Double, buckets: [OTelHistogramDataPoint.Bucket], file: StaticString = #file, line: UInt = #line) {
         guard
-            case .histogram(let histogram) = self,
+            case .histogram(let histogram) = data,
             histogram.aggregationTemporality == .cumulative,
             histogram.points.count == 1,
             let point = histogram.points.first

@@ -12,7 +12,6 @@
 //===----------------------------------------------------------------------===//
 
 /// A metric exporter that delegates to multiple other exports.
-@_spi(Metrics)
 public struct OTelMultiplexMetricExporter: OTelMetricExporter {
     private let exporters: [any OTelMetricExporter]
 

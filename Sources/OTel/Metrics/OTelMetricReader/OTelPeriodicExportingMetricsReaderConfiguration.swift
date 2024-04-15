@@ -12,7 +12,6 @@
 //===----------------------------------------------------------------------===//
 
 /// The configuration options for an ``OTelPeriodicExportingMetricsReader``.
-@_spi(Metrics)
 public struct OTelPeriodicExportingMetricsReaderConfiguration: Sendable {
     /// The time interval between the start of two export attempts.
     public var exportInterval: Duration

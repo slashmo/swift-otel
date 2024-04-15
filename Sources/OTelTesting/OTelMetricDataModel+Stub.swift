@@ -11,21 +11,19 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable @_spi(Metrics) import OTel
+@testable import OTel
 import Tracing
 
-@_spi(Metrics)
 extension OTelResource {
-    package static func stub(
+    static func stub(
         attributes: SpanAttributes = [:]
     ) -> Self {
         .init(attributes: attributes)
     }
 }
 
-@_spi(Metrics)
 extension OTelResourceMetrics {
-    package static func stub(
+    static func stub(
         resource: OTelResource? = nil,
         scopeMetrics: [OTelScopeMetrics] = []
     ) -> Self {
@@ -36,9 +34,8 @@ extension OTelResourceMetrics {
     }
 }
 
-@_spi(Metrics)
 extension OTelScopeMetrics {
-    package static func stub(
+    static func stub(
         scope: OTelInstrumentationScope? = nil,
         metrics: [OTelMetricPoint] = []
     ) -> Self {
@@ -49,9 +46,8 @@ extension OTelScopeMetrics {
     }
 }
 
-@_spi(Metrics)
 extension OTelInstrumentationScope {
-    package static func stub(
+    static func stub(
         name: String? = nil,
         version: String? = nil,
         attributes: [OTelAttribute] = [],
@@ -66,9 +62,8 @@ extension OTelInstrumentationScope {
     }
 }
 
-@_spi(Metrics)
 extension OTelMetricPoint {
-    package static func stub(
+    static func stub(
         name: String = "test",
         description: String = "",
         unit: String = "",
@@ -83,11 +78,10 @@ extension OTelMetricPoint {
     }
 }
 
-@_spi(Metrics)
 extension OTelSum {
-    package static func stub(
+    static func stub(
         points: [OTelNumberDataPoint] = [],
-        aggregationTemporality: OTelAggregationTemporailty = .cumulative,
+        aggregationTemporality: OTelAggregationTemporality = .cumulative,
         monotonic: Bool = true
     ) -> Self {
         .init(
@@ -98,19 +92,17 @@ extension OTelSum {
     }
 }
 
-@_spi(Metrics)
 extension OTelGauge {
-    package static func stub(
+    static func stub(
         points: [OTelNumberDataPoint] = []
     ) -> Self {
         .init(points: points)
     }
 }
 
-@_spi(Metrics)
 extension OTelHistogram {
-    package static func stub(
-        aggregationTemporality: OTelAggregationTemporailty = .cumulative,
+    static func stub(
+        aggregationTemporality: OTelAggregationTemporality = .cumulative,
         points: [OTelHistogramDataPoint] = []
     ) -> Self {
         .init(
@@ -120,9 +112,8 @@ extension OTelHistogram {
     }
 }
 
-@_spi(Metrics)
 extension OTelAttribute {
-    package static func stub(
+    static func stub(
         key: String = "key",
         value: String = "value"
     ) -> Self {
@@ -133,30 +124,24 @@ extension OTelAttribute {
     }
 }
 
-@_spi(Metrics)
 extension OTelNumberDataPoint {
-    package static func stub(
+    static func stub(
         attributes: [OTelAttribute] = [],
         startTimeNanosecondsSinceEpoch: UInt64? = nil,
         timeNanosecondsSinceEpoch: UInt64 = 0,
-        value: Value = .int64(0),
-        exemplars: [OTelExemplar] = [],
-        flags: [Flags] = []
+        value: Value = .int64(0)
     ) -> Self {
         .init(
             attributes: attributes,
             startTimeNanosecondsSinceEpoch: startTimeNanosecondsSinceEpoch,
             timeNanosecondsSinceEpoch: timeNanosecondsSinceEpoch,
-            value: value,
-            exemplars: exemplars,
-            flags: flags
+            value: value
         )
     }
 }
 
-@_spi(Metrics)
 extension OTelHistogramDataPoint {
-    package static func stub(
+    static func stub(
         attributes: [OTelAttribute] = [],
         startTimeNanosecondsSinceEpoch: UInt64? = nil,
         timeNanosecondsSinceEpoch: UInt64 = 0,
@@ -164,8 +149,7 @@ extension OTelHistogramDataPoint {
         sum: Double? = nil,
         min: Double? = nil,
         max: Double? = nil,
-        buckets: [Bucket] = [],
-        exemplars: [OTelExemplar] = []
+        buckets: [Bucket] = []
     ) -> Self {
         .init(
             attributes: attributes,
@@ -175,36 +159,19 @@ extension OTelHistogramDataPoint {
             sum: sum,
             min: min,
             max: max,
-            buckets: buckets,
-            exemplars: exemplars
+            buckets: buckets
         )
     }
 }
 
-@_spi(Metrics)
 extension OTelHistogramDataPoint.Bucket {
-    package static func stub(
+    static func stub(
         upperBound: Double = 0,
         count: UInt64 = 0
     ) -> Self {
         .init(
             upperBound: upperBound,
             count: count
-        )
-    }
-}
-
-@_spi(Metrics)
-extension OTelExemplar {
-    package static func stub(
-        spanID: OTelSpanID? = nil,
-        observationTimeNanosecondsSinceEpoch: UInt64 = 0,
-        filteredAttributes: [OTelAttribute] = []
-    ) -> Self {
-        .init(
-            spanID: spanID,
-            observationTimeNanosecondsSinceEpoch: observationTimeNanosecondsSinceEpoch,
-            filteredAttributes: filteredAttributes
         )
     }
 }

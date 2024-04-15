@@ -15,7 +15,6 @@
 /// aggregated metric data.
 ///
 /// - Seealso: [OTel specification for Metric Producer](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.29.0/specification/metrics/sdk.md#metricproducer)
-@_spi(Metrics)
 public protocol OTelMetricProducer: Sendable {
     /// Provides metrics from the MetricProducer to the caller.
     ///

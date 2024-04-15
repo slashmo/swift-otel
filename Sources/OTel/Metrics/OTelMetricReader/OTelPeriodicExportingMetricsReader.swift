@@ -15,7 +15,6 @@ import AsyncAlgorithms
 import Logging
 import ServiceLifecycle
 
-@_spi(Metrics)
 public struct OTelPeriodicExportingMetricsReader<Clock: _Concurrency.Clock> where Clock.Duration == Duration {
     private let logger = Logger(label: "OTelPeriodicExportingMetricsReader")
 
@@ -77,7 +76,6 @@ extension OTelPeriodicExportingMetricsReader: CustomStringConvertible, Service {
     }
 }
 
-@_spi(Metrics)
 extension OTelPeriodicExportingMetricsReader where Clock == ContinuousClock {
     /// Create a new ``OTelPeriodicExportingMetricsReader``.
     ///

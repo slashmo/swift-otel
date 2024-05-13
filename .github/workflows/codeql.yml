@@ -27,7 +27,7 @@ jobs:
         SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Checkout repository
-      uses: actions/checkout@v4.1.4
+      uses: actions/checkout@v4.1.5
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3

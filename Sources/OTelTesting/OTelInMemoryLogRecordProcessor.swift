@@ -34,7 +34,7 @@ package final class OTelInMemoryLogRecordProcessor: OTelLogRecordProcessor {
         _numberOfShutdowns.withLockedValue { $0 += 1 }
     }
 
-    package func onEmit(_ record: OTelLogRecord) {
+    package func onEmit(_ record: inout OTelLogRecord) {
         _records.withLockedValue { $0.append(record) }
     }
 

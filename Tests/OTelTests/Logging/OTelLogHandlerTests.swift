@@ -37,7 +37,7 @@ final class OTelLogHandlerTests: XCTestCase {
             .stub(
                 metadata: ["code.filepath": "file", "code.function": "function", "code.lineno": "42"],
                 resource: resource
-            )
+            ),
         ])
     }
 
@@ -60,7 +60,7 @@ final class OTelLogHandlerTests: XCTestCase {
             .stub(
                 metadata: ["code.filepath": "file", "code.function": "function", "code.lineno": "42", "logger": "42"],
                 resource: resource
-            )
+            ),
         ])
     }
 
@@ -83,7 +83,7 @@ final class OTelLogHandlerTests: XCTestCase {
             .stub(
                 metadata: ["code.filepath": "custom/file/path", "code.function": "function", "code.lineno": "42"],
                 resource: resource
-            )
+            ),
         ])
     }
 
@@ -180,7 +180,7 @@ final class OTelLogHandlerTests: XCTestCase {
 
         logger.info(
             .stub,
-            metadata: ["code.filepath": "custom/file/path"], 
+            metadata: ["code.filepath": "custom/file/path"],
             file: "file",
             function: "function",
             line: 42
@@ -190,7 +190,7 @@ final class OTelLogHandlerTests: XCTestCase {
             .stub(
                 metadata: ["code.filepath": "custom/file/path", "code.function": "function", "code.lineno": "84"],
                 resource: resource
-            )
+            ),
         ])
     }
 

@@ -18,10 +18,13 @@ package struct RecordingLogHandler: LogHandler {
     package typealias LogFunctionCall = (level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?)
 
     package let recordedLogMessages = NIOLockedValueBox([LogFunctionCall]())
-    package let (recordedLogMessageStream, recordedLogMessageContinuation) = AsyncStream.makeStream(of: LogFunctionCall.self)
+    let recordedLogMessageStream: AsyncStream<LogFunctionCall>
+    let recordedLogMessageContinuation: AsyncStream<LogFunctionCall>.Continuation
     package let counts = NIOLockedValueBox([Logger.Level: Int]())
 
-    package init() {}
+    package init() {
+        (recordedLogMessageStream, recordedLogMessageContinuation) = AsyncStream<LogFunctionCall>.makeStream()
+    }
 
     package func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, file: String, function: String, line: UInt) {
         recordedLogMessages.withLockedValue { $0.append((level, message, metadata)) }

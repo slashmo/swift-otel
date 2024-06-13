@@ -19,12 +19,8 @@ public final class OTelInMemoryPropagator: OTelPropagator, Sendable {
     private let _injectedSpanContexts = NIOLockedValueBox([OTelSpanContext]())
     public var injectedSpanContexts: [OTelSpanContext] { _injectedSpanContexts.withLockedValue { $0 } }
 
-    /*
-     Sendable warning fixed in https://github.com/apple/swift-distributed-tracing/pull/136,
-     since it enables us to use `NIOLockedValueBox([any Sendable])` instead.
-     */
-    private let _extractedCarriers = NIOLockedValueBox([Any]())
-    public var extractedCarriers: [Any] { _extractedCarriers.withLockedValue { $0 } }
+    private let _extractedCarriers = NIOLockedValueBox([any Sendable]())
+    public var extractedCarriers: [any Sendable] { _extractedCarriers.withLockedValue { $0 } }
     private let extractionResult: Result<OTelSpanContext, Error>?
 
     public init(extractionResult: Result<OTelSpanContext, Error>? = nil) {

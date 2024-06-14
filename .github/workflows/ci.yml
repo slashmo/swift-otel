@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        swift: [5.9, latest]
+        swift: [5.9, latest, main-snapshot]
 
     steps:
       - name: Install Swift
@@ -33,6 +33,9 @@ jobs:
           toolchain: ${{ matrix.swift }}
         env:
           SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Swift Version
+        run: swift --version
 
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -45,13 +48,13 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ matrix.swift }}-ci-spm-
 
       - name: Resolve Swift dependencies
-        run: swift package resolve
+        run: swift package resolve --verbose
 
       - name: Run Unit Tests
         run: swift test --parallel --enable-code-coverage
 
       - name: Merge code coverage
-        if: matrix.swift == '5.9'
+        if: matrix.swift == 'latest'
         run: |
           llvm-cov export -format "lcov" \
             .build/debug/swift-otelPackageTests.xctest \
@@ -62,7 +65,7 @@ jobs:
           > info.lcov
 
       - name: Upload code coverage report to Codecov
-        if: matrix.swift == '5.9'
+        if: matrix.swift == 'latest'
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

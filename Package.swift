@@ -1,7 +1,7 @@
 // swift-tools-version:5.9
 import PackageDescription
 
-let sharedSwiftSettings: [SwiftSetting] = [.enableExperimentalFeature("StrictConcurrency")]
+let sharedSwiftSettings: [SwiftSetting] = [.enableExperimentalFeature("StrictConcurrency=complete")]
 
 let package = Package(
     name: "swift-otel",

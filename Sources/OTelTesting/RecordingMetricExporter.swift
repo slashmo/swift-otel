@@ -46,7 +46,7 @@ extension RecordingMetricExporter {
         exportCallCount: Int,
         forceFlushCallCount: Int,
         shutdownCallCount: Int,
-        file: StaticString = #file,
+        file: StaticString = #filePath,
         line: UInt = #line
     ) {
         let recordedCalls = recordedCalls.withLockedValue { $0 }

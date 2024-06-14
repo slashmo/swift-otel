@@ -228,7 +228,7 @@ final class MockMetricProducer: Sendable, OTelMetricProducer {
         return produceReturnValue.withLockedValue { $0 }
     }
 
-    func assert(produceCallCount: Int, file: StaticString = #file, line: UInt = #line) {
+    func assert(produceCallCount: Int, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(self.produceCallCount.withLockedValue { $0 }, produceCallCount, file: file, line: line)
     }
 }

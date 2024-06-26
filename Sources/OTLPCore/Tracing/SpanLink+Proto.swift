@@ -23,8 +23,8 @@ extension Opentelemetry_Proto_Trace_V1_Span.Link {
         guard let spanContext = link.context.spanContext else { return nil }
         self.traceID = Data(spanContext.traceID.bytes)
         self.spanID = Data(spanContext.spanID.bytes)
-        if let traceState = spanContext.traceState {
-            self.traceState = traceState.description
+        if let traceStateHeaderValue = spanContext.traceStateHeaderValue {
+            self.traceState = traceStateHeaderValue
         }
         self.attributes = .init(link.attributes)
     }

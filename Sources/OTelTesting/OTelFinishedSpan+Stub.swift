@@ -13,6 +13,7 @@
 
 @testable import OTel
 import Tracing
+import W3CTraceContext
 
 extension OTelFinishedSpan {
     /// A finished span stub.
@@ -36,11 +37,11 @@ extension OTelFinishedSpan {
     ///
     /// - Returns: A finished span stub.
     public static func stub(
-        traceID: OTelTraceID = .allZeroes,
-        spanID: OTelSpanID = .allZeroes,
-        parentSpanID: OTelSpanID? = nil,
-        traceFlags: OTelTraceFlags = [],
-        traceState: OTelTraceState? = nil,
+        traceID: TraceID = .allZeroes,
+        spanID: SpanID = .allZeroes,
+        parentSpanID: SpanID? = nil,
+        traceFlags: TraceFlags = [],
+        traceState: TraceState = TraceState(),
         isRemote: Bool = false,
         operationName: String = "",
         kind: SpanKind = .internal,
@@ -52,14 +53,22 @@ extension OTelFinishedSpan {
         events: [SpanEvent] = [],
         links: [SpanLink] = []
     ) -> OTelFinishedSpan {
-        let spanContext = OTelSpanContext(
-            traceID: traceID,
-            spanID: spanID,
-            parentSpanID: parentSpanID,
-            traceFlags: traceFlags,
-            traceState: traceState,
-            isRemote: isRemote
-        )
+        let spanContext: OTelSpanContext = if isRemote {
+            .remote(traceContext: TraceContext(
+                traceID: traceID,
+                spanID: spanID,
+                flags: traceFlags,
+                state: traceState
+            ))
+        } else {
+            .local(
+                traceID: traceID,
+                spanID: spanID,
+                parentSpanID: parentSpanID,
+                traceFlags: traceFlags,
+                traceState: traceState
+            )
+        }
         return OTelFinishedSpan(
             spanContext: spanContext,
             operationName: operationName,

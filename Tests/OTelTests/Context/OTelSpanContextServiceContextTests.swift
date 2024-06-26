@@ -18,7 +18,7 @@ import XCTest
 
 final class OTelSpanContextServiceContextTests: XCTestCase {
     func test_spanContext_storedInsideServiceContext() {
-        let spanContext = OTelSpanContext.stub()
+        let spanContext = OTelSpanContext.localStub()
 
         var serviceContext = ServiceContext.topLevel
         XCTAssertTrue(serviceContext.isEmpty)

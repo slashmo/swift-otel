@@ -11,12 +11,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OTel
+import W3CTraceContext
 
-extension OTelSpanID {
+extension SpanID {
     /// A stub span ID for testing with bytes from one to eight.
-    public static let oneToEight = OTelSpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8))
+    public static let oneToEight = SpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8))
 
     /// A stub span ID for testing with all bytes being zero.
-    public static let allZeroes = OTelSpanID(bytes: (0, 0, 0, 0, 0, 0, 0, 0))
+    public static let allZeroes = SpanID(bytes: (0, 0, 0, 0, 0, 0, 0, 0))
 }

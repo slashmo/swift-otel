@@ -15,6 +15,7 @@ import Logging
 import NIOConcurrencyHelpers
 import ServiceLifecycle
 import Tracing
+import W3CTraceContext
 
 /// An OpenTelemetry tracer implementing the Swift Distributed Tracing `Tracer` protocol.
 ///
@@ -143,8 +144,8 @@ extension OTelTracer: Tracer {
         let parentContext = context()
         var childContext = parentContext
 
-        let traceID: OTelTraceID
-        let traceState: OTelTraceState?
+        let traceID: TraceID
+        let traceState: TraceState
         let spanID = idGenerator.nextSpanID()
 
         if let parentSpanContext = parentContext.spanContext {
@@ -152,7 +153,7 @@ extension OTelTracer: Tracer {
             traceState = parentSpanContext.traceState
         } else {
             traceID = idGenerator.nextTraceID()
-            traceState = nil
+            traceState = TraceState()
         }
 
         let samplingResult = sampler.samplingResult(
@@ -163,14 +164,13 @@ extension OTelTracer: Tracer {
             links: [],
             parentContext: parentContext
         )
-        let traceFlags: OTelTraceFlags = samplingResult.decision == .recordAndSample ? .sampled : []
-        let spanContext = OTelSpanContext(
+        let traceFlags: TraceFlags = samplingResult.decision == .recordAndSample ? .sampled : []
+        let spanContext = OTelSpanContext.local(
             traceID: traceID,
             spanID: spanID,
             parentSpanID: parentContext.spanContext?.spanID,
             traceFlags: traceFlags,
-            traceState: traceState,
-            isRemote: false
+            traceState: traceState
         )
         childContext.spanContext = spanContext
 

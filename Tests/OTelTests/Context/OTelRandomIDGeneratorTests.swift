@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import OTel
+import W3CTraceContext
 import XCTest
 
 final class OTelRandomIDGeneratorTests: XCTestCase {
@@ -20,7 +21,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
 
         XCTAssertEqual(
             generator.nextTraceID(),
-            OTelTraceID(bytes: (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255))
+            TraceID(bytes: (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255))
         )
     }
 
@@ -39,7 +40,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
 
     func test_traceID_withSystemRandomNumberGenerator_returnsRandomTraceIDs() {
         let generator = OTelRandomIDGenerator()
-        var traceIDs = Set<OTelTraceID>()
+        var traceIDs = Set<TraceID>()
 
         for _ in 0 ..< 1000 {
             let (inserted, traceID) = traceIDs.insert(generator.nextTraceID())
@@ -51,7 +52,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
     func test_spanID_witConstantNumberGenerator_returnsConstantSpanID() {
         let generator = OTelRandomIDGenerator(randomNumberGenerator: ConstantNumberGenerator(value: .max))
 
-        XCTAssertEqual(generator.nextSpanID(), OTelSpanID(bytes: (255, 255, 255, 255, 255, 255, 255, 255)))
+        XCTAssertEqual(generator.nextSpanID(), SpanID(bytes: (255, 255, 255, 255, 255, 255, 255, 255)))
     }
 
     func test_spanID_withConstantNumberGenerator_withRandomNumber_returnsRandomSpanID() {
@@ -69,7 +70,7 @@ final class OTelRandomIDGeneratorTests: XCTestCase {
 
     func test_spanID_withSystemRandomNumberGenerator_returnsRandomSpanIDs() {
         let generator = OTelRandomIDGenerator()
-        var spanIDs = Set<OTelSpanID>()
+        var spanIDs = Set<SpanID>()
 
         for _ in 0 ..< 1000 {
             let (inserted, spanID) = spanIDs.insert(generator.nextSpanID())

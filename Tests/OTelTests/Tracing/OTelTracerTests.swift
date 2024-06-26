@@ -16,6 +16,7 @@ import Logging
 import OTelTesting
 import ServiceContextModule
 import ServiceLifecycle
+import W3CTraceContext
 import XCTest
 
 final class OTelTracerTests: XCTestCase {
@@ -44,13 +45,12 @@ final class OTelTracerTests: XCTestCase {
         let spanContext = try XCTUnwrap(span.context.spanContext)
         XCTAssertEqual(
             spanContext,
-            OTelSpanContext(
+            .local(
                 traceID: .oneToSixteen,
                 spanID: .oneToEight,
                 parentSpanID: nil,
                 traceFlags: .sampled,
-                traceState: nil,
-                isRemote: false
+                traceState: TraceState()
             )
         )
     }
@@ -73,16 +73,14 @@ final class OTelTracerTests: XCTestCase {
 
         let traceID = randomIDGenerator.nextTraceID()
         let parentSpanID = randomIDGenerator.nextSpanID()
-        let traceState = OTelTraceState(items: [OTelTraceState.Item(vendor: "foo", value: "bar")])
+        let traceState = TraceState([(.simple("foo"), "bar")])
 
         var parentContext = ServiceContext.topLevel
-        let parentSpanContext = OTelSpanContext(
+        let parentSpanContext = OTelSpanContext.remoteStub(
             traceID: traceID,
             spanID: parentSpanID,
-            parentSpanID: nil,
             traceFlags: .sampled,
-            traceState: traceState,
-            isRemote: true
+            traceState: traceState
         )
         parentContext.spanContext = parentSpanContext
 
@@ -90,13 +88,12 @@ final class OTelTracerTests: XCTestCase {
         let spanContext = try XCTUnwrap(span.context.spanContext)
         XCTAssertEqual(
             spanContext,
-            OTelSpanContext(
+            .local(
                 traceID: traceID,
                 spanID: .oneToEight,
                 parentSpanID: parentSpanID,
                 traceFlags: .sampled,
-                traceState: traceState,
-                isRemote: false
+                traceState: traceState
             )
         )
     }
@@ -120,13 +117,12 @@ final class OTelTracerTests: XCTestCase {
         let spanContext = try XCTUnwrap(span.context.spanContext)
         XCTAssertEqual(
             spanContext,
-            OTelSpanContext(
+            .local(
                 traceID: .oneToSixteen,
                 spanID: .oneToEight,
                 parentSpanID: nil,
                 traceFlags: [],
-                traceState: nil,
-                isRemote: false
+                traceState: TraceState()
             )
         )
     }
@@ -150,13 +146,12 @@ final class OTelTracerTests: XCTestCase {
         let spanContext = try XCTUnwrap(span.context.spanContext)
         XCTAssertEqual(
             spanContext,
-            OTelSpanContext(
+            .local(
                 traceID: .oneToSixteen,
                 spanID: .oneToEight,
                 parentSpanID: nil,
                 traceFlags: [],
-                traceState: nil,
-                isRemote: false
+                traceState: TraceState()
             )
         )
     }
@@ -308,13 +303,12 @@ final class OTelTracerTests: XCTestCase {
         )
 
         var context = ServiceContext.topLevel
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.local(
             traceID: idGenerator.nextTraceID(),
             spanID: idGenerator.nextSpanID(),
             parentSpanID: idGenerator.nextSpanID(),
             traceFlags: .sampled,
-            traceState: nil,
-            isRemote: false
+            traceState: TraceState()
         )
         context.spanContext = spanContext
 
@@ -341,13 +335,12 @@ final class OTelTracerTests: XCTestCase {
 
     func test_extract_callsPropagator() throws {
         let idGenerator = OTelRandomIDGenerator()
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.local(
             traceID: idGenerator.nextTraceID(),
             spanID: idGenerator.nextSpanID(),
             parentSpanID: idGenerator.nextSpanID(),
             traceFlags: .sampled,
-            traceState: nil,
-            isRemote: false
+            traceState: TraceState()
         )
         let propagator = OTelInMemoryPropagator(extractionResult: .success(spanContext))
         let tracer = OTelTracer(

@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import Tracing
+import W3CTraceContext
 
 /// A sampler that always takes the same sampling decision.
 public struct OTelConstantSampler: OTelSampler {
@@ -39,7 +40,7 @@ public struct OTelConstantSampler: OTelSampler {
     public func samplingResult(
         operationName: String,
         kind: SpanKind,
-        traceID: OTelTraceID,
+        traceID: TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
         parentContext: ServiceContext

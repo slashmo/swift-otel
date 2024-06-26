@@ -11,15 +11,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-import OTel
-import XCTest
+import ServiceContextModule
+import W3CTraceContext
 
-final class OTelTraceFlagsTests: XCTestCase {
-    func test_sampled() {
-        XCTAssertEqual(OTelTraceFlags.sampled.rawValue, 1)
-
-        XCTAssertEqual(OTelTraceFlags([]).rawValue, 0)
-
-        XCTAssertTrue(OTelTraceFlags(rawValue: 1).contains(.sampled))
+extension ServiceContext {
+    public internal(set) var spanContext: OTelSpanContext? {
+        get {
+            self[SpanContextKey.self]
+        }
+        set {
+            self[SpanContextKey.self] = newValue
+        }
     }
+}
+
+private enum SpanContextKey: ServiceContextKey {
+    typealias Value = OTelSpanContext
 }

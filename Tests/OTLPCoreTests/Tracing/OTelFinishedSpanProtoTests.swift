@@ -15,6 +15,7 @@
 import OTelTesting
 import OTLPCore
 import Tracing
+import W3CTraceContext
 import XCTest
 
 final class OTelFinishedSpanProtoTests: XCTestCase {
@@ -35,19 +36,19 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
     }
 
     func test_initProtoSpan_withFinishedSpan_withTraceState_castsTraceState() {
-        let traceState = OTelTraceState(items: [
-            OTelTraceState.Item(vendor: "test1", value: "42"),
-            OTelTraceState.Item(vendor: "test2", value: "84"),
+        let traceState = TraceState([
+            (.simple("test1"), "42"),
+            (.simple("test2"), "84"),
         ])
         let span = OTelFinishedSpan.stub(traceState: traceState)
 
         let protoSpan = Opentelemetry_Proto_Trace_V1_Span(span)
 
-        XCTAssertEqual(protoSpan.traceState, "test1=42,test2=84")
+        XCTAssertEqual(protoSpan.traceState, "test1=42, test2=84")
     }
 
     func test_initProtoSpan_withFinishedSpan_withoutTraceState_doesNotSetTraceState() {
-        let span = OTelFinishedSpan.stub(traceState: nil)
+        let span = OTelFinishedSpan.stub(traceState: TraceState())
 
         let protoSpan = Opentelemetry_Proto_Trace_V1_Span(span)
 
@@ -55,7 +56,7 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
     }
 
     func test_initProtoSpan_withFinishedSpan_withParentSpanID_setsParentSpanID() {
-        let parentSpanID = OTelSpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8))
+        let parentSpanID = SpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8))
         let span = OTelFinishedSpan.stub(parentSpanID: parentSpanID)
 
         let protoSpan = Opentelemetry_Proto_Trace_V1_Span(span)
@@ -173,10 +174,10 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
 
     func test_initProtoSpan_withFinishedSpan_withLinks_castsLinks() throws {
         var context = ServiceContext.topLevel
-        context.spanContext = .stub(
+        context.spanContext = .localStub(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
-            traceState: OTelTraceState(items: [OTelTraceState.Item(vendor: "test", value: "42")])
+            traceState: TraceState([(.simple("test"), "42")])
         )
         let span = OTelFinishedSpan.stub(links: [
             SpanLink(context: context, attributes: ["test": 42]),

@@ -27,7 +27,7 @@ final class MetadataProviderTests: XCTestCase {
         var logger = Logger(label: "test")
         logger.handler = StreamLogHandler(label: "test", stream: stream, metadataProvider: .otel)
 
-        let spanContext = OTelSpanContext.stub(traceID: .oneToSixteen, spanID: .oneToEight, traceFlags: .sampled)
+        let spanContext = OTelSpanContext.localStub(traceID: .oneToSixteen, spanID: .oneToEight, traceFlags: .sampled)
 
         var context = ServiceContext.topLevel
         context.spanContext = spanContext
@@ -60,7 +60,7 @@ final class MetadataProviderTests: XCTestCase {
         )
         logger.handler = StreamLogHandler(label: "test", stream: stream, metadataProvider: metadataProvider)
 
-        let spanContext = OTelSpanContext.stub(
+        let spanContext = OTelSpanContext.localStub(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
             parentSpanID: .oneToEight,

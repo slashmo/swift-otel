@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import Tracing
+import W3CTraceContext
 
 /// A sampler relaying a sampling decision to any of the configured samplers,
 /// based on whether a given span has a remote and/or sampled parent.
@@ -69,7 +70,7 @@ public struct OTelParentBasedSampler: OTelSampler {
     public func samplingResult(
         operationName: String,
         kind: SpanKind,
-        traceID: OTelTraceID,
+        traceID: TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
         parentContext: ServiceContext

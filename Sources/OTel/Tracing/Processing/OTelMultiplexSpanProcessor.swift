@@ -62,7 +62,7 @@ public actor OTelMultiplexSpanProcessor: OTelSpanProcessor {
         }
     }
 
-    public func forceFlush() async throws {
+    public nonisolated func forceFlush() async throws {
         try await withThrowingTaskGroup(of: Void.self) { group in
             for processor in processors {
                 group.addTask { try await processor.forceFlush() }

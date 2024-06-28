@@ -70,16 +70,17 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
         logger.debug("Shut down.")
     }
 
-    public func forceFlush() async throws {
+    public nonisolated func forceFlush() async throws {
         let chunkSize = Int(configuration.maximumExportBatchSize)
-        let batches = stride(from: 0, to: buffer.count, by: chunkSize).map {
-            buffer[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), buffer.count)]
+        let bufferCopy = await buffer
+        let batches = stride(from: 0, to: bufferCopy.count, by: chunkSize).map {
+            bufferCopy[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), bufferCopy.count)]
         }
 
-        if !buffer.isEmpty {
-            logger.debug("Force flushing spans.", metadata: ["buffer_size": "\(buffer.count)"])
+        if !bufferCopy.isEmpty {
+            logger.debug("Force flushing spans.", metadata: ["buffer_size": "\(bufferCopy.count)"])
 
-            buffer.removeAll()
+            await bufferClear()
 
             await withThrowingTaskGroup(of: Void.self) { group in
                 for batch in batches {
@@ -100,9 +101,17 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
         try await exporter.forceFlush()
     }
 
-    private func tick() async {
-        let batch = buffer.prefix(Int(configuration.maximumExportBatchSize))
-        buffer.removeFirst(batch.count)
+    private func bufferClear() async {
+        buffer.removeAll()
+    }
+
+    private func bufferRemoveFirst(_ n: Int) {
+        buffer.removeFirst(n)
+    }
+
+    private nonisolated func tick() async {
+        let batch = await buffer.prefix(Int(configuration.maximumExportBatchSize))
+        await bufferRemoveFirst(batch.count)
 
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask { await self.export(batch) }

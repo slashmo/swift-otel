@@ -11,6 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import W3CTraceContext
+
 /// An ID generator generates random trace and span IDs on demand.
 ///
 /// [OpenTelemetry Specification: ID generators](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#id-generators)
@@ -18,10 +20,10 @@ public protocol OTelIDGenerator: Sendable {
     /// Get a generated trace ID.
     ///
     /// - Returns: A generated trace ID.
-    func nextTraceID() -> OTelTraceID
+    func nextTraceID() -> TraceID
 
     /// Get a generated span ID.
     ///
     /// - Returns: A generated span ID.
-    func nextSpanID() -> OTelSpanID
+    func nextSpanID() -> SpanID
 }

@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import ServiceContextModule
+import W3CTraceContext
 
 extension ServiceContext {
     /// The span context.

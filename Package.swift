@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.2"),
         .package(url: "https://github.com/apple/swift-metrics.git", from: "2.4.1"),
+        .package(url: "https://github.com/slashmo/swift-w3c-trace-context.git", from: "1.0.0-beta.1"),
 
         // MARK: - OTLP
 
@@ -42,6 +43,7 @@ let package = Package(
                 .product(name: "Tracing", package: "swift-distributed-tracing"),
                 .product(name: "Atomics", package: "swift-atomics"),
                 .product(name: "CoreMetrics", package: "swift-metrics"),
+                .product(name: "W3CTraceContext", package: "swift-w3c-trace-context"),
             ],
             swiftSettings: sharedSwiftSettings
         ),
@@ -93,6 +95,7 @@ let package = Package(
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
                 .product(name: "GRPC", package: "grpc-swift"),
                 .product(name: "NIOHTTP2", package: "swift-nio-http2"),
+                .product(name: "W3CTraceContext", package: "swift-w3c-trace-context"),
             ],
             swiftSettings: sharedSwiftSettings
         ),

@@ -13,6 +13,7 @@
 
 import Instrumentation
 @testable import OTel
+import W3CTraceContext
 import XCTest
 
 final class OTelMultiplexPropagatorTests: XCTestCase {
@@ -22,13 +23,12 @@ final class OTelMultiplexPropagatorTests: XCTestCase {
     // MARK: - Inject
 
     func test_invokesInjectOnAllPropagators() {
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.localStub(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
             parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
-            isRemote: false
+            traceState: TraceState()
         )
         var headers = [String: String]()
 
@@ -110,8 +110,8 @@ final class OTelMultiplexPropagatorTests: XCTestCase {
 }
 
 private struct SystemAPropagator: OTelPropagator {
-    static let validTraceID = OTelTraceID.oneToSixteen
-    static let validSpanID = OTelSpanID.oneToEight
+    static let validTraceID = TraceID.oneToSixteen
+    static let validSpanID = SpanID.oneToEight
 
     public func extractSpanContext<Carrier, Extract>(
         from carrier: Carrier,
@@ -119,13 +119,11 @@ private struct SystemAPropagator: OTelPropagator {
     ) throws -> OTelSpanContext? where Extract: Extractor, Carrier == Extract.Carrier {
         guard let value = extractor.extract(key: "a-trace-id", from: carrier) else { return nil }
         guard value == "valid" else { throw PropagatorError() }
-        return OTelSpanContext(
+        return OTelSpanContext.remoteStub(
             traceID: Self.validTraceID,
             spanID: Self.validSpanID,
-            parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
-            isRemote: true
+            traceState: TraceState()
         )
     }
 
@@ -139,8 +137,8 @@ private struct SystemAPropagator: OTelPropagator {
 }
 
 private struct SystemBPropagator: OTelPropagator {
-    static let validTraceID = OTelTraceID(bytes: (16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1))
-    static let validSpanID = OTelSpanID(bytes: (8, 7, 6, 5, 4, 3, 2, 1))
+    static let validTraceID = TraceID(bytes: (16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1))
+    static let validSpanID = SpanID(bytes: (8, 7, 6, 5, 4, 3, 2, 1))
 
     public func extractSpanContext<Carrier, Extract>(
         from carrier: Carrier,
@@ -148,13 +146,11 @@ private struct SystemBPropagator: OTelPropagator {
     ) throws -> OTelSpanContext? where Extract: Extractor, Carrier == Extract.Carrier {
         guard let value = extractor.extract(key: "b-trace-id", from: carrier) else { return nil }
         guard value == "valid" else { throw PropagatorError() }
-        return OTelSpanContext(
+        return OTelSpanContext.remoteStub(
             traceID: Self.validTraceID,
             spanID: Self.validSpanID,
-            parentSpanID: nil,
             traceFlags: [],
-            traceState: nil,
-            isRemote: true
+            traceState: TraceState()
         )
     }
 

@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import NIOConcurrencyHelpers
+import W3CTraceContext
 
 /// The default ID generator,
 /// based on a [`RandomNumberGenerator`](https://developer.apple.com/documentation/swift/randomnumbergenerator).
@@ -26,25 +27,12 @@ public struct OTelRandomIDGenerator<NumberGenerator: RandomNumberGenerator & Sen
         self.randomNumberGenerator = NIOLockedValueBox(randomNumberGenerator)
     }
 
-    public func nextTraceID() -> OTelTraceID {
-        var bytes: OTelTraceID.Bytes = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        withUnsafeMutableBytes(of: &bytes) { ptr in
-            ptr.storeBytes(of: randomNumberGenerator.withLockedValue { $0.next() }.bigEndian, as: UInt64.self)
-            ptr.storeBytes(
-                of: randomNumberGenerator.withLockedValue { $0.next() }.bigEndian,
-                toByteOffset: 8,
-                as: UInt64.self
-            )
-        }
-        return OTelTraceID(bytes: bytes)
+    public func nextTraceID() -> TraceID {
+        randomNumberGenerator.withLockedValue { .random(using: &$0) }
     }
 
-    public func nextSpanID() -> OTelSpanID {
-        var bytes: OTelSpanID.Bytes = (0, 0, 0, 0, 0, 0, 0, 0)
-        withUnsafeMutableBytes(of: &bytes) { ptr in
-            ptr.storeBytes(of: randomNumberGenerator.withLockedValue { $0.next() }.bigEndian, as: UInt64.self)
-        }
-        return OTelSpanID(bytes: bytes)
+    public func nextSpanID() -> SpanID {
+        randomNumberGenerator.withLockedValue { .random(using: &$0) }
     }
 }
 

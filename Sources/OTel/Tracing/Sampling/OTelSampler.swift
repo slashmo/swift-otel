@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import Tracing
+import W3CTraceContext
 
 /// Decides whether a given span should be sampled.
 public protocol OTelSampler: Sendable {
@@ -32,7 +33,7 @@ public protocol OTelSampler: Sendable {
     func samplingResult(
         operationName: String,
         kind: SpanKind,
-        traceID: OTelTraceID,
+        traceID: TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
         parentContext: ServiceContext

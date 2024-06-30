@@ -14,7 +14,7 @@
 import Instrumentation
 
 /// A pseudo-`OTelPropagator` that may be used to instrument using
-/// multiple other `OTelPropagator`s across a common `OTel.SpanContext`.
+/// multiple other `OTelPropagator`s across a common `OTelSpanContext`.
 public struct OTelMultiplexPropagator: OTelPropagator {
     private let propagators: [OTelPropagator]
 

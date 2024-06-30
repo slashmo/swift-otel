@@ -13,6 +13,7 @@
 
 @testable import OTel
 import OTelTesting
+import W3CTraceContext
 import XCTest
 
 final class OTelW3CPropagatorTests: XCTestCase {
@@ -23,13 +24,12 @@ final class OTelW3CPropagatorTests: XCTestCase {
     // MARK: - Inject
 
     func test_injectsTraceparentHeader_notSampled() {
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.local(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
             parentSpanID: .oneToEight,
             traceFlags: [],
-            traceState: nil,
-            isRemote: false
+            traceState: TraceState()
         )
         var headers = [String: String]()
 
@@ -39,13 +39,12 @@ final class OTelW3CPropagatorTests: XCTestCase {
     }
 
     func test_injectsTraceparentHeader_sampled() {
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.local(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
             parentSpanID: .oneToEight,
             traceFlags: .sampled,
-            traceState: nil,
-            isRemote: false
+            traceState: TraceState()
         )
         var headers = [String: String]()
 
@@ -55,23 +54,22 @@ final class OTelW3CPropagatorTests: XCTestCase {
     }
 
     func test_injectsTraceparentAndTracestateHeaders() {
-        let spanContext = OTelSpanContext(
+        let spanContext = OTelSpanContext.local(
             traceID: .oneToSixteen,
             spanID: .oneToEight,
             parentSpanID: .oneToEight,
             traceFlags: .sampled,
-            traceState: OTelTraceState(items: [
-                OTelTraceState.Item(vendor: "test1", value: "123"),
-                OTelTraceState.Item(vendor: "test2", value: "abc"),
-            ]),
-            isRemote: false
+            traceState: TraceState([
+                (.simple("test1"), "123"),
+                (.simple("test2"), "abc"),
+            ])
         )
         var headers = [String: String]()
 
         propagator.inject(spanContext, into: &headers, using: injector)
 
         XCTAssertEqual(headers["traceparent"], "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01")
-        XCTAssertEqual(headers["tracestate"], "test1=123,test2=abc")
+        XCTAssertEqual(headers["tracestate"], "test1=123, test2=abc")
     }
 
     // MARK: - Extract
@@ -96,7 +94,7 @@ final class OTelW3CPropagatorTests: XCTestCase {
         XCTAssertEqual(String(describing: spanContext.traceID), "0af7651916cd43dd8448eb211c80319c")
         XCTAssertEqual(String(describing: spanContext.spanID), "b7ad6b7169203331")
         XCTAssertTrue(spanContext.traceFlags.isEmpty)
-        XCTAssertNil(spanContext.traceState)
+        XCTAssertTrue(spanContext.traceState.isEmpty)
     }
 
     func test_extractsTraceparentHeader_sampled() throws {
@@ -107,7 +105,7 @@ final class OTelW3CPropagatorTests: XCTestCase {
         XCTAssertEqual(String(describing: spanContext.traceID), "0af7651916cd43dd8448eb211c80319c")
         XCTAssertEqual(String(describing: spanContext.spanID), "b7ad6b7169203331")
         XCTAssertEqual(spanContext.traceFlags, .sampled)
-        XCTAssertNil(spanContext.traceState)
+        XCTAssertTrue(spanContext.traceState.isEmpty)
     }
 
     func test_extractsTraceparentAndTracestateHeader() throws {
@@ -123,9 +121,9 @@ final class OTelW3CPropagatorTests: XCTestCase {
         XCTAssertEqual(spanContext.traceFlags, .sampled)
         XCTAssertEqual(
             spanContext.traceState,
-            OTelTraceState(items: [
-                OTelTraceState.Item(vendor: "test1", value: "123"),
-                OTelTraceState.Item(vendor: "test2", value: "abc"),
+            TraceState([
+                (.simple("test1"), "123"),
+                (.simple("test2"), "abc"),
             ])
         )
     }
@@ -140,103 +138,10 @@ final class OTelW3CPropagatorTests: XCTestCase {
 
         XCTAssertEqual(
             spanContext.traceState,
-            OTelTraceState(items: [
-                OTelTraceState.Item(vendor: "customer1@test", value: "123"),
-                OTelTraceState.Item(vendor: "customer2@test", value: "abc"),
+            TraceState([
+                (.tenant("customer1", in: "test"), "123"),
+                (.tenant("customer2", in: "test"), "abc"),
             ])
-        )
-    }
-
-    func test_extractDiscardsEmptyTracestateHeader() throws {
-        let headers = [
-            "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": "",
-        ]
-        let spanContext = try XCTUnwrap(propagator.extractSpanContext(from: headers, using: extractor))
-
-        XCTAssertNil(spanContext.traceState)
-    }
-
-    func test_extractFails_TraceparentInvalidLength() throws {
-        let headers = ["traceparent": "test"]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceParentParsingError(value: "test", reason: .invalidLength(4))
-        )
-    }
-
-    func test_extractFails_TraceparentUnsupportedVersion() throws {
-        let traceparent = "01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-        let headers = ["traceparent": traceparent]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceParentParsingError(value: traceparent, reason: .unsupportedVersion("01"))
-        )
-    }
-
-    func test_extractFails_TraceparentInvalidDelimiters() throws {
-        let traceparent = "00*0af7651916cd43dd8448eb211c80319c_b7ad6b7169203331+01"
-        let headers = ["traceparent": traceparent]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceParentParsingError(value: traceparent, reason: .invalidDelimiters)
-        )
-    }
-
-    func test_extractFails_TraceStateVendorInvalidCharacter() throws {
-        let tracestate = "🏝=test"
-        let headers = [
-            "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": tracestate,
-        ]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceStateParsingError(value: tracestate, reason: .invalidCharacter("🏝"))
-        )
-    }
-
-    func test_extractFails_TraceStateMissingValue() throws {
-        let tracestate = "test"
-        let headers = [
-            "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": tracestate,
-        ]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceStateParsingError(value: tracestate, reason: .missingValue(vendor: "test"))
-        )
-    }
-
-    func test_extractFails_TraceStateInvalidCharacter_EqualSign() throws {
-        let traceState = "test=123="
-
-        let headers = [
-            "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": traceState,
-        ]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceStateParsingError(value: traceState, reason: .invalidCharacter("="))
-        )
-    }
-
-    func test_extractFails_TraceStateInvalidCharacter_Emoji() throws {
-        let traceState = "test=🏎"
-
-        let headers = [
-            "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
-            "tracestate": traceState,
-        ]
-
-        XCTAssertThrowsError(
-            try propagator.extractSpanContext(from: headers, using: extractor),
-            OTelW3CPropagator.TraceStateParsingError(value: traceState, reason: .invalidCharacter("🏎"))
         )
     }
 

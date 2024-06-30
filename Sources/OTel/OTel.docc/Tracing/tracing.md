@@ -87,12 +87,8 @@ A collection of Swift OTel examples that make use of Distributed Tracing.
 
 ### Propagating Context
 
-- ``OTelTraceID``
-- ``OTelSpanID``
 - ``OTelSpanContext``
 - ``ServiceContextModule/ServiceContext``
-- ``OTelTraceState``
-- ``OTelTraceFlags``
 - ``OTelPropagator``
 - ``OTelW3CPropagator``
 - ``OTelMultiplexPropagator``

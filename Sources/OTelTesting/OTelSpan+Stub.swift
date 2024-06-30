@@ -31,7 +31,7 @@ extension OTelSpan {
     ///   - operationName: Defaults to "test".
     ///   - kind: Defaults to `SpanKind.internal`.
     ///   - context: Defaults to `ServiceContext.topLevel`.
-    ///   - spanContext: Defaults to ``OTel/OTelSpanContext/stub(traceID:spanID:parentSpanID:traceFlags:traceState:isRemote:)``
+    ///   - spanContext: Defaults to ``OTel/OTelSpanContext/localStub(traceID:spanID:parentSpanID:traceFlags:traceState)``
     ///   - attributes: Defaults to no attributes.
     ///   - startTimeNanosecondsSinceEpoch: Defaults to `0`.
     ///   - onEnd: Defaults to a no-op closure.
@@ -41,7 +41,7 @@ extension OTelSpan {
         operationName: String = "test",
         kind: SpanKind = .internal,
         context: ServiceContext = .topLevel,
-        spanContext: OTelSpanContext = .stub(),
+        spanContext: OTelSpanContext = .localStub(),
         attributes: SpanAttributes = [:],
         startTimeNanosecondsSinceEpoch: UInt64 = 0,
         onEnd: @escaping @Sendable (OTelRecordingSpan, _ endTimeNanosecondsSinceEpoch: UInt64) -> Void = { _, _ in }

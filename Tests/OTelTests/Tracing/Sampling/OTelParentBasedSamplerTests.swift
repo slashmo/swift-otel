@@ -14,6 +14,7 @@
 import NIOConcurrencyHelpers
 @testable import OTel
 import Tracing
+import W3CTraceContext
 import XCTest
 
 final class OTelParentBasedSamplerTests: XCTestCase {
@@ -53,7 +54,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
         let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
-        parentContext.spanContext = .stub(traceFlags: .sampled, isRemote: true)
+        parentContext.spanContext = .remoteStub(traceFlags: .sampled)
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -73,7 +74,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
         let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
-        parentContext.spanContext = .stub(traceFlags: [], isRemote: true)
+        parentContext.spanContext = .remoteStub(traceFlags: [])
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -93,7 +94,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
         let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
-        parentContext.spanContext = .stub(traceFlags: .sampled, isRemote: false)
+        parentContext.spanContext = .localStub(traceFlags: .sampled)
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -113,7 +114,7 @@ final class OTelParentBasedSamplerTests: XCTestCase {
         let sampler = sampler()
 
         var parentContext = ServiceContext.topLevel
-        parentContext.spanContext = .stub(traceFlags: [], isRemote: false)
+        parentContext.spanContext = .localStub(traceFlags: [])
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -153,7 +154,7 @@ private final class RecordingSampler: OTelSampler {
     func samplingResult(
         operationName: String,
         kind: SpanKind,
-        traceID: OTelTraceID,
+        traceID: TraceID,
         attributes: SpanAttributes,
         links: [SpanLink],
         parentContext: ServiceContext

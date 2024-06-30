@@ -23,7 +23,7 @@ extension Logger.MetadataProvider {
     ///   - traceIDKey: The metadata key of the trace ID. Defaults to `"trace_id"`.
     ///   - spanIDKey: The metadata key of the span ID. Defaults to `"span_id"`.
     ///   - traceFlagsKey: The metadata key of the trace flags. Defaults to `"trace_flags"`.
-    ///   - parentSpanIdKey: The metadata key of the parent span ID. Defaults to `nil`, i.e. not included.
+    ///   - parentSpanIDKey: The metadata key of the parent span ID. Defaults to `nil`, i.e. not included.
     /// - Returns: A metadata provider ready to use with Logging.
     public static func otel(
         traceIDKey: String = "trace_id",

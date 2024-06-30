@@ -12,34 +12,50 @@
 //===----------------------------------------------------------------------===//
 
 import OTel
+import W3CTraceContext
 
 extension OTelSpanContext {
-    /// A span context stub.
+    /// A local span context stub.
     ///
     /// - Parameters:
     ///   - traceID: Defaults to `OTelTraceID.allZeroes`.
     ///   - spanID: Defaults to `OTelSpanID.allZeroes`.
     ///   - parentSpanID: Defaults to `nil`.
     ///   - traceFlags: Defaults to no flags.
-    ///   - traceState: Defaults to `nil`.
-    ///   - isRemote: Defaults to `false`.
+    ///   - traceState: Defaults to no trace state.
     ///
     /// - Returns: A span context stub.
-    public static func stub(
-        traceID: OTelTraceID = .allZeroes,
-        spanID: OTelSpanID = .allZeroes,
-        parentSpanID: OTelSpanID? = nil,
-        traceFlags: OTelTraceFlags = [],
-        traceState: OTelTraceState? = nil,
-        isRemote: Bool = false
+    public static func localStub(
+        traceID: TraceID = .allZeroes,
+        spanID: SpanID = .allZeroes,
+        parentSpanID: SpanID? = nil,
+        traceFlags: TraceFlags = [],
+        traceState: TraceState = TraceState()
     ) -> OTelSpanContext {
-        OTelSpanContext(
+        .local(
             traceID: traceID,
             spanID: spanID,
             parentSpanID: parentSpanID,
             traceFlags: traceFlags,
-            traceState: traceState,
-            isRemote: isRemote
+            traceState: traceState
         )
+    }
+
+    /// A local span context stub.
+    ///
+    /// - Parameters:
+    ///   - traceID: Defaults to `OTelTraceID.allZeroes`.
+    ///   - spanID: Defaults to `OTelSpanID.allZeroes`.
+    ///   - traceFlags: Defaults to no flags.
+    ///   - traceState: Defaults to no trace state.
+    ///
+    /// - Returns: A span context stub.
+    public static func remoteStub(
+        traceID: TraceID = .allZeroes,
+        spanID: SpanID = .allZeroes,
+        traceFlags: TraceFlags = [],
+        traceState: TraceState = TraceState()
+    ) -> OTelSpanContext {
+        .remote(traceContext: TraceContext(traceID: traceID, spanID: spanID, flags: traceFlags, state: traceState))
     }
 }

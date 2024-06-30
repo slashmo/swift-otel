@@ -15,6 +15,7 @@ import ServiceContextModule
 import W3CTraceContext
 
 extension ServiceContext {
+    /// The span context.
     public internal(set) var spanContext: OTelSpanContext? {
         get {
             self[SpanContextKey.self]
@@ -27,4 +28,6 @@ extension ServiceContext {
 
 private enum SpanContextKey: ServiceContextKey {
     typealias Value = OTelSpanContext
+
+    static let nameOverride: String? = "otel-span-context"
 }

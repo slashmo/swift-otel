@@ -14,6 +14,8 @@
 import W3CTraceContext
 
 /// Represents the portion of an ``OTelSpan`` which must be serialized and propagated across asynchronous boundaries.
+///
+/// [OTel Spec: SpanContext](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/api.md#spancontext)
 public struct OTelSpanContext: Hashable, Sendable {
     private var traceContext: TraceContext
 
@@ -42,7 +44,7 @@ public struct OTelSpanContext: Hashable, Sendable {
         }
     }
 
-    /// The unique ID of the span's parent or nil if it’s the root span.
+    /// The unique ID of the span's parent or `nil` if it's the root span.
     public let parentSpanID: SpanID?
 
     /// Whether this span context describes a span that originated on a different service.

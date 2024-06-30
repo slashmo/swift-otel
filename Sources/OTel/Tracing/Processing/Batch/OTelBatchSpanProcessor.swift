@@ -70,49 +70,41 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
         logger.debug("Shut down.")
     }
 
-    public nonisolated func forceFlush() async throws {
+    private nonisolated func exportBatches(_ batches: [Slice<Deque<OTelFinishedSpan>>]) async throws {
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for batch in batches {
+                group.addTask { await self.export(batch) }
+            }
+
+            group.addTask {
+                try await Task.sleep(for: self.configuration.exportTimeout, clock: self.clock)
+                self.logger.debug("Force flush timed out.")
+                throw CancellationError()
+            }
+
+            try? await group.next()
+            group.cancelAll()
+        }
+    }
+
+    public func forceFlush() async throws {
         let chunkSize = Int(configuration.maximumExportBatchSize)
-        let bufferCopy = await buffer
-        let batches = stride(from: 0, to: bufferCopy.count, by: chunkSize).map {
-            bufferCopy[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), bufferCopy.count)]
+        let batches = stride(from: 0, to: buffer.count, by: chunkSize).map {
+            buffer[$0 ..< min($0 + Int(configuration.maximumExportBatchSize), buffer.count)]
         }
 
-        if !bufferCopy.isEmpty {
-            logger.debug("Force flushing spans.", metadata: ["buffer_size": "\(bufferCopy.count)"])
+        if !buffer.isEmpty {
+            logger.debug("Force flushing spans.", metadata: ["buffer_size": "\(buffer.count)"])
 
-            await bufferClear()
+            buffer.removeAll()
 
-            await withThrowingTaskGroup(of: Void.self) { group in
-                for batch in batches {
-                    group.addTask { await self.export(batch) }
-                }
-
-                group.addTask {
-                    try await Task.sleep(for: self.configuration.exportTimeout, clock: self.clock)
-                    self.logger.debug("Force flush timed out.")
-                    throw CancellationError()
-                }
-
-                try? await group.next()
-                group.cancelAll()
-            }
+            try await exportBatches(batches)
         }
 
         try await exporter.forceFlush()
     }
 
-    private func bufferClear() async {
-        buffer.removeAll()
-    }
-
-    private func bufferRemoveFirst(_ n: Int) {
-        buffer.removeFirst(n)
-    }
-
-    private nonisolated func tick() async {
-        let batch = await buffer.prefix(Int(configuration.maximumExportBatchSize))
-        await bufferRemoveFirst(batch.count)
-
+    private nonisolated func exportBatch(_ batch: Deque<OTelFinishedSpan>.SubSequence) async {
         await withThrowingTaskGroup(of: Void.self) { group in
             group.addTask { await self.export(batch) }
             group.addTask {
@@ -123,6 +115,13 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
             try? await group.next()
             group.cancelAll()
         }
+    }
+
+    private func tick() async {
+        let batch = buffer.prefix(Int(configuration.maximumExportBatchSize))
+        buffer.removeFirst(batch.count)
+
+        await exportBatch(batch)
     }
 
     private func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async {

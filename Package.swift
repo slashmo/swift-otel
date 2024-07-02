@@ -107,6 +107,5 @@ let package = Package(
             ],
             swiftSettings: sharedSwiftSettings
         ),
-    ],
-    swiftLanguageVersions: [.version("6"), .v5]
+    ]
 )

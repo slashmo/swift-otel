@@ -14,6 +14,26 @@ An OpenTelemetry client for server-side Swift.
 | OpenTelemetry | The [OpenTelemetry](https://opentelemetry.io) project |
 | Swift OTel | This library, a Swift client for OpenTelemetry |
 
+## Overview
+
+OpenTelemetry supports three instrumentation signals, which all happen to have great foundational libraries used
+throughout the server-side Swift ecosystem.
+The goal of Swift OTel is to support all three in a way that feels right at home.
+
+@Links(visualStyle: compactGrid) {
+    - <doc:logging>
+    - <doc:metrics>
+    - <doc:tracing>
+}
+
+### Implementation Status
+
+| Signal | Swift Library | Swift OTel Support | 
+| --- | --- | --- |
+| <doc:logging> | [swift-log](https://github.com/apple/swift-log) | 🏗️ |
+| <doc:metrics> | [swift-metrics](https://github.com/apple/swift-metrics) | ✅ |
+| <doc:tracing> | [swift-distributed-tracing](https://github.com/apple/swift-distributed-tracing) | ✅ |
+
 ## Installation
 
 First, add the following snippet to the `dependencies` section of your `Package.swift` file:
@@ -28,22 +48,6 @@ Then, add a dependency on `OTel` in your target that sets up Swift OTel:
 .product(name: "OTel", package: "swift-otel"),
 ```
 
-## Overview
-
-OpenTelemetry supports three instrumentation signals, which all happen to have great foundational libraries used
-throughout the server-side Swift ecosystem.
-The goal of Swift OTel is to support all three in a way that feels right at home.
-
-| Signal | Swift Library | Swift OTel Support |
-| --- | --- | --- |
-| Logging | [swift-log](https://github.com/apple/swift-log) | 🏗️ |
-| Metrics | [swift-metrics](https://github.com/apple/swift-metrics) | 🏗️ |
-| Distributed Tracing | [swift-distributed-tracing](https://github.com/apple/swift-distributed-tracing) | ✅ |
-
-@Links(visualStyle: detailedGrid) {
-    - <doc:tracing>
-}
-
 ## Sample Code
 
 @Links(visualStyle: detailedGrid) {
@@ -55,6 +59,8 @@ The goal of Swift OTel is to support all three in a way that feels right at home
 
 ### Signals
 
+- <doc:logging>
+- <doc:metrics>
 - <doc:tracing>
 
 ### Resource Detection

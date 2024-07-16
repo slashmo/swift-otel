@@ -2,11 +2,18 @@
 
 @Metadata {
     @PageKind(sampleCode)
-    @CallToAction(purpose: link, url: "https://github.com/slashmo/swift-otel/blob/main/Examples/Counter")
+    @CallToAction(purpose: link, url: "https://github.com/slashmo/swift-otel/blob/main/Examples/Server")
     @Available("Swift", introduced: 5.9)
 }
 
 An HTTP server that uses middleware to emit traces and metrics for each HTTP request.
+
+## Used signals
+
+@Links(visualStyle: list) {
+    - <doc:metrics>
+    - <doc:tracing>
+}
 
 ## Overview
 

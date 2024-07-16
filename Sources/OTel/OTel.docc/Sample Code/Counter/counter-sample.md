@@ -8,6 +8,12 @@
 
 A service that infinitely increments a counter with randomized delays, instrumented using Swift OTel.
 
+## Used signals
+
+@Links(visualStyle: list) {
+    - <doc:tracing>
+}
+
 ## Overview
 
 Each increment to the counter is instrumented by a span, as shown in the screenshot below.

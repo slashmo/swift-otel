@@ -2,20 +2,27 @@
 
 import Benchmark
 import OTel
+import W3CTraceContext
 
 let benchmarks = {
     Benchmark("OTelTraceIdRatioBasedSampler") { benchmark in
 
         let sampler = OTelTraceIdRatioBasedSampler(ratio: 0.5)
-        for _ in benchmark.scaledIterations {
+
+        let traceIds = benchmark.scaledIterations.map { _ in TraceID.random() }
+        
+        benchmark.startMeasurement()
+
+        for traceId in traceIds {
             _ = sampler.samplingResult(
                 operationName: "some-op",
                 kind: .internal,
-                traceID: .random(),
+                traceID: traceId,
                 attributes: [:],
                 links: [],
                 parentContext: .topLevel)
         }
+
+        benchmark.stopMeasurement()
     }
-    // Add additional benchmarks here
 }

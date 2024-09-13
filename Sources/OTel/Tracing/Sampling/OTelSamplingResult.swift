@@ -21,7 +21,7 @@ public struct OTelSamplingResult: Equatable, Sendable {
     /// Additional attributes describing the sampling decision to be included in the span's attributes.
     public let attributes: SpanAttributes
 
-    init(decision: OTelSamplingResult.Decision, attributes: SpanAttributes = [:]) {
+    public init(decision: OTelSamplingResult.Decision, attributes: SpanAttributes = [:]) {
         self.decision = decision
         self.attributes = attributes
     }

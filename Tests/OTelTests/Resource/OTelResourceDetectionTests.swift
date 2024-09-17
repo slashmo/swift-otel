@@ -97,7 +97,7 @@ final class OTelResourceDetectionTests: XCTestCase {
         await sleeps.next()
         clock.advance(by: .seconds(2))
 
-        await fulfillment(of: [finishExpectation])
+        await fulfillment(of: [finishExpectation], timeout: 0.1)
     }
 
     func test_resource_withServiceNameEnvironmentVariable_addsProvidedServiceName() async {

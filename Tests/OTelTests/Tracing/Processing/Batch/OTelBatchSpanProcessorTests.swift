@@ -197,7 +197,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         await sleeps.next()
         await serviceGroup.triggerGracefulShutdown()
 
-        await fulfillment(of: [finishExpectation])
+        await fulfillment(of: [finishExpectation], timeout: 0.1)
 
         let exportedBatches = await exporter.exportedBatches
         XCTAssertEqual(
@@ -245,7 +245,7 @@ final class OTelBatchSpanProcessorTests: XCTestCase {
         // advance past flush timeout
         clock.advance(by: .seconds(2))
 
-        await fulfillment(of: [finishExpectation])
+        await fulfillment(of: [finishExpectation], timeout: 0.1)
 
         let exportedBatches = await exporter.exportedBatches
         XCTAssertTrue(exportedBatches.isEmpty)

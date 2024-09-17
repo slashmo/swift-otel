@@ -15,7 +15,7 @@
 // https://github.com/apple/swift-corelibs-xctest/issues/436#issuecomment-1703589930
 
 #if os(Linux) && swift(<5.10)
-    @preconcurrency import XCTest
+    import XCTest
 
     extension XCTestCase {
         /// Waits on a group of expectations for up to the specified timeout,
@@ -38,7 +38,7 @@
         ///     expectation from hanging the test.
         public func fulfillment(
             of expectations: [XCTestExpectation],
-            timeout: TimeInterval = .infinity,
+            timeout: TimeInterval,
             enforceOrder: Bool = false
         ) async {
             await withCheckedContinuation { continuation in

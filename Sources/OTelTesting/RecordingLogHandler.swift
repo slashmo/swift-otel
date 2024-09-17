@@ -26,7 +26,15 @@ package struct RecordingLogHandler: LogHandler {
         (recordedLogMessageStream, recordedLogMessageContinuation) = AsyncStream<LogFunctionCall>.makeStream()
     }
 
-    package func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, file: String, function: String, line: UInt) {
+    package func log(
+        level: Logger.Level,
+        message: Logger.Message,
+        metadata: Logger.Metadata?,
+        source: String,
+        file: String,
+        function: String,
+        line: UInt
+    ) {
         recordedLogMessages.withLockedValue { $0.append((level, message, metadata)) }
         counts.withLockedValue { $0[level] = $0[level, default: 0] + 1 }
         recordedLogMessageContinuation.yield((level, message, metadata))

@@ -15,7 +15,7 @@
 // https://github.com/apple/swift-corelibs-xctest/issues/436#issuecomment-1703589930
 
 #if os(Linux)
-    import XCTest
+    @preconcurrency import XCTest
 
     extension XCTestCase {
         /// Waits on a group of expectations for up to the specified timeout,

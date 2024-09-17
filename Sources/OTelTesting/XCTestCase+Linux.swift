@@ -14,7 +14,7 @@
 // Adds the fulfillment(of:) XCTest method on Linux
 // https://github.com/apple/swift-corelibs-xctest/issues/436#issuecomment-1703589930
 
-#if os(Linux)
+#if os(Linux) && swift(<5.10)
     @preconcurrency import XCTest
 
     extension XCTestCase {

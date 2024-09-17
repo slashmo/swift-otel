@@ -14,7 +14,7 @@
 // Adds the fulfillment(of:) XCTest method on Linux
 // https://github.com/apple/swift-corelibs-xctest/issues/436#issuecomment-1703589930
 
-#if os(Linux)
+#if os(Linux) && swift(<5.10)
     import XCTest
 
     extension XCTestCase {
@@ -38,7 +38,7 @@
         ///     expectation from hanging the test.
         public func fulfillment(
             of expectations: [XCTestExpectation],
-            timeout: TimeInterval = .infinity,
+            timeout: TimeInterval,
             enforceOrder: Bool = false
         ) async {
             await withCheckedContinuation { continuation in

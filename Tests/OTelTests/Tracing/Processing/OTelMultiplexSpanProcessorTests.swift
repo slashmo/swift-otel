@@ -80,9 +80,9 @@ final class OTelMultiplexSpanProcessorTests: XCTestCase {
             finishExpectation.fulfill()
         }
 
-        await fulfillment(of: [startExpectation])
+        await fulfillment(of: [startExpectation], timeout: 0.1)
         await serviceGroup.triggerGracefulShutdown()
-        await fulfillment(of: [finishExpectation])
+        await fulfillment(of: [finishExpectation], timeout: 0.1)
 
         let processor1ShutdownCount = await processor1.numberOfShutdowns
         XCTAssertEqual(processor1ShutdownCount, 1)

@@ -32,8 +32,8 @@ final class OTelNoOpSpanProcessorTests: XCTestCase {
             shutDownExpectation.fulfill()
         }
 
-        await fulfillment(of: [startExpectation])
+        await fulfillment(of: [startExpectation], timeout: 0.1)
         await serviceGroup.triggerGracefulShutdown()
-        await fulfillment(of: [shutDownExpectation])
+        await fulfillment(of: [shutDownExpectation], timeout: 0.1)
     }
 }

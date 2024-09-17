@@ -25,7 +25,7 @@ struct OTLPGRPCEndpoint: Equatable {
     }
 
     init(urlString: String, isInsecure: Bool?) throws {
-        guard let url = URL(string: urlString) else {
+        guard !urlString.isEmpty, let url = URL(string: urlString) else {
             // TODO: Log
             self = .default
             return

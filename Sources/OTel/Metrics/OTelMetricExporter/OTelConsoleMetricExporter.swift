@@ -14,7 +14,7 @@
 /// A metric exporter that logs metrics to the console for debugging.
 public struct OTelConsoleMetricExporter: OTelMetricExporter {
     /// Create a new ``OTelConsoleMetricExporter``.
-    init() {}
+    public init() {}
 
     public func export(_ batch: some Collection<OTelResourceMetrics> & Sendable) async throws {
         for metric in batch {

@@ -44,7 +44,7 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
         self.clock = clock
 
         buffer = Deque(minimumCapacity: Int(configuration.maximumQueueSize))
-        (explicitTickStream, explicitTick) = AsyncStream.makeStream()
+        (explicitTickStream, explicitTick) = AsyncStream.makeStream(bufferingPolicy: .bufferingNewest(1))
     }
 
     public func onEnd(_ span: OTelFinishedSpan) {
@@ -57,7 +57,9 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
     }
 
     public func run() async throws {
-        let timerSequence = AsyncTimerSequence(interval: configuration.scheduleDelay, clock: clock).map { _ in }
+        let timerSequence = AsyncTimerSequence(interval: configuration.scheduleDelay, clock: clock)
+            .buffer(policy: .bufferingLatest(1))
+            .map { _ in }
         let mergedSequence = merge(timerSequence, explicitTickStream).cancelOnGracefulShutdown()
 
         for try await _ in mergedSequence where !buffer.isEmpty {

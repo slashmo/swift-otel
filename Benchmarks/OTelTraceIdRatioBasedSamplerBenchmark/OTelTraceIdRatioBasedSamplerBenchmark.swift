@@ -4,7 +4,7 @@ import Benchmark
 import OTel
 import W3CTraceContext
 
-let benchmarks = {
+let benchmarks : @Sendable () -> Benchmark? = {
     Benchmark("OTelTraceIdRatioBasedSampler") { benchmark in
 
         let sampler = OTelTraceIdRatioBasedSampler(ratio: 0.5)

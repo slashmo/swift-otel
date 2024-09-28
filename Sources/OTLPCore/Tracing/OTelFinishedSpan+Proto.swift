@@ -50,16 +50,12 @@ extension Opentelemetry_Proto_Trace_V1_Span {
 
 extension TraceID {
     var data: Data {
-        self.withUnsafeBytes {
-            Data($0)
-        }
+        Data(bytes)
     }
 }
 
 extension SpanID {
     var data: Data {
-        self.withUnsafeBytes {
-            Data($0)
-        }
+        Data(bytes)
     }
 }

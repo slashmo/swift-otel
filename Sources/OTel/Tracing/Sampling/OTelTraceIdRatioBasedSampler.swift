@@ -8,6 +8,8 @@ public struct OTelTraceIdRatioBasedSampler: OTelSampler, Equatable, Hashable, Cu
     let idUpperBound : UInt64
     public let ratio: Double
 
+    /// Creates a new `OTelTraceIdRatioBasedSampler` with the given sampling `ratio`.
+    /// - Parameter ratio: The sampling ratio. Must be between 0.0 and 1.0.
     public init(ratio: Double) {
         precondition(ratio >= 0.0 && ratio <= 1.0, "ratio must be between 0.0 and 1.0")
 
@@ -30,7 +32,16 @@ public struct OTelTraceIdRatioBasedSampler: OTelSampler, Equatable, Hashable, Cu
         parentContext: ServiceContext
     ) -> OTelSamplingResult {
 
-        let value = traceID.withUnsafeBytes { $0[8...].load(as: UInt64.self) }
+        if self.idUpperBound == .min {
+            return .init(decision: .drop)
+        } else if self.idUpperBound == .max {
+            return .init(decision: .recordAndSample)
+        }
+
+        let value = traceID.bytes.withUnsafeBytes { 
+            assert($0.count == 16, "TraceID must be 16 bytes")
+            return $0[8...].load(as: UInt64.self)
+        }
 
         if value < idUpperBound {
             return .init(decision: .recordAndSample)

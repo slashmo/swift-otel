@@ -56,7 +56,7 @@ final class OTelFinishedSpanProtoTests: XCTestCase {
     }
 
     func test_initProtoSpan_withFinishedSpan_withParentSpanID_setsParentSpanID() {
-        let parentSpanID = SpanID(bytes: (1, 2, 3, 4, 5, 6, 7, 8))
+        let parentSpanID = SpanID.oneToEight
         let span = OTelFinishedSpan.stub(parentSpanID: parentSpanID)
 
         let protoSpan = Opentelemetry_Proto_Trace_V1_Span(span)

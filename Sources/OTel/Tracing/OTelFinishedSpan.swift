@@ -44,4 +44,28 @@ public struct OTelFinishedSpan: Sendable {
 
     /// The links from this span to other spans.
     public let links: [SpanLink]
+
+    public init(
+        spanContext: OTelSpanContext,
+        operationName: String,
+        kind: SpanKind,
+        status: SpanStatus?,
+        startTimeNanosecondsSinceEpoch: UInt64,
+        endTimeNanosecondsSinceEpoch: UInt64,
+        attributes: SpanAttributes,
+        resource: OTelResource,
+        events: [SpanEvent],
+        links: [SpanLink]
+    ) {
+        self.spanContext = spanContext
+        self.operationName = operationName
+        self.kind = kind
+        self.status = status
+        self.startTimeNanosecondsSinceEpoch = startTimeNanosecondsSinceEpoch
+        self.endTimeNanosecondsSinceEpoch = endTimeNanosecondsSinceEpoch
+        self.attributes = attributes
+        self.resource = resource
+        self.events = events
+        self.links = links
+    }
 }

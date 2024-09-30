@@ -111,6 +111,7 @@ EOF
     cd "$here/.."
     find . \
       \( \! -path './.build/*' \) -a \
+      \( \! -path './Benchmarks/.build/*' \) -a \
       \( \! -path '*/Generated/*' \) -a \
       \( "${matching_files[@]}" \) -a \
       \( \! \( "${exceptions[@]}" \) \) | while read line; do

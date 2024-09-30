@@ -1,0 +1,73 @@
+name: Benchmark PR vs. main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-benchmark
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    name: Check benchmark regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: 0
+
+      - name: Install jemalloc
+        run: sudo apt-get install -y libjemalloc-dev
+
+      - name: Benchmark PR
+        run: |
+          cd Benchmarks
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update pr
+
+      - name: Benchmark main
+        run: |
+          git switch main
+          cd Benchmarks
+          swift package --allow-writing-to-directory .benchmarkBaselines/ benchmark baseline update main
+
+      - name: Check benchmark delta
+        id: check_delta
+        run: |
+          echo $(date) >> $GITHUB_STEP_SUMMARY
+          echo "BENCHMARK_STATUS=1" >> "$GITHUB_OUTPUT"
+          cd Benchmarks
+          swift package benchmark baseline check main pr --format markdown >> $GITHUB_STEP_SUMMARY
+          echo "BENCHMARK_STATUS=0" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: Produce success comment
+        if: ${{ steps.check_delta.outputs.BENCHMARK_STATUS == '0' }}
+        run: |
+          echo 'PRTEST<<EOF' >> $GITHUB_ENV
+          echo "[Pull request benchmark comparison with 'main' run at $(date -Iseconds)](https://github.com/slashmo/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Produce failure comment
+        if: ${{ steps.check_delta.outputs.BENCHMARK_STATUS != '0' }}
+        run: |
+          echo 'PRTEST<<EOF' >> $GITHUB_ENV
+          echo "[Pull request benchmark comparison with 'main' run at $(date -Iseconds)](https://github.com/slashmo/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
+          echo "_Pull request had performance regressions_" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: ${{ env.PRTEST }}
+          comment_tag: benchmark
+
+      - name: Exit with correct status
+        run: |
+          exit ${{ steps.check_delta.outputs.BENCHMARK_STATUS }}

@@ -13,3 +13,4 @@ xcuserdata/
 .protoc-grpc-swift-plugins/
 .protoc-grpc-swift-plugins.download/
 swift-otel-workspace.xcworkspace/
+.benchmarkBaselines

@@ -47,15 +47,3 @@ extension Opentelemetry_Proto_Trace_V1_Span {
         links = finishedSpan.links.compactMap(Opentelemetry_Proto_Trace_V1_Span.Link.init)
     }
 }
-
-extension TraceID {
-    var data: Data {
-        Data(bytes)
-    }
-}
-
-extension SpanID {
-    var data: Data {
-        Data(bytes)
-    }
-}

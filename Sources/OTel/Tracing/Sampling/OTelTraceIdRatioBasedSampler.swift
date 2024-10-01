@@ -1,3 +1,16 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift OTel open source project
+//
+// Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import Tracing
 import W3CTraceContext
 
@@ -5,7 +18,7 @@ import W3CTraceContext
 /// [Spec](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#traceidratiobased)
 public struct OTelTraceIdRatioBasedSampler: OTelSampler, Equatable, Hashable, CustomStringConvertible {
 
-    let idUpperBound : UInt64
+    let idUpperBound: UInt64
     public let ratio: Double
 
     /// Creates a new `OTelTraceIdRatioBasedSampler` with the given sampling `ratio`.

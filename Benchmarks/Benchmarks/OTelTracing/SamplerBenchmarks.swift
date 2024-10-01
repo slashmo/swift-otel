@@ -22,7 +22,7 @@ func samplerBenchmarks() {
 
         // we generate the trace ids upfront to avoid measuring the generation time
         let traceIds = benchmark.scaledIterations.map { _ in TraceID.random() }
-        
+
         benchmark.startMeasurement()
 
         for traceId in traceIds {
@@ -33,8 +33,9 @@ func samplerBenchmarks() {
                     traceID: traceId,
                     attributes: [:],
                     links: [],
-                    parentContext: .topLevel)
+                    parentContext: .topLevel
                 )
+            )
         }
 
         benchmark.stopMeasurement()

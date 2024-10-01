@@ -12,8 +12,8 @@
 //===----------------------------------------------------------------------===//
 
 @testable import OTel
-import XCTest
 import Tracing
+import XCTest
 
 final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
     func test_zero_ratio_does_not_sample() {
@@ -47,11 +47,9 @@ final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
     }
 
     func test_different_ratios() {
-
         let ratios = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0]
 
         for ratio in ratios {
-
             let sampler = OTelTraceIdRatioBasedSampler(ratio: ratio)
 
             let N = 100_000
@@ -68,9 +66,9 @@ final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
                 )
 
                 switch result.decision {
-                    case .recordAndSample:
-                        sampled += 1
-                    default: break
+                case .recordAndSample:
+                    sampled += 1
+                default: break
                 }
             }
 

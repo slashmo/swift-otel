@@ -112,6 +112,7 @@ EOF
     find . \
       \( \! -path './.build/*' \) -a \
       \( \! -path './Benchmarks/.build/*' \) -a \
+      \( \! -path './IntegrationTests/.build/*' \) -a \
       \( \! -path '*/Generated/*' \) -a \
       \( "${matching_files[@]}" \) -a \
       \( \! \( "${exceptions[@]}" \) \) | while read line; do

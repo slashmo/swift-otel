@@ -1,0 +1,17 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "otel-collector:4317"
+
+exporters:
+  file:
+    path: /etc/otel-collector-output/output.jsonl
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [file]
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/srikanthccv/otelcol-jsonschema/main/schema.json

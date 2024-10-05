@@ -1,0 +1,12 @@
+name: swift-otel-integration-tests
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./otel-collector-output:/etc/otel-collector-output
+    ports:
+      - "4317:4317"  # OTLP gRPC receiver
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json

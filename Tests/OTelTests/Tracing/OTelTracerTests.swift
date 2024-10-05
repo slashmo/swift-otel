@@ -37,7 +37,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -67,7 +66,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -109,7 +107,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -138,7 +135,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -167,7 +163,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -189,7 +184,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource(attributes: ["service.name": "test"])
         )
 
@@ -226,7 +220,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -262,7 +255,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -298,7 +290,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -324,7 +315,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -348,7 +338,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: OTelNoOpSpanProcessor(),
-            environment: [:],
             resource: OTelResource()
         )
 
@@ -373,7 +362,6 @@ final class OTelTracerTests: XCTestCase {
             sampler: OTelConstantSampler(isOn: true),
             propagator: propagator,
             processor: processor,
-            environment: [:],
             resource: OTelResource()
         )
 

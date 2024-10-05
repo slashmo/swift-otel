@@ -43,7 +43,6 @@ public final class OTelTracer<
         sampler: Sampler,
         propagator: Propagator,
         processor: Processor,
-        environment: OTelEnvironment,
         resource: OTelResource,
         clock: Clock
     ) {
@@ -71,14 +70,12 @@ extension OTelTracer where Clock == ContinuousClock {
     ///   - sampler: The sampler deciding whether to process/export spans.
     ///   - propagator: The propagator injecting/extracting span contexts.
     ///   - processor: The processor handling started/ended spans.
-    ///   - environment: The environment variables.
     ///   - resource: Attributes about the resource being traced. Should be obtained using <doc:resource-detection>.
     public convenience init(
         idGenerator: IDGenerator,
         sampler: Sampler,
         propagator: Propagator,
         processor: Processor,
-        environment: OTelEnvironment,
         resource: OTelResource
     ) {
         self.init(
@@ -86,7 +83,6 @@ extension OTelTracer where Clock == ContinuousClock {
             sampler: sampler,
             propagator: propagator,
             processor: processor,
-            environment: environment,
             resource: resource,
             clock: .continuous
         )

@@ -62,7 +62,6 @@ enum Example {
             sampler: OTelConstantSampler(isOn: true),
             propagator: OTelW3CPropagator(),
             processor: processor,
-            environment: environment,
             resource: resource
         )
 

@@ -1,0 +1,9 @@
+name: swift-otel-integration-tests
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
+      - ./otel-collector-output/output.jsonl:/etc/otelcol-contrib/output/output.jsonl:rw
+    ports:
+      - "4317:4317"

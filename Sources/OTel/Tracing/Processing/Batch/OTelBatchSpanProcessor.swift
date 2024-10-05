@@ -119,7 +119,6 @@ public actor OTelBatchSpanProcessor<Exporter: OTelSpanExporter, Clock: _Concurre
     private func export(_ batch: some Collection<OTelFinishedSpan> & Sendable) async {
         let batchID = batchID
         self.batchID += 1
-        print(batchID)
 
         var exportLogger = logger
         exportLogger[metadataKey: "batch_id"] = "\(batchID)"

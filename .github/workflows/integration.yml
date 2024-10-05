@@ -1,0 +1,53 @@
+name: "Integration Tests"
+on: [push, pull_request]
+jobs:
+  integration_test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["5.9", "5.10", "latest"]
+
+    steps:
+      - name: Install Swift
+        uses: vapor/swiftly-action@v0.1
+        with:
+          toolchain: ${{ matrix.swift }}
+        env:
+          SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+
+      - name: Resolve Swift dependencies
+        working-directory: ./IntegrationTests
+        run: swift package resolve
+
+      - name: Start OTel Collector
+        working-directory: ./IntegrationTests
+        run: |
+          mkdir -p otel-collector-output
+          touch otel-collector-output/output.jsonl
+          docker compose up -d
+
+      - name: Wait for OTel Collector
+        working-directory: ./IntegrationTests
+        run: |
+          sleep 20
+          docker compose logs
+
+      # - name: Test
+      #   run: |
+      #     cd IntegrationTests
+      #     sleep 20
+      #     docker compose -f docker/docker-compose.yaml logs
+      #     ls -lah docker/otel-collector-output
+      #     cat docker/otel-collector-output/output.jsonl
+
+
+      # - name: Run Integration Tests
+      #   run: |
+      #     cd IntegrationTests
+      #     OTEL_COLLECTOR_OUTPUT=$(pwd)/docker/otel-collector-output swift test

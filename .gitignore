@@ -14,3 +14,4 @@ xcuserdata/
 .protoc-grpc-swift-plugins.download/
 swift-otel-workspace.xcworkspace/
 .benchmarkBaselines
+IntegrationTests/otel-collector-output/

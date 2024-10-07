@@ -43,21 +43,26 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
     ) {
         self.configuration = configuration
 
-        var connectionConfiguration = ClientConnection.Configuration.default(
-            target: .host(configuration.endpoint.host, port: configuration.endpoint.port),
-            eventLoopGroup: group
-        )
-
         if configuration.endpoint.isInsecure {
             logger.debug("Using insecure connection.", metadata: [
                 "host": "\(configuration.endpoint.host)",
                 "port": "\(configuration.endpoint.port)",
             ])
+            connection = ClientConnection.insecure(group: group)
+                .withBackgroundActivityLogger(backgroundActivityLogger)
+                .connect(host: configuration.endpoint.host, port: configuration.endpoint.port)
+        } else {
+            logger.debug("Using secure connection.", metadata: [
+                "host": "\(configuration.endpoint.host)",
+                "port": "\(configuration.endpoint.port)",
+            ])
+            connection = ClientConnection.usingPlatformAppropriateTLS(for: group)
+                .withBackgroundActivityLogger(backgroundActivityLogger)
+                // TODO: Support OTEL_EXPORTER_OTLP_CERTIFICATE
+                // TODO: Support OTEL_EXPORTER_OTLP_CLIENT_KEY
+                // TODO: Support OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE
+                .connect(host: configuration.endpoint.host, port: configuration.endpoint.port)
         }
-
-        // TODO: Support OTEL_EXPORTER_OTLP_CERTIFICATE
-        // TODO: Support OTEL_EXPORTER_OTLP_CLIENT_KEY
-        // TODO: Support OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE
 
         var headers = configuration.headers
         if !headers.isEmpty {
@@ -66,9 +71,6 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
             ])
         }
         headers.replaceOrAdd(name: "user-agent", value: "OTel-OTLP-Exporter-Swift/\(OTelLibrary.version)")
-
-        connectionConfiguration.backgroundActivityLogger = backgroundActivityLogger
-        connection = ClientConnection(configuration: connectionConfiguration)
 
         client = Opentelemetry_Proto_Collector_Trace_V1_TraceServiceAsyncClient(
             channel: connection,

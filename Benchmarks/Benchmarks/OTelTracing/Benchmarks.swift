@@ -29,4 +29,5 @@ let benchmarks = {
     // MARK: - Benchmarks
 
     tracerBenchmarks()
+    samplerBenchmarks()
 }

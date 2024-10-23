@@ -11,8 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(Linux)
+#if canImport(Glibc)
     import Glibc
+#elseif canImport(Musl)
+    import Musl
 #else
     import Darwin.C
 #endif
@@ -164,21 +166,7 @@ public struct OTelEnvironment: Sendable {
     ///
     /// - Returns: An ``OTelEnvironment`` exposing the process-wide environment values.
     public static func detected() -> OTelEnvironment {
-        var values = [String: String]()
-
-        let environmentPointer = environ
-        var index = 0
-
-        while let entry = environmentPointer.advanced(by: index).pointee {
-            let entry = String(cString: entry)
-            if let i = entry.firstIndex(of: "=") {
-                let key = entry.prefix(upTo: i).uppercased()
-                let value = String(entry[i...].dropFirst("=".count))
-                values[key] = value
-            }
-            index += 1
-        }
-
+        let values = ProcessInfo.processInfo.environment
         return OTelEnvironment(values: values)
     }
 

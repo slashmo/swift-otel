@@ -56,7 +56,7 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
 
-        .target(
+        .testTarget(
             name: "OTelTesting",
             dependencies: [
                 .product(name: "Tracing", package: "swift-distributed-tracing"),

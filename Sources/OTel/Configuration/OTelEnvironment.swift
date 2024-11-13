@@ -11,13 +11,21 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(Linux)
-    import Glibc
+#if os(Windows)
+import ucrt
+#elseif canImport(Darwin)
+import Darwin.C
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+@preconcurrency import Musl
+#elseif canImport(Bionic)
+import Bionic
+#elseif canImport(WASILibc)
+import WASILibc
 #else
-    import Darwin.C
+#error("The OTel module was unable to identify your C library.")
 #endif
-
-import Foundation
 
 /// A wrapper for reading environment values.
 public struct OTelEnvironment: Sendable {
@@ -166,7 +174,13 @@ public struct OTelEnvironment: Sendable {
     public static func detected() -> OTelEnvironment {
         var values = [String: String]()
 
+        #if canImport(Musl)
+        // in musl this is imported as an optional...
+        let environmentPointer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>! = environ
+        #else
         let environmentPointer = environ
+        #endif
+
         var index = 0
 
         while let entry = environmentPointer.advanced(by: index).pointee {

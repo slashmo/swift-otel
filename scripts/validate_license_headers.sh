@@ -3,7 +3,7 @@
 ##
 ## This source file is part of the Swift OTel open source project
 ##
-## Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+## Copyright (c) 2024 the Swift OTel project authors
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
@@ -53,7 +53,7 @@ for language in swift-or-c bash dtrace; do
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) YEARS Moritz Lang and the Swift OTel project authors
+// Copyright (c) YEARS the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -71,7 +71,7 @@ EOF
 ##
 ## This source file is part of the Swift OTel open source project
 ##
-## Copyright (c) YEARS Moritz Lang and the Swift OTel project authors
+## Copyright (c) YEARS the Swift OTel project authors
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
@@ -89,7 +89,7 @@ EOF
  *
  *  This source file is part of the Swift OTel open source project
  *
- *  Copyright (c) YEARS Moritz Lang and the Swift OTel project authors
+ *  Copyright (c) YEARS the Swift OTel project authors
  *  Licensed under Apache License v2.0
  *
  *  See LICENSE.txt for license information

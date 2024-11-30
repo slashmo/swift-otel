@@ -46,28 +46,6 @@ jobs:
           echo "BENCHMARK_STATUS=0" >> "$GITHUB_OUTPUT"
         continue-on-error: true
 
-      - name: Produce success comment
-        if: ${{ steps.check_delta.outputs.BENCHMARK_STATUS == '0' }}
-        run: |
-          echo 'PRTEST<<EOF' >> $GITHUB_ENV
-          echo "[Pull request benchmark comparison with 'main' run at $(date -Iseconds)](https://github.com/slashmo/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-
-      - name: Produce failure comment
-        if: ${{ steps.check_delta.outputs.BENCHMARK_STATUS != '0' }}
-        run: |
-          echo 'PRTEST<<EOF' >> $GITHUB_ENV
-          echo "[Pull request benchmark comparison with 'main' run at $(date -Iseconds)](https://github.com/slashmo/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
-          echo "_Pull request had performance regressions_" >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
-
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          message: ${{ env.PRTEST }}
-          comment_tag: benchmark
-
       - name: Exit with correct status
         run: |
           exit ${{ steps.check_delta.outputs.BENCHMARK_STATUS }}

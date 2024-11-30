@@ -108,7 +108,7 @@ public struct OTelResourceDetection<Clock: _Concurrency.Clock>: Sendable where C
     }
 
     private func serviceName(environment: OTelEnvironment, resource: OTelResource, logger: Logger) -> String {
-        if let serviceName = environment.values["OTEL_SERVICE_NAME"] {
+        if let serviceName = environment["OTEL_SERVICE_NAME"] {
             logger.debug(#"Using service name from "OTEL_SERVICE_NAME" environment variable."#, metadata: [
                 "service_name": "\(serviceName)",
             ])

@@ -21,8 +21,13 @@ import Tracing
 import XCTest
 
 final class OTLPGRPCSpanExporterTests: XCTestCase {
+    private var requestLogger: Logger!
+    private var backgroundActivityLogger: Logger!
+
     override func setUp() async throws {
         LoggingSystem.bootstrapInternal(logLevel: .trace)
+        requestLogger = Logger(label: "requestLogger")
+        backgroundActivityLogger = Logger(label: "backgroundActivityLogger")
     }
 
     func test_export_whenConnected_withInsecureConnection_sendsExportRequestToCollector() async throws {
@@ -32,8 +37,8 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
             let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
             let exporter = OTLPGRPCSpanExporter(
                 configuration: configuration,
-                requestLogger: Logger(label: "requestLogger"),
-                backgroundActivityLogger: Logger(label: "backgroundActivity")
+                requestLogger: requestLogger,
+                backgroundActivityLogger: backgroundActivityLogger
             )
 
             let span = OTelFinishedSpan.stub()
@@ -59,8 +64,8 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
             let exporter = OTLPGRPCSpanExporter(
                 configuration: configuration,
                 group: MultiThreadedEventLoopGroup.singleton,
-                requestLogger: Logger(label: "requestLogger"),
-                backgroundActivityLogger: Logger(label: "backgroundActivity"),
+                requestLogger: requestLogger,
+                backgroundActivityLogger: backgroundActivityLogger,
                 trustRoots: trustRoots
             )
 
@@ -92,7 +97,11 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
                     "key2": "84",
                 ]
             )
-            let exporter = OTLPGRPCSpanExporter(configuration: configuration)
+            let exporter = OTLPGRPCSpanExporter(
+                configuration: configuration,
+                requestLogger: requestLogger,
+                backgroundActivityLogger: backgroundActivityLogger
+            )
 
             try await exporter.export([span])
 
@@ -125,7 +134,11 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
         do {
             try await collector.withInsecureServer { endpoint in
                 let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
-                let exporter = OTLPGRPCSpanExporter(configuration: configuration)
+                let exporter = OTLPGRPCSpanExporter(
+                    configuration: configuration,
+                    requestLogger: requestLogger,
+                    backgroundActivityLogger: backgroundActivityLogger
+                )
                 await exporter.shutdown()
 
                 let span = OTelFinishedSpan.stub()
@@ -134,5 +147,12 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
                 XCTFail("Expected exporter to throw error, successfully exported instead.")
             }
         } catch is OTelSpanExporterAlreadyShutDownError {}
+    }
+
+    func test_forceFlush() async throws {
+        // This exporter is a "push exporter" and so the OTel spec says that force flush should do nothing.
+        let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:])
+        let exporter = OTLPGRPCSpanExporter(configuration: configuration)
+        try await exporter.forceFlush()
     }
 }

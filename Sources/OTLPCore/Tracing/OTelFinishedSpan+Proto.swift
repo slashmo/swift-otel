@@ -14,21 +14,22 @@
 import struct Foundation.Data
 import OTel
 import Tracing
+import W3CTraceContext
 
 extension Opentelemetry_Proto_Trace_V1_Span {
     /// Create a span from an `OTelFinishedSpan`.
     ///
     /// - Parameter finishedSpan: The `OTelFinishedSpan` to cast.
     public init(_ finishedSpan: OTelFinishedSpan) {
-        traceID = Data(finishedSpan.spanContext.traceID.bytes)
-        spanID = Data(finishedSpan.spanContext.spanID.bytes)
+        traceID = finishedSpan.spanContext.traceID.data
+        spanID = finishedSpan.spanContext.spanID.data
 
         if let traceStateHeaderValue = finishedSpan.spanContext.traceStateHeaderValue {
             self.traceState = traceStateHeaderValue
         }
 
         if let parentSpanID = finishedSpan.spanContext.parentSpanID {
-            self.parentSpanID = Data(parentSpanID.bytes)
+            self.parentSpanID = parentSpanID.data
         }
 
         name = finishedSpan.operationName

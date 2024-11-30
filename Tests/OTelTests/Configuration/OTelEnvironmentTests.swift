@@ -24,7 +24,7 @@ final class OTelEnvironmentTests: XCTestCase {
 
         XCTAssertEqual(environment.values.count, keyValuePairs.count)
         for (key, value) in keyValuePairs {
-            XCTAssertEqual(environment.values[key.uppercased()], value)
+            XCTAssertEqual(environment[key.lowercased()], value)
         }
     }
 

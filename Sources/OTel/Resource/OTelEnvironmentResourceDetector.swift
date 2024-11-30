@@ -28,7 +28,7 @@ public struct OTelEnvironmentResourceDetector: OTelResourceDetector, CustomStrin
 
     public func resource(logger: Logger) throws -> OTelResource {
         let environmentKey = "OTEL_RESOURCE_ATTRIBUTES"
-        guard let environmentValue = environment.values[environmentKey] else { return OTelResource() }
+        guard let environmentValue = environment[environmentKey] else { return OTelResource() }
 
         let attributes: SpanAttributes = try {
             var attributes = SpanAttributes()

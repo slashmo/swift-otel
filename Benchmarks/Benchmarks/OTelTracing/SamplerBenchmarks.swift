@@ -16,9 +16,9 @@ import Benchmark
 import W3CTraceContext
 
 func samplerBenchmarks() {
-    Benchmark("trace id ratio based sampling result") { benchmark in
+    Benchmark("Trace-id ratio based sampling result") { benchmark in
 
-        let sampler = OTelTraceIdRatioBasedSampler(ratio: 0.5)
+        let sampler = OTelTraceIDRatioBasedSampler(ratio: 0.5)
 
         // we generate the trace ids upfront to avoid measuring the generation time
         let traceIds = benchmark.scaledIterations.map { _ in TraceID.random() }

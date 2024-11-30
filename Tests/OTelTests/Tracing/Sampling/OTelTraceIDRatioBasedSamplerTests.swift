@@ -15,9 +15,9 @@
 import Tracing
 import XCTest
 
-final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
-    func test_zero_ratio_does_not_sample() {
-        let sampler = OTelTraceIdRatioBasedSampler(ratio: 0.0)
+final class OTelTraceIDRatioBasedSamplerTests: XCTestCase {
+    func test_samplingResult_withZeroRatio_neverSamples() {
+        let sampler = OTelTraceIDRatioBasedSampler(ratio: 0.0)
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -31,8 +31,8 @@ final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
         XCTAssertEqual(result, OTelSamplingResult(decision: .drop, attributes: [:]))
     }
 
-    func test_one_ratio_does_sample() {
-        let sampler = OTelTraceIdRatioBasedSampler(ratio: 1.0)
+    func test_samplingResult_withOneRatio_alwaysSamples() {
+        let sampler = OTelTraceIDRatioBasedSampler(ratio: 1.0)
 
         let result = sampler.samplingResult(
             operationName: "does-not-matter",
@@ -46,16 +46,16 @@ final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
         XCTAssertEqual(result, OTelSamplingResult(decision: .recordAndSample, attributes: [:]))
     }
 
-    func test_different_ratios() {
+    func test_samplingResult_withDifferentRatios() {
         let ratios = [0.0, 0.1, 0.25, 0.5, 0.75, 1.0]
 
         for ratio in ratios {
-            let sampler = OTelTraceIdRatioBasedSampler(ratio: ratio)
+            let sampler = OTelTraceIDRatioBasedSampler(ratio: ratio)
 
-            let N = 100_000
+            let n = 100_000
             var sampled = 0
 
-            for _ in 0 ..< N {
+            for _ in 0 ..< n {
                 let result = sampler.samplingResult(
                     operationName: "does-not-matter",
                     kind: .internal,
@@ -72,32 +72,37 @@ final class OTelTraceIdRatioBasedSamplerTests: XCTestCase {
                 }
             }
 
-            let observedRatio = Double(sampled) / Double(N)
+            let observedRatio = Double(sampled) / Double(n)
 
-            XCTAssertEqual(ratio, observedRatio, accuracy: 0.05, "Expected ratio \(ratio) but observed \(observedRatio)")
+            XCTAssertEqual(
+                ratio,
+                observedRatio,
+                accuracy: 0.05,
+                "Expected ratio \(ratio) but observed \(observedRatio)"
+            )
         }
     }
 
     func test_equality() {
-        let sampler1 = OTelTraceIdRatioBasedSampler(ratio: 0.5)
-        let sampler2 = OTelTraceIdRatioBasedSampler(ratio: 0.5)
-        let sampler3 = OTelTraceIdRatioBasedSampler(ratio: 0.75)
+        let sampler1 = OTelTraceIDRatioBasedSampler(ratio: 0.5)
+        let sampler2 = OTelTraceIDRatioBasedSampler(ratio: 0.5)
+        let sampler3 = OTelTraceIDRatioBasedSampler(ratio: 0.75)
 
         XCTAssertEqual(sampler1, sampler2)
         XCTAssertNotEqual(sampler1, sampler3)
     }
 
     func test_hashable() {
-        let sampler1 = OTelTraceIdRatioBasedSampler(ratio: 0.5)
-        let sampler2 = OTelTraceIdRatioBasedSampler(ratio: 0.5)
-        let sampler3 = OTelTraceIdRatioBasedSampler(ratio: 0.75)
+        let sampler1 = OTelTraceIDRatioBasedSampler(ratio: 0.5)
+        let sampler2 = OTelTraceIDRatioBasedSampler(ratio: 0.5)
+        let sampler3 = OTelTraceIDRatioBasedSampler(ratio: 0.75)
 
         XCTAssertEqual(sampler1.hashValue, sampler2.hashValue)
         XCTAssertNotEqual(sampler1.hashValue, sampler3.hashValue)
     }
 
     func test_description() {
-        let sampler = OTelTraceIdRatioBasedSampler(ratio: 0.5)
+        let sampler = OTelTraceIDRatioBasedSampler(ratio: 0.5)
 
         XCTAssertEqual("\(sampler)", "TraceIdRatioBased{0.5}")
     }

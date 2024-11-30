@@ -15,12 +15,14 @@ import Tracing
 import W3CTraceContext
 
 /// An `OTelSampler` based on a given `TraceID` and `ratio`.
-/// [Spec](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#traceidratiobased)
-public struct OTelTraceIdRatioBasedSampler: OTelSampler, Equatable, Hashable, CustomStringConvertible {
+///
+/// [OpenTelemetry Specification: TraceIDRatioBased Sampler](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.20.0/specification/trace/sdk.md#traceidratiobased)
+public struct OTelTraceIDRatioBasedSampler: OTelSampler, Equatable, Hashable, CustomStringConvertible {
     let idUpperBound: UInt64
     public let ratio: Double
 
-    /// Creates a new `OTelTraceIdRatioBasedSampler` with the given sampling `ratio`.
+    /// Create a trace id ratio based sampler with the given sampling `ratio`.
+    ///
     /// - Parameter ratio: The sampling ratio. Must be between 0.0 and 1.0.
     public init(ratio: Double) {
         precondition(ratio >= 0.0 && ratio <= 1.0, "ratio must be between 0.0 and 1.0")

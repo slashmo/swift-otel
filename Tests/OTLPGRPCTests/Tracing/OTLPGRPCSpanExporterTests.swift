@@ -16,7 +16,7 @@ import GRPC
 import NIO
 @testable import OTel
 import OTelTesting
-import OTLPGRPC
+@testable import OTLPGRPC
 import Tracing
 import XCTest
 
@@ -25,12 +25,44 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
         LoggingSystem.bootstrapInternal(logLevel: .trace)
     }
 
-    func test_export_whenConnected_sendsExportRequestToCollector() async throws {
+    func test_export_whenConnected_withInsecureConnection_sendsExportRequestToCollector() async throws {
         let collector = OTLPGRPCMockCollector()
 
-        try await collector.withServer { endpoint in
+        try await collector.withInsecureServer { endpoint in
             let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
-            let exporter = OTLPGRPCSpanExporter(configuration: configuration)
+            let exporter = OTLPGRPCSpanExporter(
+                configuration: configuration,
+                requestLogger: Logger(label: "requestLogger"),
+                backgroundActivityLogger: Logger(label: "backgroundActivity")
+            )
+
+            let span = OTelFinishedSpan.stub()
+            try await exporter.export([span])
+
+            await exporter.shutdown()
+        }
+
+        XCTAssertEqual(collector.traceProvider.requests.count, 1)
+        let request = try XCTUnwrap(collector.traceProvider.requests.first)
+
+        XCTAssertEqual(
+            request.headers.first(name: "user-agent"),
+            "OTel-OTLP-Exporter-Swift/\(OTelLibrary.version)"
+        )
+    }
+
+    func test_export_whenConnected_withSecureConnection_sendsExportRequestToCollector() async throws {
+        let collector = OTLPGRPCMockCollector()
+
+        try await collector.withSecureServer { endpoint, trustRoots in
+            let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
+            let exporter = OTLPGRPCSpanExporter(
+                configuration: configuration,
+                group: MultiThreadedEventLoopGroup.singleton,
+                requestLogger: Logger(label: "requestLogger"),
+                backgroundActivityLogger: Logger(label: "backgroundActivity"),
+                trustRoots: trustRoots
+            )
 
             let span = OTelFinishedSpan.stub()
             try await exporter.export([span])
@@ -51,7 +83,7 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
         let collector = OTLPGRPCMockCollector()
         let span = OTelFinishedSpan.stub(resource: OTelResource(attributes: ["service.name": "test"]))
 
-        try await collector.withServer { endpoint in
+        try await collector.withInsecureServer { endpoint in
             let configuration = try OTLPGRPCSpanExporterConfiguration(
                 environment: [:],
                 endpoint: endpoint,
@@ -91,7 +123,7 @@ final class OTLPGRPCSpanExporterTests: XCTestCase {
         let collector = OTLPGRPCMockCollector()
 
         do {
-            try await collector.withServer { endpoint in
+            try await collector.withInsecureServer { endpoint in
                 let configuration = try OTLPGRPCSpanExporterConfiguration(environment: [:], endpoint: endpoint)
                 let exporter = OTLPGRPCSpanExporter(configuration: configuration)
                 await exporter.shutdown()

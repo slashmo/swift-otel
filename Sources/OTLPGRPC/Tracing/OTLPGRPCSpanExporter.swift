@@ -28,18 +28,34 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
     private let client: Opentelemetry_Proto_Collector_Trace_V1_TraceServiceAsyncClient
     private let logger = Logger(label: String(describing: OTLPGRPCSpanExporter.self))
 
-    /// Create a OTLP gRPC span exporter.
+    /// Create an OTLP gRPC span exporter.
     ///
     /// - Parameters:
     ///   - configuration: The exporters configuration.
     ///   - group: The NIO event loop group to run the exporter in.
     ///   - requestLogger: Logs info about the underlying gRPC requests. Defaults to disabled, i.e. not emitting any logs.
     ///   - backgroundActivityLogger: Logs info about the underlying gRPC connection. Defaults to disabled, i.e. not emitting any logs.
-    public init(
+    public convenience init(
         configuration: OTLPGRPCSpanExporterConfiguration,
         group: any EventLoopGroup = MultiThreadedEventLoopGroup.singleton,
         requestLogger: Logger = ._otelDisabled,
         backgroundActivityLogger: Logger = ._otelDisabled
+    ) {
+        self.init(
+            configuration: configuration,
+            group: group,
+            requestLogger: requestLogger,
+            backgroundActivityLogger: backgroundActivityLogger,
+            trustRoots: .default
+        )
+    }
+
+    init(
+        configuration: OTLPGRPCSpanExporterConfiguration,
+        group: any EventLoopGroup,
+        requestLogger: Logger,
+        backgroundActivityLogger: Logger,
+        trustRoots: NIOSSLTrustRoots
     ) {
         self.configuration = configuration
 
@@ -56,7 +72,9 @@ public final class OTLPGRPCSpanExporter: OTelSpanExporter {
                 "host": "\(configuration.endpoint.host)",
                 "port": "\(configuration.endpoint.port)",
             ])
-            connection = ClientConnection.usingPlatformAppropriateTLS(for: group)
+            connection = ClientConnection
+                .usingPlatformAppropriateTLS(for: group)
+                .withTLS(trustRoots: trustRoots)
                 .withBackgroundActivityLogger(backgroundActivityLogger)
                 // TODO: Support OTEL_EXPORTER_OTLP_CERTIFICATE
                 // TODO: Support OTEL_EXPORTER_OTLP_CLIENT_KEY

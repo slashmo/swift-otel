@@ -25,7 +25,7 @@ final class OTLPGRPCMetricExporterTests: XCTestCase {
     func test_export_whenConnected_sendsExportRequestToCollector() async throws {
         let collector = OTLPGRPCMockCollector()
 
-        try await collector.withServer { endpoint in
+        try await collector.withInsecureServer { endpoint in
             let configuration = try OTLPGRPCMetricExporterConfiguration(environment: [:], endpoint: endpoint)
             let exporter = OTLPGRPCMetricExporter(configuration: configuration)
 
@@ -74,7 +74,7 @@ final class OTLPGRPCMetricExporterTests: XCTestCase {
             ]
         )
 
-        try await collector.withServer { endpoint in
+        try await collector.withInsecureServer { endpoint in
             let configuration = try OTLPGRPCMetricExporterConfiguration(
                 environment: [:],
                 endpoint: endpoint,
@@ -120,7 +120,7 @@ final class OTLPGRPCMetricExporterTests: XCTestCase {
         let collector = OTLPGRPCMockCollector()
         let errorCaught = expectation(description: "Caught expected error")
         do {
-            try await collector.withServer { endpoint in
+            try await collector.withInsecureServer { endpoint in
                 let configuration = try OTLPGRPCMetricExporterConfiguration(environment: [:], endpoint: endpoint)
                 let exporter = OTLPGRPCMetricExporter(configuration: configuration)
                 await exporter.shutdown()

@@ -12,8 +12,8 @@
 //===----------------------------------------------------------------------===//
 
 @testable import Logging
-@testable import OTel
 import NIO
+@testable import OTel
 import OTLPCore
 @testable import OTLPGRPC
 import XCTest

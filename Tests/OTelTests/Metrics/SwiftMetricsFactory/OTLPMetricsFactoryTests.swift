@@ -98,7 +98,7 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             histogram.assertStateEquals(count: 0, sum: .zero, buckets: [
                 (bound: .milliseconds(100), count: 0),
                 (bound: .milliseconds(200), count: 0),
-            ])
+            ], countAboveUpperBound: 0)
         }
 
         do {
@@ -107,7 +107,7 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             histogram.assertStateEquals(count: 0, sum: .zero, buckets: [
                 (bound: .milliseconds(300), count: 0),
                 (bound: .milliseconds(400), count: 0),
-            ])
+            ], countAboveUpperBound: 0)
         }
     }
 
@@ -124,7 +124,7 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             histogram.assertStateEquals(count: 0, sum: 0, buckets: [
                 (bound: 0.1, count: 0),
                 (bound: 0.2, count: 0),
-            ])
+            ], countAboveUpperBound: 0)
         }
 
         do {
@@ -133,7 +133,7 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             histogram.assertStateEquals(count: 0, sum: 0, buckets: [
                 (bound: 0.3, count: 0),
                 (bound: 0.4, count: 0),
-            ])
+            ], countAboveUpperBound: 0)
         }
     }
 
@@ -206,55 +206,55 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             (bound: 0.25, count: 0),
             (bound: 0.50, count: 0),
             (bound: 1.00, count: 0),
-        ])
+        ], countAboveUpperBound: 0)
 
         recorder.record(0.4)
         (recorder as? ValueHistogram)?.assertStateEquals(count: 1, sum: 0.4, buckets: [
             (bound: 0.10, count: 0),
             (bound: 0.25, count: 0),
             (bound: 0.50, count: 1),
-            (bound: 1.00, count: 1),
-        ])
+            (bound: 1.00, count: 0),
+        ], countAboveUpperBound: 0)
 
         recorder.record(0.6)
         (recorder as? ValueHistogram)?.assertStateEquals(count: 2, sum: 1.0, buckets: [
             (bound: 0.10, count: 0),
             (bound: 0.25, count: 0),
             (bound: 0.50, count: 1),
-            (bound: 1.00, count: 2),
-        ])
+            (bound: 1.00, count: 1),
+        ], countAboveUpperBound: 0)
 
         recorder.record(1.2)
         (recorder as? ValueHistogram)?.assertStateEquals(count: 3, sum: 2.2, buckets: [
             (bound: 0.10, count: 0),
             (bound: 0.25, count: 0),
             (bound: 0.50, count: 1),
-            (bound: 1.00, count: 2),
-        ])
+            (bound: 1.00, count: 1),
+        ], countAboveUpperBound: 1)
 
         recorder.record(0.01)
         (recorder as? ValueHistogram)?.assertStateEquals(count: 4, sum: 2.21, buckets: [
             (bound: 0.10, count: 1),
-            (bound: 0.25, count: 1),
-            (bound: 0.50, count: 2),
-            (bound: 1.00, count: 3),
-        ])
+            (bound: 0.25, count: 0),
+            (bound: 0.50, count: 1),
+            (bound: 1.00, count: 1),
+        ], countAboveUpperBound: 1)
 
         recorder.record(Int64(1))
         (recorder as? ValueHistogram)?.assertStateEquals(count: 5, sum: 3.21, buckets: [
             (bound: 0.10, count: 1),
-            (bound: 0.25, count: 1),
-            (bound: 0.50, count: 2),
-            (bound: 1.00, count: 4),
-        ])
+            (bound: 0.25, count: 0),
+            (bound: 0.50, count: 1),
+            (bound: 1.00, count: 2),
+        ], countAboveUpperBound: 1)
 
         recorder.record(Int64(2))
         (recorder as? ValueHistogram)?.assertStateEquals(count: 6, sum: 5.21, buckets: [
             (bound: 0.10, count: 1),
-            (bound: 0.25, count: 1),
-            (bound: 0.50, count: 2),
-            (bound: 1.00, count: 4),
-        ])
+            (bound: 0.25, count: 0),
+            (bound: 0.50, count: 1),
+            (bound: 1.00, count: 2),
+        ], countAboveUpperBound: 2)
     }
 
     func test_Timer_methods() throws {
@@ -274,39 +274,39 @@ final class OTLPMetricsFactoryTests: XCTestCase {
             (bound: .nanoseconds(250), count: 0),
             (bound: .nanoseconds(500), count: 0),
             (bound: .microseconds(1), count: 0),
-        ])
+        ], countAboveUpperBound: 0)
 
         timer.recordNanoseconds(400)
         (timer as? DurationHistogram)?.assertStateEquals(count: 1, sum: .nanoseconds(400), buckets: [
             (bound: .nanoseconds(100), count: 0),
             (bound: .nanoseconds(250), count: 0),
             (bound: .nanoseconds(500), count: 1),
-            (bound: .microseconds(1), count: 1),
-        ])
+            (bound: .microseconds(1), count: 0),
+        ], countAboveUpperBound: 0)
 
         timer.recordNanoseconds(600)
         (timer as? DurationHistogram)?.assertStateEquals(count: 2, sum: .nanoseconds(1000), buckets: [
             (bound: .nanoseconds(100), count: 0),
             (bound: .nanoseconds(250), count: 0),
             (bound: .nanoseconds(500), count: 1),
-            (bound: .microseconds(1), count: 2),
-        ])
+            (bound: .microseconds(1), count: 1),
+        ], countAboveUpperBound: 0)
 
         timer.recordNanoseconds(1200)
         (timer as? DurationHistogram)?.assertStateEquals(count: 3, sum: .nanoseconds(2200), buckets: [
             (bound: .nanoseconds(100), count: 0),
             (bound: .nanoseconds(250), count: 0),
             (bound: .nanoseconds(500), count: 1),
-            (bound: .microseconds(1), count: 2),
-        ])
+            (bound: .microseconds(1), count: 1),
+        ], countAboveUpperBound: 1)
 
         timer.recordNanoseconds(80)
         (timer as? DurationHistogram)?.assertStateEquals(count: 4, sum: .nanoseconds(2280), buckets: [
             (bound: .nanoseconds(100), count: 1),
-            (bound: .nanoseconds(250), count: 1),
-            (bound: .nanoseconds(500), count: 2),
-            (bound: .microseconds(1), count: 3),
-        ])
+            (bound: .nanoseconds(250), count: 0),
+            (bound: .nanoseconds(500), count: 1),
+            (bound: .microseconds(1), count: 1),
+        ], countAboveUpperBound: 1)
     }
 
     func test_reregister_withoutDimensions() {

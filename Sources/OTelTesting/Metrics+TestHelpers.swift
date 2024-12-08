@@ -37,6 +37,7 @@
             count: Int,
             sum: Value,
             buckets: [(bound: Value, count: Int)],
+            countAboveUpperBound: Int,
             file: StaticString = #filePath,
             line: UInt = #line
         ) {
@@ -49,6 +50,7 @@
                 "Unexpected buckets",
                 file: file, line: line
             )
+            XCTAssertEqual(state.countAboveUpperBound, countAboveUpperBound, "Unexpected countAboveUpperBound", file: file, line: line)
         }
     }
 

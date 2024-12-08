@@ -47,11 +47,13 @@ final class Histogram<Value: Bucketable>: Sendable {
     @usableFromInline
     struct State: Sendable {
         @usableFromInline var buckets: [(bound: Value, count: Int)]
+        @usableFromInline var countAboveUpperBound: Int
         @usableFromInline var sum: Value
         @usableFromInline var count: Int
 
         @inlinable
         init(buckets: [Value]) {
+            countAboveUpperBound = 0
             sum = .zero
             count = 0
             self.buckets = buckets.map { ($0, 0) }
@@ -74,13 +76,23 @@ final class Histogram<Value: Bucketable>: Sendable {
 
     func record(_ value: Value) {
         box.withLockedValue { state in
-            for i in state.buckets.startIndex ..< state.buckets.endIndex {
-                if state.buckets[i].0 >= value {
-                    state.buckets[i].1 += 1
-                }
-            }
             state.sum += value
             state.count += 1
+            if state.buckets.isEmpty {
+                state.countAboveUpperBound += 1
+            } else {
+                var didMatchBucket = false
+                for i in state.buckets.startIndex ..< state.buckets.endIndex {
+                    if value <= state.buckets[i].0 {
+                        state.buckets[i].1 += 1
+                        didMatchBucket = true
+                        break
+                    }
+                }
+                if !didMatchBucket {
+                    state.countAboveUpperBound += 1
+                }
+            }
         }
     }
 }

@@ -36,8 +36,8 @@ final class HistogramMeasurementTests: XCTestCase {
             .init(upperBound: 0.1, count: 0),
             .init(upperBound: 0.25, count: 0),
             .init(upperBound: 0.5, count: 1),
-            .init(upperBound: 1.0, count: 1),
-            .init(upperBound: .infinity, count: 1),
+            .init(upperBound: 1.0, count: 0),
+            .init(upperBound: .infinity, count: 0),
         ])
 
         histogram.record(.milliseconds(600))
@@ -45,8 +45,8 @@ final class HistogramMeasurementTests: XCTestCase {
             .init(upperBound: 0.1, count: 0),
             .init(upperBound: 0.25, count: 0),
             .init(upperBound: 0.5, count: 1),
-            .init(upperBound: 1.0, count: 2),
-            .init(upperBound: .infinity, count: 2),
+            .init(upperBound: 1.0, count: 1),
+            .init(upperBound: .infinity, count: 0),
         ])
 
         histogram.record(.milliseconds(1200))
@@ -54,17 +54,17 @@ final class HistogramMeasurementTests: XCTestCase {
             .init(upperBound: 0.1, count: 0),
             .init(upperBound: 0.25, count: 0),
             .init(upperBound: 0.5, count: 1),
-            .init(upperBound: 1.0, count: 2),
-            .init(upperBound: .infinity, count: 3),
+            .init(upperBound: 1.0, count: 1),
+            .init(upperBound: .infinity, count: 1),
         ])
 
         histogram.record(.milliseconds(80))
         histogram.measure().data.assertIsCumulativeHistogramWith(count: 4, sum: 2.28, buckets: [
             .init(upperBound: 0.1, count: 1),
-            .init(upperBound: 0.25, count: 1),
-            .init(upperBound: 0.5, count: 2),
-            .init(upperBound: 1.0, count: 3),
-            .init(upperBound: .infinity, count: 4),
+            .init(upperBound: 0.25, count: 0),
+            .init(upperBound: 0.5, count: 1),
+            .init(upperBound: 1.0, count: 1),
+            .init(upperBound: .infinity, count: 1),
         ])
     }
 
@@ -84,7 +84,7 @@ final class HistogramMeasurementTests: XCTestCase {
         }
         histogram.measure().data.assertIsCumulativeHistogramWith(count: 200_000, sum: 100_000, buckets: [
             .init(upperBound: 0.5, count: 100_000),
-            .init(upperBound: .infinity, count: 200_000),
+            .init(upperBound: .infinity, count: 100_000),
         ])
     }
 

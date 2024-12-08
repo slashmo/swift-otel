@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -108,7 +108,7 @@ public struct OTelResourceDetection<Clock: _Concurrency.Clock>: Sendable where C
     }
 
     private func serviceName(environment: OTelEnvironment, resource: OTelResource, logger: Logger) -> String {
-        if let serviceName = environment.values["OTEL_SERVICE_NAME"] {
+        if let serviceName = environment["OTEL_SERVICE_NAME"] {
             logger.debug(#"Using service name from "OTEL_SERVICE_NAME" environment variable."#, metadata: [
                 "service_name": "\(serviceName)",
             ])

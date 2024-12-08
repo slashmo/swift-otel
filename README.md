@@ -2,8 +2,8 @@
 
 An [OpenTelemetry](https://opentelemetry.io) client for server-side Swift.
 
-[![Swift Package Index](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fslashmo%2Fswift-otel%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/slashmo/swift-otel)
-[![codecov](https://codecov.io/gh/slashmo/swift-otel/graph/badge.svg?token=CLBHHQITUY)](https://codecov.io/gh/slashmo/swift-otel)
+[![Swift Package Index](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fswift-otel%2Fswift-otel%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/swift-otel/swift-otel)
+[![codecov](https://codecov.io/gh/swift-otel/swift-otel/graph/badge.svg?token=CLBHHQITUY)](https://codecov.io/gh/swift-otel/swift-otel)
 
 ## Examples
 

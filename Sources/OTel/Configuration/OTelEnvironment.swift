@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -11,8 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(Linux)
+#if canImport(Glibc)
     import Glibc
+#elseif canImport(Musl)
+    import Musl
 #else
     import Darwin.C
 #endif
@@ -22,13 +24,22 @@ import Foundation
 /// A wrapper for reading environment values.
 public struct OTelEnvironment: Sendable {
     /// The key-value pairs in the environment.
+    ///
+    /// - Note: All keys are lowercased to enable case-insensitive lookup.
     public let values: [String: String]
 
     /// Create an environment wrapping the given key-value pairs.
     ///
     /// - Parameter values: The key-value pairs to wrap.
     public init(values: [String: String]) {
-        self.values = values
+        self.values = Dictionary(uniqueKeysWithValues: values.map { ($0.key.lowercased(), $0.value) })
+    }
+
+    /// Accesses the value associated with the given key for reading by ignoring its case.
+    ///
+    /// - Parameter key: The key to look up case-insensitively.
+    public subscript(key: String) -> String? {
+        values[key.lowercased()]
     }
 
     /// Retrieve a configuration value by transforming an environment value into the given type.
@@ -87,7 +98,7 @@ public struct OTelEnvironment: Sendable {
             return programmaticOverride
         }
 
-        if let value = values[key] {
+        if let value = self[key] {
             return try transformedValue(value, forKey: key, using: transformValue)
         }
 
@@ -121,9 +132,9 @@ public struct OTelEnvironment: Sendable {
             return programmaticOverride
         }
 
-        if let value = values[signalSpecificKey] {
+        if let value = self[signalSpecificKey] {
             return try transformedValue(value, forKey: signalSpecificKey, using: transformValue)
-        } else if let value = values[sharedKey] {
+        } else if let value = self[sharedKey] {
             return try transformedValue(value, forKey: sharedKey, using: transformValue)
         }
 
@@ -164,22 +175,8 @@ public struct OTelEnvironment: Sendable {
     ///
     /// - Returns: An ``OTelEnvironment`` exposing the process-wide environment values.
     public static func detected() -> OTelEnvironment {
-        var values = [String: String]()
-
-        let environmentPointer = environ
-        var index = 0
-
-        while let entry = environmentPointer.advanced(by: index).pointee {
-            let entry = String(cString: entry)
-            if let i = entry.firstIndex(of: "=") {
-                let key = entry.prefix(upTo: i).uppercased()
-                let value = String(entry[i...].dropFirst("=".count))
-                values[key] = value
-            }
-            index += 1
-        }
-
-        return OTelEnvironment(values: values)
+        let values = ProcessInfo.processInfo.environment
+        return OTelEnvironment(values: Dictionary(uniqueKeysWithValues: values.map { ($0.key.lowercased(), $0.value) }))
     }
 
     /// Extract headers from a given environment value.
@@ -219,6 +216,6 @@ public struct OTelEnvironment: Sendable {
 
 extension OTelEnvironment: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, String)...) {
-        values = [String: String](uniqueKeysWithValues: elements)
+        values = [String: String](uniqueKeysWithValues: elements.map { ($0.0.lowercased(), $0.1) })
     }
 }

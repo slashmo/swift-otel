@@ -2,7 +2,7 @@
 
 @Metadata {
     @PageKind(sampleCode)
-    @CallToAction(purpose: link, url: "https://github.com/slashmo/swift-otel/blob/main/Examples/Counter")
+    @CallToAction(purpose: link, url: "https://github.com/swift-otel/swift-otel/blob/main/Examples/Counter")
     @Available("Swift", introduced: 5.9)
 }
 

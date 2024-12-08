@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -28,7 +28,7 @@ public struct OTelEnvironmentResourceDetector: OTelResourceDetector, CustomStrin
 
     public func resource(logger: Logger) throws -> OTelResource {
         let environmentKey = "OTEL_RESOURCE_ATTRIBUTES"
-        guard let environmentValue = environment.values[environmentKey] else { return OTelResource() }
+        guard let environmentValue = environment[environmentKey] else { return OTelResource() }
 
         let attributes: SpanAttributes = try {
             var attributes = SpanAttributes()

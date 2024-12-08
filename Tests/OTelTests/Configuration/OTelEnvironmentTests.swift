@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2023 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -24,7 +24,7 @@ final class OTelEnvironmentTests: XCTestCase {
 
         XCTAssertEqual(environment.values.count, keyValuePairs.count)
         for (key, value) in keyValuePairs {
-            XCTAssertEqual(environment.values[key.uppercased()], value)
+            XCTAssertEqual(environment[key.lowercased()], value)
         }
     }
 

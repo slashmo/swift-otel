@@ -19,7 +19,7 @@ An OpenTelemetry client for server-side Swift.
 First, add the following snippet to the `dependencies` section of your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/slashmo/swift-otel.git", branch: "main"),
+.package(url: "https://github.com/swift-otel/swift-otel.git", branch: "main"),
 ```
 
 Then, add a dependency on `OTel` in your target that sets up Swift OTel: 

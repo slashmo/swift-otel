@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2024 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -16,9 +16,9 @@
 
 Please visit the Swift OTel web site for more information:
 
-  * https://github.com/slashmo/swift-otel
+  * https://github.com/swift-otel/swift-otel
 
-Copyright 2023 The Swift OTel Project
+Copyright 2024 The Swift OTel Project
 
 The Swift OTel Project licenses this file to you under the Apache
 License, version 2.0 (the "License"); you may not use this file except in

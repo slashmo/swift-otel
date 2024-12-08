@@ -1,0 +1,50 @@
+name: "Integration Tests"
+on: [push, pull_request]
+jobs:
+  integration_test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["5.9", "5.10", "latest"]
+
+    steps:
+      - name: Install Swift
+        uses: vapor/swiftly-action@v0.1
+        with:
+          toolchain: ${{ matrix.swift }}
+        env:
+          SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install OTel Collector
+        run: |
+          gh release download -p 'otelcol_*linux_amd64.tar.gz' -R open-telemetry/opentelemetry-collector-releases
+          tar -xvf "$(ls otelcol_*_linux_amd64.tar.gz | tail -1)"
+          mv otelcol /usr/local/bin
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Start OTel Collector
+        working-directory: ./IntegrationTests
+        run: |
+          touch otel-collector-output.jsonl
+          otelcol --config=otel-collector-config.yml &
+
+      - name: Wait for OTel gRPC server
+        uses: iFaxity/wait-on-action@v1.2.1
+        with:
+          resource: tcp:127.0.0.1:4317
+
+      - name: Resolve Swift dependencies
+        working-directory: ./IntegrationTests
+        run: swift package resolve
+
+      - name: Run Integration Tests
+        working-directory: ./IntegrationTests
+        run: |
+          OTEL_COLLECTOR_OUTPUT=$(pwd)/otel-collector-output.jsonl swift test

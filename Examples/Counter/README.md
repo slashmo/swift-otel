@@ -6,4 +6,4 @@ A service that infinitely increments a counter with randomized delays, instrumen
 
 ## Documentation
 
-Check out the [documentation](https://swiftpackageindex.com/slashmo/swift-otel/documentation/otel/counter-sample) for this example.
+Check out the [documentation](https://swiftpackageindex.com/swift-otel/swift-otel/documentation/otel/counter-sample) for this example.

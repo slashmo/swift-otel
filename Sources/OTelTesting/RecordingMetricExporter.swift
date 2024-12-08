@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift OTel open source project
 //
-// Copyright (c) 2024 Moritz Lang and the Swift OTel project authors
+// Copyright (c) 2024 the Swift OTel project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -11,47 +11,49 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NIOConcurrencyHelpers
-import OTel
-import XCTest
+#if canImport(XCTest)
+    import NIOConcurrencyHelpers
+    import OTel
+    import XCTest
 
-package struct RecordingMetricExporter: OTelMetricExporter {
-    package typealias ExportCall = Collection<OTel.OTelResourceMetrics> & Sendable
+    package struct RecordingMetricExporter: OTelMetricExporter {
+        package typealias ExportCall = Collection<OTel.OTelResourceMetrics> & Sendable
 
-    package struct RecordedCalls {
-        var exportCalls = [any ExportCall]()
-        var forceFlushCallCount = 0
-        var shutdownCallCount = 0
+        package struct RecordedCalls {
+            var exportCalls = [any ExportCall]()
+            var forceFlushCallCount = 0
+            var shutdownCallCount = 0
+        }
+
+        package let recordedCalls = NIOLockedValueBox(RecordedCalls())
+
+        package init() {}
+
+        package func export(_ batch: some Collection<OTel.OTelResourceMetrics> & Sendable) {
+            recordedCalls.withLockedValue { $0.exportCalls.append(batch) }
+        }
+
+        package func forceFlush() {
+            recordedCalls.withLockedValue { $0.forceFlushCallCount += 1 }
+        }
+
+        package func shutdown() {
+            recordedCalls.withLockedValue { $0.shutdownCallCount += 1 }
+        }
     }
 
-    package let recordedCalls = NIOLockedValueBox(RecordedCalls())
-
-    package init() {}
-
-    package func export(_ batch: some Collection<OTel.OTelResourceMetrics> & Sendable) {
-        recordedCalls.withLockedValue { $0.exportCalls.append(batch) }
+    extension RecordingMetricExporter {
+        package func assert(
+            exportCallCount: Int,
+            forceFlushCallCount: Int,
+            shutdownCallCount: Int,
+            file: StaticString = #filePath,
+            line: UInt = #line
+        ) {
+            let recordedCalls = recordedCalls.withLockedValue { $0 }
+            XCTAssertEqual(recordedCalls.exportCalls.count, exportCallCount, "Unexpected export call count", file: file, line: line)
+            XCTAssertEqual(recordedCalls.forceFlushCallCount, forceFlushCallCount, "Unexpected forceFlush call count", file: file, line: line)
+            XCTAssertEqual(recordedCalls.shutdownCallCount, shutdownCallCount, "Unexpected shutdown call count", file: file, line: line)
+        }
     }
-
-    package func forceFlush() {
-        recordedCalls.withLockedValue { $0.forceFlushCallCount += 1 }
-    }
-
-    package func shutdown() {
-        recordedCalls.withLockedValue { $0.shutdownCallCount += 1 }
-    }
-}
-
-extension RecordingMetricExporter {
-    package func assert(
-        exportCallCount: Int,
-        forceFlushCallCount: Int,
-        shutdownCallCount: Int,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let recordedCalls = recordedCalls.withLockedValue { $0 }
-        XCTAssertEqual(recordedCalls.exportCalls.count, exportCallCount, "Unexpected export call count", file: file, line: line)
-        XCTAssertEqual(recordedCalls.forceFlushCallCount, forceFlushCallCount, "Unexpected forceFlush call count", file: file, line: line)
-        XCTAssertEqual(recordedCalls.shutdownCallCount, shutdownCallCount, "Unexpected shutdown call count", file: file, line: line)
-    }
-}
+#endif

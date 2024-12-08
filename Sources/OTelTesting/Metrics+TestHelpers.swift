@@ -36,6 +36,7 @@ extension Histogram {
         count: Int,
         sum: Value,
         buckets: [(bound: Value, count: Int)],
+        countAboveUpperBound: Int,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -48,6 +49,7 @@ extension Histogram {
             "Unexpected buckets",
             file: file, line: line
         )
+        XCTAssertEqual(state.countAboveUpperBound, countAboveUpperBound, "Unexpected countAboveUpperBound", file: file, line: line)
     }
 }
 

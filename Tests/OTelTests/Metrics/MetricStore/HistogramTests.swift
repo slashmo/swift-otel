@@ -29,39 +29,39 @@ final class HistogramTests: XCTestCase {
             (bound: .milliseconds(250), count: 0),
             (bound: .milliseconds(500), count: 0),
             (bound: .seconds(1), count: 0),
-        ])
+        ], countAboveUpperBound: 0)
 
         histogram.record(.milliseconds(400))
         histogram.assertStateEquals(count: 1, sum: .milliseconds(400), buckets: [
             (bound: .milliseconds(100), count: 0),
             (bound: .milliseconds(250), count: 0),
             (bound: .milliseconds(500), count: 1),
-            (bound: .seconds(1), count: 1),
-        ])
+            (bound: .seconds(1), count: 0),
+        ], countAboveUpperBound: 0)
 
         histogram.record(.milliseconds(600))
         histogram.assertStateEquals(count: 2, sum: .milliseconds(1000), buckets: [
             (bound: .milliseconds(100), count: 0),
             (bound: .milliseconds(250), count: 0),
             (bound: .milliseconds(500), count: 1),
-            (bound: .seconds(1), count: 2),
-        ])
+            (bound: .seconds(1), count: 1),
+        ], countAboveUpperBound: 0)
 
         histogram.record(.milliseconds(1200))
         histogram.assertStateEquals(count: 3, sum: .milliseconds(2200), buckets: [
             (bound: .milliseconds(100), count: 0),
             (bound: .milliseconds(250), count: 0),
             (bound: .milliseconds(500), count: 1),
-            (bound: .seconds(1), count: 2),
-        ])
+            (bound: .seconds(1), count: 1),
+        ], countAboveUpperBound: 1)
 
         histogram.record(.milliseconds(80))
         histogram.assertStateEquals(count: 4, sum: .milliseconds(2280), buckets: [
             (bound: .milliseconds(100), count: 1),
-            (bound: .milliseconds(250), count: 1),
-            (bound: .milliseconds(500), count: 2),
-            (bound: .seconds(1), count: 3),
-        ])
+            (bound: .milliseconds(250), count: 0),
+            (bound: .milliseconds(500), count: 1),
+            (bound: .seconds(1), count: 1),
+        ], countAboveUpperBound: 1)
     }
 
     func test_record_concurrent() async {
@@ -83,8 +83,8 @@ final class HistogramTests: XCTestCase {
         }
         histogram.assertStateEquals(count: 200_000, sum: .seconds(100_000), buckets: [
             (bound: .milliseconds(500), count: 100_000),
-            (bound: .milliseconds(700), count: 200_000),
-        ])
+            (bound: .milliseconds(700), count: 100_000),
+        ], countAboveUpperBound: 0)
     }
 
     func test_bucketRepresentation_duration() {
